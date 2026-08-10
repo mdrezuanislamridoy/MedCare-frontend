@@ -1,0 +1,10 @@
+{
+  "description": "Enables patients to find doctors, book and manage appointments, access medical records, prescriptions, payments, and communicate securely with providers.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
