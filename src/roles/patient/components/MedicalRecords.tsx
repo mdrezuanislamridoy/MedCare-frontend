@@ -12,7 +12,7 @@ const typeIcons: Record<string, typeof FileText> = {
 };
 
 const typeColors: Record<string, string> = {
-  visit:      'bg-sky-50 text-sky-600',
+  visit:      'bg-teal-50 text-teal-600',
   lab:        'bg-emerald-50 text-emerald-600',
   diagnosis:  'bg-amber-50 text-amber-600',
   document:   'bg-violet-50 text-violet-600',
@@ -59,7 +59,7 @@ export default function MedicalRecords() {
             placeholder="Search records..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition"
+            className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition"
           />
         </div>
         <div className="flex gap-1 bg-slate-50 rounded-lg p-1 flex-wrap">
@@ -67,7 +67,7 @@ export default function MedicalRecords() {
             <button
               key={t}
               onClick={() => setTypeFilter(t)}
-              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors capitalize ${typeFilter === t ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-500 hover:bg-white'}`}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors capitalize ${typeFilter === t ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-500 hover:bg-white'}`}
             >
               {t === 'all' ? 'All' : typeLabels[t]}
             </button>
@@ -106,7 +106,7 @@ export default function MedicalRecords() {
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border ${
                           record.type === 'lab' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                          record.type === 'visit' ? 'bg-sky-50 text-sky-700 border-sky-200' :
+                          record.type === 'visit' ? 'bg-teal-50 text-teal-700 border-teal-200' :
                           record.type === 'diagnosis' ? 'bg-amber-50 text-amber-700 border-amber-200' :
                           'bg-slate-100 text-slate-600 border-slate-200'
                         }`}>

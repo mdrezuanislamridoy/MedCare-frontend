@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 const badgeVariants: Record<string, string> = {
   pending:         'bg-amber-50 text-amber-700 border border-amber-200',
   payment_pending: 'bg-orange-50 text-orange-700 border border-orange-200',
-  confirmed:       'bg-sky-50 text-sky-700 border border-sky-200',
+  confirmed:       'bg-teal-50 text-teal-700 border border-teal-200',
   checked_in:      'bg-violet-50 text-violet-700 border border-violet-200',
   in_progress:     'bg-indigo-50 text-indigo-700 border border-indigo-200',
   completed:       'bg-emerald-50 text-emerald-700 border border-emerald-200',
@@ -15,7 +15,7 @@ const badgeVariants: Record<string, string> = {
   refunded:        'bg-purple-50 text-purple-700 border border-purple-200',
   failed:          'bg-red-50 text-red-600 border border-red-200',
   online:          'bg-teal-50 text-teal-700 border border-teal-200',
-  clinic:          'bg-blue-50 text-blue-700 border border-blue-200',
+  clinic:          'bg-teal-50 text-teal-700 border border-teal-200',
   default:         'bg-gray-100 text-gray-600 border border-gray-200',
 };
 
@@ -63,9 +63,9 @@ export function Avatar({ src, name, size = 'md', className = '' }: { src?: strin
   const sizes = { sm: 'w-8 h-8 text-xs', md: 'w-10 h-10 text-sm', lg: 'w-14 h-14 text-base', xl: 'w-20 h-20 text-xl' };
   const initials = name.split(' ').map(p => p[0]).join('').slice(0, 2).toUpperCase();
   return src ? (
-    <img src={src} alt={name} className={`${sizes[size]} rounded-full object-cover bg-sky-100 flex-shrink-0 ${className}`} />
+    <img src={src} alt={name} className={`${sizes[size]} rounded-full object-cover bg-teal-100 flex-shrink-0 ${className}`} />
   ) : (
-    <div className={`${sizes[size]} rounded-full bg-sky-100 text-sky-700 font-semibold flex items-center justify-center flex-shrink-0 ${className}`}>
+    <div className={`${sizes[size]} rounded-full bg-teal-100 text-teal-700 font-semibold flex items-center justify-center flex-shrink-0 ${className}`}>
       {initials}
     </div>
   );
@@ -75,7 +75,7 @@ export function Avatar({ src, name, size = 'md', className = '' }: { src?: strin
 
 export function StatCard({ label, value, icon, color = 'sky', sub }: { label: string; value: string | number; icon: ReactNode; color?: string; sub?: string }) {
   const colors: Record<string, string> = {
-    sky:     'bg-sky-50 text-sky-600',
+    sky:     'bg-teal-50 text-teal-600',
     emerald: 'bg-emerald-50 text-emerald-600',
     amber:   'bg-amber-50 text-amber-600',
     violet:  'bg-violet-50 text-violet-600',
@@ -102,7 +102,7 @@ export function SectionHeader({ title, action, actionLabel }: { title: string; a
     <div className="flex items-center justify-between mb-4">
       <h2 className="text-base font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>{title}</h2>
       {action && (
-        <button onClick={action} className="text-sm font-medium text-sky-600 hover:text-sky-700 transition-colors">
+        <button onClick={action} className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors">
           {actionLabel ?? 'View all'}
         </button>
       )}
@@ -124,11 +124,11 @@ export function Button({
   type?: 'button' | 'submit';
 }) {
   const variants = {
-    primary:   'bg-sky-600 text-white hover:bg-sky-700 shadow-sm',
+    primary:   'bg-teal-600 text-white hover:bg-teal-700 shadow-sm',
     secondary: 'bg-slate-100 text-slate-700 hover:bg-slate-200',
     ghost:     'text-slate-600 hover:bg-slate-100',
     danger:    'bg-red-500 text-white hover:bg-red-600',
-    outline:   'border border-sky-600 text-sky-600 hover:bg-sky-50',
+    outline:   'border border-teal-600 text-teal-600 hover:bg-teal-50',
   };
   const sizes = { sm: 'px-3 py-1.5 text-xs', md: 'px-4 py-2 text-sm', lg: 'px-5 py-2.5 text-sm' };
   return (
@@ -151,7 +151,7 @@ export function Input({ label, id, ...props }: React.InputHTMLAttributes<HTMLInp
       {label && <label htmlFor={id} className="text-sm font-medium text-slate-700">{label}</label>}
       <input
         id={id}
-        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition text-slate-800 placeholder:text-slate-400"
+        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition text-slate-800 placeholder:text-slate-400"
         {...props}
       />
     </div>
@@ -166,7 +166,7 @@ export function Select({ label, id, options, ...props }: React.SelectHTMLAttribu
       {label && <label htmlFor={id} className="text-sm font-medium text-slate-700">{label}</label>}
       <select
         id={id}
-        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition text-slate-700 appearance-none"
+        className="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition text-slate-700 appearance-none"
         {...props}
       >
         {options.map(o => (
@@ -217,7 +217,7 @@ export function Toast({ message, type = 'success', onClose }: { message: string;
   const styles = {
     success: 'bg-emerald-600',
     error:   'bg-red-600',
-    info:    'bg-sky-600',
+    info:    'bg-teal-600',
   };
   return (
     <div className={`animate-toast fixed bottom-6 right-6 z-50 ${styles[type]} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm font-medium`}>

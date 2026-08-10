@@ -38,11 +38,11 @@ export default function Layout({ current, onChange, children }: {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="px-5 py-5 flex items-center gap-2.5 border-b border-slate-100">
-        <div className="w-8 h-8 bg-sky-600 rounded-lg flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center flex-shrink-0">
           <Activity className="w-4 h-4 text-white" />
         </div>
         <div>
-          <p className="font-semibold text-slate-800 text-sm leading-tight" style={{ fontFamily: 'DM Sans, sans-serif' }}>MediConnect</p>
+          <p className="font-semibold text-slate-800 text-sm leading-tight" style={{ fontFamily: 'DM Sans, sans-serif' }}>MedCare</p>
           <p className="text-xs text-slate-400">Patient Portal</p>
         </div>
       </div>
@@ -59,14 +59,14 @@ export default function Layout({ current, onChange, children }: {
                   onClick={() => { onChange(id); setSidebarOpen(false); }}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative ${
                     active
-                      ? 'bg-sky-600 text-white shadow-sm'
+                      ? 'bg-teal-600 text-white shadow-sm'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
                   }`}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
                   <span>{label}</span>
                   {id === 'notifications' && unread > 0 && (
-                    <span className={`ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${active ? 'bg-white/25 text-white' : 'bg-sky-100 text-sky-700'}`}>
+                    <span className={`ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${active ? 'bg-white/25 text-white' : 'bg-teal-100 text-teal-700'}`}>
                       {unread}
                     </span>
                   )}
@@ -136,7 +136,7 @@ export default function Layout({ current, onChange, children }: {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && onChange('find-doctors')}
-              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 focus:bg-white transition placeholder:text-slate-400"
+              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 focus:bg-white transition placeholder:text-slate-400"
             />
           </div>
 
@@ -144,7 +144,7 @@ export default function Layout({ current, onChange, children }: {
             {/* Upcoming indicator */}
             <button
               onClick={() => onChange('my-appointments')}
-              className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-sky-50 text-sky-700 rounded-lg text-xs font-medium hover:bg-sky-100 transition-colors border border-sky-200"
+              className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg text-xs font-medium hover:bg-teal-100 transition-colors border border-teal-200"
             >
               <Video className="w-3.5 h-3.5" />
               <span>Consultation Today</span>

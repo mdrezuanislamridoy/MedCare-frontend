@@ -1,7 +1,5 @@
-"use client";
-
-import PatientApp from "../../src/roles/patient/App";
+import { redirect } from "next/navigation";
 
 export default function PatientPage() {
-  return <PatientApp />;
+  redirect("/");
 }

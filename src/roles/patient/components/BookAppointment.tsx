@@ -47,7 +47,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
           <div key={s} className="flex items-center gap-1">
             <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
               done ? 'bg-emerald-100 text-emerald-700' :
-              active ? 'bg-sky-600 text-white shadow-sm' :
+              active ? 'bg-teal-600 text-white shadow-sm' :
               'bg-slate-100 text-slate-400'
             }`}>
               {done ? <Check className="w-3 h-3" /> : <span className="w-4 text-center">{n}</span>}
@@ -74,11 +74,11 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
         {step === 1 && (
           <Card className="p-6 animate-fade-in">
             <h2 className="font-semibold text-slate-800 mb-4" style={{ fontFamily: 'DM Sans, sans-serif' }}>Your Doctor</h2>
-            <div className="flex items-center gap-4 p-4 bg-sky-50 rounded-xl border border-sky-100">
+            <div className="flex items-center gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
               <Avatar src={doctor.photo} name={doctor.name} size="lg" />
               <div className="flex-1">
                 <p className="font-semibold text-slate-800">{doctor.name}</p>
-                <p className="text-sky-600 text-sm">{doctor.specialty}</p>
+                <p className="text-teal-600 text-sm">{doctor.specialty}</p>
                 <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
                   <span>{doctor.experience} yrs exp</span>
                   <span>·</span>
@@ -107,11 +107,11 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
                   onClick={() => { setSelectedDate(d); setSelectedSlot(''); }}
                   className={`p-3 rounded-xl border text-center transition-colors ${
                     selectedDate === d
-                      ? 'bg-sky-600 text-white border-sky-600 shadow-sm'
-                      : 'border-slate-200 hover:border-sky-300 hover:bg-sky-50'
+                      ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
+                      : 'border-slate-200 hover:border-teal-300 hover:bg-teal-50'
                   }`}
                 >
-                  <p className={`text-xs font-medium ${selectedDate === d ? 'text-sky-100' : 'text-slate-500'}`}>
+                  <p className={`text-xs font-medium ${selectedDate === d ? 'text-teal-100' : 'text-slate-500'}`}>
                     {new Date(d).toLocaleDateString('en', { weekday: 'short' })}
                   </p>
                   <p className={`text-sm font-semibold mt-0.5 ${selectedDate === d ? 'text-white' : 'text-slate-800'}`}>
@@ -135,8 +135,8 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
                         onClick={() => setSelectedSlot(slot)}
                         className={`py-2.5 text-xs font-medium rounded-lg border transition-all ${
                           isBooked ? 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed line-through' :
-                          isSelected ? 'bg-sky-600 text-white border-sky-600 shadow-sm' :
-                          'border-slate-200 text-slate-700 hover:bg-sky-50 hover:border-sky-300'
+                          isSelected ? 'bg-teal-600 text-white border-teal-600 shadow-sm' :
+                          'border-slate-200 text-slate-700 hover:bg-teal-50 hover:border-teal-300'
                         }`}
                       >
                         {slot}
@@ -169,14 +169,14 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
                     onClick={() => setConsultType(type)}
                     className={`p-5 rounded-xl border-2 text-center transition-all ${
                       isOnlineUnavailable ? 'opacity-40 cursor-not-allowed border-slate-100' :
-                      consultType === type ? 'border-sky-600 bg-sky-50' : 'border-slate-200 hover:border-sky-200'
+                      consultType === type ? 'border-teal-600 bg-teal-50' : 'border-slate-200 hover:border-teal-200'
                     }`}
                   >
                     {type === 'clinic'
-                      ? <Building2 className={`w-8 h-8 mx-auto mb-2 ${consultType === 'clinic' ? 'text-sky-600' : 'text-slate-400'}`} />
-                      : <Video className={`w-8 h-8 mx-auto mb-2 ${consultType === 'online' ? 'text-sky-600' : 'text-slate-400'}`} />
+                      ? <Building2 className={`w-8 h-8 mx-auto mb-2 ${consultType === 'clinic' ? 'text-teal-600' : 'text-slate-400'}`} />
+                      : <Video className={`w-8 h-8 mx-auto mb-2 ${consultType === 'online' ? 'text-teal-600' : 'text-slate-400'}`} />
                     }
-                    <p className={`font-medium text-sm ${consultType === type && !isOnlineUnavailable ? 'text-sky-700' : 'text-slate-700'}`}>
+                    <p className={`font-medium text-sm ${consultType === type && !isOnlineUnavailable ? 'text-teal-700' : 'text-slate-700'}`}>
                       {type === 'clinic' ? 'In-Clinic' : 'Online'}
                     </p>
                     <p className="text-xs text-slate-400 mt-0.5">
@@ -211,7 +211,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
                 onChange={e => setSymptoms(e.target.value)}
                 placeholder="Describe your symptoms or reason for the appointment..."
                 rows={4}
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 resize-none transition placeholder:text-slate-400"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 resize-none transition placeholder:text-slate-400"
               />
             </div>
             <div className="flex gap-3 mt-6">
@@ -256,10 +256,10 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
                 <button
                   key={method}
                   onClick={() => setPayMethod(method)}
-                  className={`p-3 rounded-xl border-2 text-center transition-colors ${payMethod === method ? 'border-sky-600 bg-sky-50' : 'border-slate-200 hover:border-sky-200'}`}
+                  className={`p-3 rounded-xl border-2 text-center transition-colors ${payMethod === method ? 'border-teal-600 bg-teal-50' : 'border-slate-200 hover:border-teal-200'}`}
                 >
-                  <CreditCard className={`w-5 h-5 mx-auto mb-1 ${payMethod === method ? 'text-sky-600' : 'text-slate-400'}`} />
-                  <p className={`text-xs font-medium capitalize ${payMethod === method ? 'text-sky-700' : 'text-slate-600'}`}>
+                  <CreditCard className={`w-5 h-5 mx-auto mb-1 ${payMethod === method ? 'text-teal-600' : 'text-slate-400'}`} />
+                  <p className={`text-xs font-medium capitalize ${payMethod === method ? 'text-teal-700' : 'text-slate-600'}`}>
                     {method === 'upi' ? 'UPI' : method.charAt(0).toUpperCase() + method.slice(1)}
                   </p>
                 </button>
@@ -268,17 +268,17 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
 
             {payMethod === 'card' && (
               <div className="space-y-3 mb-5 animate-fade-in">
-                <input type="text" placeholder="Card number" className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition" />
+                <input type="text" placeholder="Card number" className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition" />
                 <div className="grid grid-cols-2 gap-3">
-                  <input type="text" placeholder="MM / YY" className="px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition" />
-                  <input type="text" placeholder="CVV" className="px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition" />
+                  <input type="text" placeholder="MM / YY" className="px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition" />
+                  <input type="text" placeholder="CVV" className="px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition" />
                 </div>
               </div>
             )}
 
             {payMethod === 'upi' && (
               <div className="mb-5 animate-fade-in">
-                <input type="text" placeholder="Enter UPI ID (e.g. name@upi)" className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition" />
+                <input type="text" placeholder="Enter UPI ID (e.g. name@upi)" className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition" />
               </div>
             )}
 

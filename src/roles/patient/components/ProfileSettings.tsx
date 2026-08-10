@@ -46,7 +46,7 @@ export default function ProfileSettings() {
           <Card className="p-5 text-center">
             <div className="relative inline-block mb-4">
               <Avatar src={patient.photo} name={patient.name} size="xl" />
-              <button className="absolute bottom-0 right-0 w-7 h-7 bg-sky-600 rounded-full flex items-center justify-center shadow-md hover:bg-sky-700 transition-colors">
+              <button className="absolute bottom-0 right-0 w-7 h-7 bg-teal-600 rounded-full flex items-center justify-center shadow-md hover:bg-teal-700 transition-colors">
                 <Camera className="w-3.5 h-3.5 text-white" />
               </button>
             </div>
@@ -67,7 +67,7 @@ export default function ProfileSettings() {
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${
-                    activeTab === tab ? 'bg-sky-50 text-sky-700' : 'text-slate-600 hover:bg-slate-50'
+                    activeTab === tab ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-50'
                   }`}
                 >
                   {tab === 'Personal Info' && <User className="w-4 h-4 flex-shrink-0" />}
@@ -101,7 +101,7 @@ export default function ProfileSettings() {
                       <button
                         key={g}
                         onClick={() => setForm(f => ({ ...f, gender: g }))}
-                        className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${form.gender === g ? 'bg-sky-600 text-white border-sky-600' : 'border-slate-200 text-slate-600 hover:bg-sky-50'}`}
+                        className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${form.gender === g ? 'bg-teal-600 text-white border-teal-600' : 'border-slate-200 text-slate-600 hover:bg-teal-50'}`}
                       >
                         {g}
                       </button>
@@ -113,7 +113,7 @@ export default function ProfileSettings() {
                   <select
                     value={form.bloodGroup}
                     onChange={e => setForm(f => ({ ...f, bloodGroup: e.target.value }))}
-                    className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 bg-white text-slate-700"
+                    className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 bg-white text-slate-700"
                   >
                     {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map(bg => <option key={bg}>{bg}</option>)}
                   </select>
@@ -124,7 +124,7 @@ export default function ProfileSettings() {
                     value={form.address}
                     onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
                     rows={2}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 resize-none transition"
+                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 resize-none transition"
                   />
                 </div>
               </div>
@@ -223,7 +223,7 @@ export default function ProfileSettings() {
                       </div>
                       <button
                         onClick={() => setNotifPrefs(p => ({ ...p, [key]: !val }))}
-                        className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${val ? 'bg-sky-600' : 'bg-slate-200'}`}
+                        className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${val ? 'bg-teal-600' : 'bg-slate-200'}`}
                       >
                         <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${val ? 'left-5' : 'left-1'}`} />
                       </button>
@@ -251,7 +251,7 @@ export default function ProfileSettings() {
                       <p className="text-sm font-medium text-slate-700">{item.title}</p>
                       <p className="text-xs text-slate-500">{item.desc}</p>
                     </div>
-                    <button className="relative w-10 h-6 rounded-full bg-sky-600 flex-shrink-0">
+                    <button className="relative w-10 h-6 rounded-full bg-teal-600 flex-shrink-0">
                       <div className="absolute top-1 left-5 w-4 h-4 rounded-full bg-white shadow" />
                     </button>
                   </div>

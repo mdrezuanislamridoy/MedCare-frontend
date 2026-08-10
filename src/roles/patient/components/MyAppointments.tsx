@@ -86,17 +86,17 @@ export default function MyAppointments({ onBook }: { onBook: () => void }) {
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-colors ${filter === s ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`}
+              className={`px-3.5 py-1.5 text-sm font-medium rounded-lg transition-colors ${filter === s ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`}
             >
               {s}
             </button>
           ))}
         </div>
         <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1">
-          <button onClick={() => setView('list')} className={`p-2 rounded-lg transition-colors ${view === 'list' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:bg-slate-50'}`}>
+          <button onClick={() => setView('list')} className={`p-2 rounded-lg transition-colors ${view === 'list' ? 'bg-teal-600 text-white' : 'text-slate-400 hover:bg-slate-50'}`}>
             <List className="w-4 h-4" />
           </button>
-          <button onClick={() => setView('calendar')} className={`p-2 rounded-lg transition-colors ${view === 'calendar' ? 'bg-sky-600 text-white' : 'text-slate-400 hover:bg-slate-50'}`}>
+          <button onClick={() => setView('calendar')} className={`p-2 rounded-lg transition-colors ${view === 'calendar' ? 'bg-teal-600 text-white' : 'text-slate-400 hover:bg-slate-50'}`}>
             <Calendar className="w-4 h-4" />
           </button>
         </div>
@@ -124,7 +124,7 @@ export default function MyAppointments({ onBook }: { onBook: () => void }) {
                       <div className="flex items-start justify-between flex-wrap gap-2 mb-2">
                         <div>
                           <p className="font-semibold text-slate-800">{dr.name}</p>
-                          <p className="text-sm text-sky-600">{dr.specialty}</p>
+                          <p className="text-sm text-teal-600">{dr.specialty}</p>
                         </div>
                         <div className="flex gap-2 flex-wrap">
                           <Badge variant={effectiveStatus} />
@@ -161,7 +161,7 @@ export default function MyAppointments({ onBook }: { onBook: () => void }) {
                   <Avatar src={dr.photo} name={dr.name} size="lg" />
                   <div>
                     <p className="font-semibold text-slate-800">{dr.name}</p>
-                    <p className="text-sky-600 text-sm">{dr.specialty}</p>
+                    <p className="text-teal-600 text-sm">{dr.specialty}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm">
@@ -248,15 +248,15 @@ function CalendarView({ appointments }: { appointments: Appointment[] }) {
           return (
             <div
               key={i}
-              className={`min-h-[56px] rounded-lg p-1 ${!day ? '' : 'border border-slate-100'} ${isToday ? 'bg-sky-50 border-sky-200' : ''}`}
+              className={`min-h-[56px] rounded-lg p-1 ${!day ? '' : 'border border-slate-100'} ${isToday ? 'bg-teal-50 border-teal-200' : ''}`}
             >
               {day && (
                 <>
-                  <p className={`text-xs font-medium text-center mb-1 ${isToday ? 'text-sky-700' : 'text-slate-600'}`}>{day}</p>
+                  <p className={`text-xs font-medium text-center mb-1 ${isToday ? 'text-teal-700' : 'text-slate-600'}`}>{day}</p>
                   {appts.slice(0, 2).map(a => {
                     const dr = getDr(a.doctorId);
                     return (
-                      <div key={a.id} className="text-[9px] bg-sky-100 text-sky-700 rounded px-1 py-0.5 truncate mb-0.5 leading-tight">
+                      <div key={a.id} className="text-[9px] bg-teal-100 text-teal-700 rounded px-1 py-0.5 truncate mb-0.5 leading-tight">
                         {dr.name.split(' ')[1] ?? dr.name.split(' ')[0]}
                       </div>
                     );

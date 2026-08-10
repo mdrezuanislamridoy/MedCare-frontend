@@ -64,7 +64,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
 
       {/* Today's active consultation banner */}
       {todayAppt && (
-        <Card className="bg-gradient-to-r from-sky-600 to-sky-500 border-0 p-5">
+        <Card className="bg-gradient-to-r from-teal-600 to-teal-500 border-0 p-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
@@ -72,14 +72,14 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
               </div>
               <div>
                 <p className="text-white font-semibold" style={{ fontFamily: 'DM Sans, sans-serif' }}>Active Consultation</p>
-                <p className="text-sky-100 text-sm">
+                <p className="text-teal-100 text-sm">
                   {getDr(todayAppt.doctorId).name} · {getDr(todayAppt.doctorId).specialty} · Now
                 </p>
               </div>
             </div>
             <Button
               onClick={() => onNavigate('my-appointments')}
-              className="bg-white text-sky-700 hover:bg-sky-50 flex-shrink-0"
+              className="bg-white text-teal-700 hover:bg-teal-50 flex-shrink-0"
               variant="secondary"
             >
               <Video className="w-4 h-4" /> Join Now
@@ -193,9 +193,9 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
               {notifications.slice(0, 4).map(notif => (
                 <div
                   key={notif.id}
-                  className={`flex gap-3 p-3 rounded-xl border transition-colors ${notif.read ? 'bg-white border-slate-200' : 'bg-sky-50 border-sky-200'}`}
+                  className={`flex gap-3 p-3 rounded-xl border transition-colors ${notif.read ? 'bg-white border-slate-200' : 'bg-teal-50 border-teal-200'}`}
                 >
-                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${notif.read ? 'bg-slate-300' : 'bg-sky-500'}`} />
+                  <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${notif.read ? 'bg-slate-300' : 'bg-teal-500'}`} />
                   <div className="flex-1 min-w-0">
                     <p className={`text-xs font-medium ${notif.read ? 'text-slate-600' : 'text-slate-800'}`}>{notif.title}</p>
                     <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{notif.message}</p>

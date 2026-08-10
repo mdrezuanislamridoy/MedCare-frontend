@@ -1,5 +1,5 @@
-import RolePicker from "../src/RolePicker";
+import MedCarePortal from "../src/MedCarePortal";
 
 export default function HomePage() {
-  return <RolePicker />;
+  return <MedCarePortal />;
 }

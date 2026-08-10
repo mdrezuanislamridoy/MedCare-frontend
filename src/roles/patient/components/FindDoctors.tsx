@@ -47,14 +47,14 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
               placeholder="Search by name or specialty..."
               value={query}
               onChange={e => setQuery(e.target.value)}
-              className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 transition"
+              className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition"
             />
           </div>
           <div className="relative">
             <select
               value={specialty}
               onChange={e => setSpecialty(e.target.value)}
-              className="appearance-none pl-4 pr-10 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 bg-white text-slate-700 transition min-w-[180px]"
+              className="appearance-none pl-4 pr-10 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 bg-white text-slate-700 transition min-w-[180px]"
             >
               {specialties.map(s => <option key={s}>{s}</option>)}
             </select>
@@ -62,7 +62,7 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
           </div>
           <button
             onClick={() => setFiltersOpen(!filtersOpen)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${filtersOpen ? 'bg-sky-50 border-sky-300 text-sky-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${filtersOpen ? 'bg-teal-50 border-teal-300 text-teal-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filters
@@ -77,7 +77,7 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
               <div className="flex gap-2">
                 {['all', 'male', 'female'].map(g => (
                   <button key={g} onClick={() => setGender(g)}
-                    className={`flex-1 py-1.5 text-xs font-medium rounded-lg border transition-colors capitalize ${gender === g ? 'bg-sky-600 text-white border-sky-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+                    className={`flex-1 py-1.5 text-xs font-medium rounded-lg border transition-colors capitalize ${gender === g ? 'bg-teal-600 text-white border-teal-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
                     {g === 'all' ? 'Any' : g.charAt(0).toUpperCase() + g.slice(1)}
                   </button>
                 ))}
@@ -88,7 +88,7 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
               <div className="flex gap-2">
                 {['all', 'online', 'clinic'].map(t => (
                   <button key={t} onClick={() => setConsultType(t)}
-                    className={`flex-1 py-1.5 text-xs font-medium rounded-lg border transition-colors capitalize ${consultType === t ? 'bg-sky-600 text-white border-sky-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
+                    className={`flex-1 py-1.5 text-xs font-medium rounded-lg border transition-colors capitalize ${consultType === t ? 'bg-teal-600 text-white border-teal-600' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
                     {t === 'all' ? 'Any' : t.charAt(0).toUpperCase() + t.slice(1)}
                   </button>
                 ))}
@@ -97,12 +97,12 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
             <div>
               <label className="text-xs font-medium text-slate-600 block mb-1.5">Min Rating: {minRating > 0 ? `${minRating}+` : 'Any'}</label>
               <input type="range" min={0} max={5} step={0.5} value={minRating} onChange={e => setMinRating(+e.target.value)}
-                className="w-full accent-sky-600" />
+                className="w-full accent-teal-600" />
             </div>
             <div>
               <label className="text-xs font-medium text-slate-600 block mb-1.5">Max Fee: ₹{maxFee}</label>
               <input type="range" min={200} max={2000} step={100} value={maxFee} onChange={e => setMaxFee(+e.target.value)}
-                className="w-full accent-sky-600" />
+                className="w-full accent-teal-600" />
             </div>
           </div>
         )}
@@ -140,7 +140,7 @@ function DoctorCard({ doctor: dr, onView, onBook }: { doctor: Doctor; onView: ()
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h3 className="font-semibold text-slate-800 text-sm leading-tight" style={{ fontFamily: 'DM Sans, sans-serif' }}>{dr.name}</h3>
-                <p className="text-xs text-sky-600 font-medium mt-0.5">{dr.specialty}</p>
+                <p className="text-xs text-teal-600 font-medium mt-0.5">{dr.specialty}</p>
               </div>
               {dr.availableOnline && <Badge variant="online" />}
             </div>
@@ -209,7 +209,7 @@ function DoctorProfile({ doctor: dr, onBack, onBook }: { doctor: Doctor; onBack:
                 <div className="flex items-start justify-between flex-wrap gap-2">
                   <div>
                     <h2 className="text-xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>{dr.name}</h2>
-                    <p className="text-sky-600 font-medium">{dr.specialty}</p>
+                    <p className="text-teal-600 font-medium">{dr.specialty}</p>
                   </div>
                   <div className="flex gap-2">
                     {dr.availableOnline && <Badge variant="online" />}
@@ -231,7 +231,7 @@ function DoctorProfile({ doctor: dr, onBack, onBook }: { doctor: Doctor; onBack:
             <p className="mt-4 text-sm text-slate-600 leading-relaxed">{dr.bio}</p>
             <div className="flex flex-wrap gap-2 mt-4">
               {dr.qualifications.map(q => (
-                <span key={q} className="text-xs px-3 py-1 bg-sky-50 text-sky-700 rounded-full border border-sky-100">{q}</span>
+                <span key={q} className="text-xs px-3 py-1 bg-teal-50 text-teal-700 rounded-full border border-teal-100">{q}</span>
               ))}
             </div>
             <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-4 text-sm">
@@ -288,8 +288,8 @@ function DoctorProfile({ doctor: dr, onBack, onBook }: { doctor: Doctor; onBack:
                     onClick={() => setSelectedSlot(slot)}
                     className={`py-2 text-xs font-medium rounded-lg border transition-colors ${
                       selectedSlot === slot
-                        ? 'bg-sky-600 text-white border-sky-600'
-                        : 'border-slate-200 text-slate-600 hover:bg-sky-50 hover:border-sky-300'
+                        ? 'bg-teal-600 text-white border-teal-600'
+                        : 'border-slate-200 text-slate-600 hover:bg-teal-50 hover:border-teal-300'
                     }`}
                   >
                     {slot}

@@ -143,8 +143,8 @@ const badgeStyles: Record<string, string> = {
   "under-review": "bg-amber-50 text-amber-700 border border-amber-200",
   "in-progress": "bg-violet-50 text-violet-700 border border-violet-200",
   "checked-in": "bg-sky-50 text-sky-700 border border-sky-200",
-  confirmed: "bg-blue-50 text-blue-700 border border-blue-200",
-  documents_requested: "bg-blue-50 text-blue-700 border border-blue-200",
+  confirmed: "bg-teal-50 text-teal-700 border border-teal-200",
+  documents_requested: "bg-teal-50 text-teal-700 border border-teal-200",
   suspended: "bg-red-50 text-red-700 border border-red-200",
   rejected: "bg-red-50 text-red-700 border border-red-200",
   cancelled: "bg-red-50 text-red-700 border border-red-200",
@@ -174,12 +174,12 @@ function ConfirmModal({
   const btnCls = {
     danger: "bg-red-600 hover:bg-red-700 text-white",
     warning: "bg-amber-500 hover:bg-amber-600 text-white",
-    primary: "bg-blue-600 hover:bg-blue-700 text-white",
+    primary: "bg-teal-600 hover:bg-teal-700 text-white",
   }[variant];
   const iconCls = {
     danger: "bg-red-100 text-red-600",
     warning: "bg-amber-100 text-amber-600",
-    primary: "bg-blue-100 text-blue-600",
+    primary: "bg-teal-100 text-teal-600",
   }[variant];
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -223,7 +223,7 @@ function Pagination({ count, total }: { count: number; total: number }) {
 // ─── Dashboard View ──────────────────────────────────────────────────────────
 function DashboardView() {
   const kpis = [
-    { label: "Total Doctors", value: "284", change: "+12", up: true, icon: Users, bg: "bg-blue-50", ic: "text-blue-600" },
+    { label: "Total Doctors", value: "284", change: "+12", up: true, icon: Users, bg: "bg-teal-50", ic: "text-teal-600" },
     { label: "Total Patients", value: "12,847", change: "+234", up: true, icon: User, bg: "bg-indigo-50", ic: "text-indigo-600" },
     { label: "Total Clinics", value: "47", change: "+2", up: true, icon: Building2, bg: "bg-violet-50", ic: "text-violet-600" },
     { label: "Today's Appointments", value: "183", change: "+18", up: true, icon: Calendar, bg: "bg-emerald-50", ic: "text-emerald-600" },
@@ -305,7 +305,7 @@ function DashboardView() {
               <p className="text-xs text-slate-400 mt-0.5">Last 6 months</p>
             </div>
             <div className="flex items-center gap-3 text-[11px] text-slate-500">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />Revenue</span>
+              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-500 inline-block" />Revenue</span>
               <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-300 inline-block" />Refunds</span>
             </div>
           </div>
@@ -315,7 +315,7 @@ function DashboardView() {
               <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v / 1000}k`} width={36} />
               <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e2e8f0" }} formatter={(v: number) => [`$${v.toLocaleString()}`, ""]} />
-              <Bar dataKey="revenue" fill="#3b82f6" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="revenue" fill="#0d9488" radius={[3, 3, 0, 0]} />
               <Bar dataKey="refunds" fill="#fca5a5" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -336,8 +336,8 @@ function DashboardView() {
               <XAxis dataKey="week" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} width={28} />
               <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e2e8f0" }} />
-              <Line type="monotone" dataKey="patients" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 3, strokeWidth: 0 }} name="Patients" />
-              <Line type="monotone" dataKey="doctors" stroke="#0ea5e9" strokeWidth={2} dot={{ fill: "#0ea5e9", r: 3, strokeWidth: 0 }} name="Doctors" strokeDasharray="5 3" />
+              <Line type="monotone" dataKey="patients" stroke="#14b8a6" strokeWidth={2} dot={{ fill: "#14b8a6", r: 3, strokeWidth: 0 }} name="Patients" />
+              <Line type="monotone" dataKey="doctors" stroke="#0d9488" strokeWidth={2} dot={{ fill: "#0d9488", r: 3, strokeWidth: 0 }} name="Doctors" strokeDasharray="5 3" />
             </LineChart>
           </ResponsiveContainer>
           <div className="flex items-center gap-4 mt-1 text-xs text-slate-500">
@@ -352,7 +352,7 @@ function DashboardView() {
             {verificationQueue.map((doc) => (
               <div key={doc.id} className="flex items-center justify-between py-2.5 border-b border-slate-50 last:border-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700">
+                  <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-xs font-bold text-teal-700">
                     {doc.name.split(" ")[1]?.[0]}{doc.name.split(" ")[2]?.[0] ?? ""}
                   </div>
                   <div>
@@ -403,7 +403,7 @@ function DoctorsView() {
           <h1 className="text-xl font-semibold text-slate-900">Doctors</h1>
           <p className="text-xs text-slate-400 mt-0.5">{filtered.length} of {doctors.length} doctors</p>
         </div>
-        <button className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+        <button className="flex items-center gap-1.5 px-3 py-2 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700 transition-colors">
           <Plus className="w-3.5 h-3.5" /> Add Doctor
         </button>
       </div>
@@ -443,7 +443,7 @@ function DoctorsView() {
                 <tr key={doc.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-xs font-bold text-blue-700 flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-xs font-bold text-teal-700 flex-shrink-0">
                         {doc.name.split(" ")[1]?.[0]}{doc.name.split(" ")[2]?.[0] ?? ""}
                       </div>
                       <div>
@@ -469,7 +469,7 @@ function DoctorsView() {
                   <td className="px-4 py-3 text-xs text-slate-500">{doc.joinedDate}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-0.5">
-                      <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="View"><Eye className="w-3.5 h-3.5" /></button>
+                      <button className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors" title="View"><Eye className="w-3.5 h-3.5" /></button>
                       <button className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors" title="Edit"><Edit className="w-3.5 h-3.5" /></button>
                       {doc.verificationStatus === "pending" && (
                         <>
@@ -536,7 +536,7 @@ function VerificationView() {
           <div key={doc.id} className="bg-white rounded-xl border border-slate-200 p-5">
             <div className="flex items-start justify-between flex-wrap gap-4">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-lg font-bold text-blue-600 flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-lg font-bold text-teal-600 flex-shrink-0">
                   {doc.name.split(" ")[1]?.[0]}{doc.name.split(" ")[2]?.[0] ?? ""}
                 </div>
                 <div>
@@ -663,7 +663,7 @@ function PatientsView() {
                   <td className="px-4 py-3 text-xs text-slate-500">{p.lastActivity}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-0.5">
-                      <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="View"><Eye className="w-3.5 h-3.5" /></button>
+                      <button className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors" title="View"><Eye className="w-3.5 h-3.5" /></button>
                       <button className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors" title="Appointments"><Calendar className="w-3.5 h-3.5" /></button>
                       {p.status === "active"
                         ? <button onClick={() => setModal({ open: true, type: "Suspend", name: p.name })} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Suspend"><Lock className="w-3.5 h-3.5" /></button>
@@ -713,7 +713,7 @@ function ClinicsView() {
           <h1 className="text-xl font-semibold text-slate-900">Clinics</h1>
           <p className="text-xs text-slate-400 mt-0.5">{filtered.length} registered clinics</p>
         </div>
-        <button className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+        <button className="flex items-center gap-1.5 px-3 py-2 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700 transition-colors">
           <Plus className="w-3.5 h-3.5" /> Add Clinic
         </button>
       </div>
@@ -755,7 +755,7 @@ function ClinicsView() {
             </div>
 
             <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-50">
-              <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"><Eye className="w-3.5 h-3.5" />View</button>
+              <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-teal-600 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors"><Eye className="w-3.5 h-3.5" />View</button>
               <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"><Edit className="w-3.5 h-3.5" />Edit</button>
               {clinic.status === "active"
                 ? <button onClick={() => toast.error(`${clinic.name} suspended`)} className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"><Lock className="w-3.5 h-3.5" />Suspend</button>
@@ -847,7 +847,7 @@ function AppointmentsView() {
                   <td className="px-4 py-3"><Badge variant={apt.status}>{apt.status.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" ")}</Badge></td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-0.5">
-                      <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"><Eye className="w-3.5 h-3.5" /></button>
+                      <button className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors"><Eye className="w-3.5 h-3.5" /></button>
                       <button className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors"><Edit className="w-3.5 h-3.5" /></button>
                     </div>
                   </td>
@@ -888,7 +888,7 @@ function FinanceView() {
 
   const finKpis = [
     { label: "Total Revenue", value: `$${completed.toLocaleString()}`, icon: DollarSign, bg: "bg-emerald-50", ic: "text-emerald-600" },
-    { label: "Commission (15%)", value: `$${Math.round(completed * 0.15).toLocaleString()}`, icon: TrendingUp, bg: "bg-blue-50", ic: "text-blue-600" },
+    { label: "Commission (15%)", value: `$${Math.round(completed * 0.15).toLocaleString()}`, icon: TrendingUp, bg: "bg-teal-50", ic: "text-teal-600" },
     { label: "Total Refunds", value: `$${refunded.toLocaleString()}`, icon: RefreshCw, bg: "bg-red-50", ic: "text-red-600" },
     { label: "Pending Payouts", value: `$${pending.toLocaleString()}`, icon: Clock, bg: "bg-amber-50", ic: "text-amber-600" },
   ];
@@ -955,7 +955,7 @@ function FinanceView() {
                   <td className="px-4 py-3 text-xs text-slate-500">{txn.date}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-0.5">
-                      <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"><Eye className="w-3.5 h-3.5" /></button>
+                      <button className="p-1.5 text-slate-400 hover:text-teal-600 hover:bg-teal-50 rounded-md transition-colors"><Eye className="w-3.5 h-3.5" /></button>
                       {(txn.status === "completed" || txn.status === "pending") && (
                         <button onClick={() => toast.info(`Refund initiated for ${txn.id}`)} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-md transition-colors" title="Process Refund">
                           <RefreshCw className="w-3.5 h-3.5" />
@@ -1030,7 +1030,7 @@ function ReviewsView() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-50">
-              <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"><Eye className="w-3.5 h-3.5" />Investigate</button>
+              <button className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-teal-600 bg-teal-50 rounded-lg hover:bg-teal-100 transition-colors"><Eye className="w-3.5 h-3.5" />Investigate</button>
               <button onClick={() => toast.success("Review resolved")} className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors"><Check className="w-3.5 h-3.5" />Resolve</button>
               <button onClick={() => toast.info("Review hidden from public")} className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"><XCircle className="w-3.5 h-3.5" />Hide</button>
               <button onClick={() => setModal({ open: true, label: `Review #${review.id}` })} className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors border border-amber-200"><AlertTriangle className="w-3.5 h-3.5" />Escalate</button>
@@ -1085,7 +1085,7 @@ function NotificationsView() {
           <div className="space-y-3.5">
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Recipients</label>
-              <select value={recipient} onChange={(e) => setRecipient(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all">
+              <select value={recipient} onChange={(e) => setRecipient(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 transition-all">
                 <option value="all-patients">All Patients (12,847)</option>
                 <option value="all-doctors">All Doctors (284)</option>
                 <option value="all-clinics">All Clinic Managers (47)</option>
@@ -1095,20 +1095,20 @@ function NotificationsView() {
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Title</label>
-              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. System Maintenance on Aug 15" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-slate-400" />
+              <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. System Maintenance on Aug 15" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 transition-all placeholder:text-slate-400" />
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Message</label>
-              <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4} placeholder="Write your notification message..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all placeholder:text-slate-400 resize-none" />
+              <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={4} placeholder="Write your notification message..." className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 transition-all placeholder:text-slate-400 resize-none" />
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Schedule</label>
-              <select value={schedule} onChange={(e) => setSchedule(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition-all">
+              <select value={schedule} onChange={(e) => setSchedule(e.target.value)} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm text-slate-700 outline-none focus:border-teal-400 focus:ring-2 focus:ring-teal-100 transition-all">
                 <option value="now">Send Immediately</option>
                 <option value="scheduled">Schedule for Later</option>
               </select>
             </div>
-            <button onClick={handleSend} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-lg hover:bg-blue-700 active:scale-[0.98] transition-all">
+            <button onClick={handleSend} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-teal-600 text-white text-sm font-semibold rounded-lg hover:bg-teal-700 active:scale-[0.98] transition-all">
               <Send className="w-4 h-4" /> Send Notification
             </button>
           </div>
@@ -1153,7 +1153,7 @@ function ActivityView() {
   ];
 
   const typeBadge: Record<string, string> = {
-    verification: "bg-blue-100 text-blue-700",
+    verification: "bg-teal-100 text-teal-700",
     account: "bg-amber-100 text-amber-700",
     finance: "bg-emerald-100 text-emerald-700",
     clinic: "bg-violet-100 text-violet-700",
@@ -1234,7 +1234,7 @@ function AuditView() {
                 <tr key={log.id} className={`hover:bg-slate-50/60 transition-colors ${log.result === "failed" ? "bg-red-50/40" : ""}`}>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-[10px] font-bold text-blue-700 flex-shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center text-[10px] font-bold text-teal-700 flex-shrink-0">
                         {log.actor.split(" ")[1]?.[0]}{log.actor.split(" ")[2]?.[0] ?? ""}
                       </div>
                       <span className="text-xs font-semibold text-slate-800">{log.actor}</span>
@@ -1282,7 +1282,7 @@ function Sidebar({ active, onNav, collapsed, onToggle }: {
   return (
     <aside style={{ width: collapsed ? 64 : 240 }} className="bg-[#0F172A] flex flex-col h-full flex-shrink-0 transition-all duration-200 overflow-hidden">
       <div className="flex items-center h-14 px-4 border-b border-white/[0.06] flex-shrink-0">
-        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center flex-shrink-0">
           <Activity className="w-4 h-4 text-white" />
         </div>
         {!collapsed && (
@@ -1308,7 +1308,7 @@ function Sidebar({ active, onNav, collapsed, onToggle }: {
                 key={item.id}
                 onClick={() => onNav(item.id)}
                 title={collapsed ? item.label : undefined}
-                className={`w-full flex items-center gap-3 rounded-lg text-sm transition-all duration-150 ${collapsed ? "justify-center p-2.5" : "px-3 py-2.5"} ${isActive ? "bg-blue-600 text-white" : "text-slate-400 hover:text-white hover:bg-white/[0.06]"}`}
+                className={`w-full flex items-center gap-3 rounded-lg text-sm transition-all duration-150 ${collapsed ? "justify-center p-2.5" : "px-3 py-2.5"} ${isActive ? "bg-teal-600 text-white" : "text-slate-400 hover:text-white hover:bg-white/[0.06]"}`}
               >
                 <Icon className="w-4 h-4 flex-shrink-0" />
                 {!collapsed && <span className="flex-1 text-left truncate">{item.label}</span>}
@@ -1326,11 +1326,11 @@ function Sidebar({ active, onNav, collapsed, onToggle }: {
       <div className="p-3 border-t border-white/[0.06] flex-shrink-0">
         {collapsed ? (
           <div className="flex justify-center">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white cursor-pointer">SK</div>
+            <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-xs font-bold text-white cursor-pointer">SK</div>
           </div>
         ) : (
           <div className="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-white/[0.06] transition-colors cursor-pointer group">
-            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">SK</div>
+            <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">SK</div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-white truncate">Sarah Kim</p>
               <p className="text-[11px] text-slate-500 truncate">Platform Admin</p>
@@ -1353,7 +1353,7 @@ function Header({ collapsed, onToggleSidebar }: { collapsed: boolean; onToggleSi
     { id: 3, type: "info" as const, text: "System maintenance scheduled Aug 15", time: "1d ago" },
   ];
 
-  const alertIcon = { warning: <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />, error: <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />, info: <Info className="w-4 h-4 text-blue-500 flex-shrink-0" /> };
+  const alertIcon = { warning: <AlertTriangle className="w-4 h-4 text-amber-500 flex-shrink-0" />, error: <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />, info: <Info className="w-4 h-4 text-teal-500 flex-shrink-0" /> };
 
   return (
     <header className="h-14 bg-white border-b border-slate-200 flex items-center gap-3 px-4 flex-shrink-0">
@@ -1394,19 +1394,19 @@ function Header({ collapsed, onToggleSidebar }: { collapsed: boolean; onToggleSi
                   ))}
                 </div>
                 <div className="px-4 py-2 border-t border-slate-100 bg-slate-50">
-                  <button onClick={() => setShowAlerts(false)} className="w-full text-xs text-center text-blue-600 hover:text-blue-700 py-1 font-medium">View all alerts</button>
+                  <button onClick={() => setShowAlerts(false)} className="w-full text-xs text-center text-teal-600 hover:text-teal-700 py-1 font-medium">View all alerts</button>
                 </div>
               </div>
             </>
           )}
         </div>
 
-        <button className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+        <button className="hidden md:flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 text-white text-xs font-semibold rounded-lg hover:bg-teal-700 transition-colors">
           <Plus className="w-3.5 h-3.5" /> Quick Add
         </button>
 
         <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer ml-1">
-          <div className="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center text-xs font-bold text-white">SK</div>
+          <div className="w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-xs font-bold text-white">SK</div>
           <div className="hidden lg:block">
             <p className="text-xs font-semibold text-slate-800 leading-none">Sarah Kim</p>
             <p className="text-[11px] text-slate-400 mt-0.5">Admin</p>

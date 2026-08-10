@@ -15,7 +15,7 @@ const typeIcons: Record<string, typeof Bell> = {
 };
 
 const typeColors: Record<string, string> = {
-  appointment:  'bg-sky-100 text-sky-600',
+  appointment:  'bg-teal-100 text-teal-600',
   reminder:     'bg-amber-100 text-amber-600',
   cancellation: 'bg-red-100 text-red-500',
   reschedule:   'bg-violet-100 text-violet-600',
@@ -57,11 +57,11 @@ export default function Notifications() {
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors capitalize ${filter === f ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`}
+            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors capitalize ${filter === f ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
             {f === 'unread' && unreadCount > 0 && (
-              <span className="ml-1.5 text-xs bg-sky-500 text-white rounded-full px-1.5 py-0.5">{unreadCount}</span>
+              <span className="ml-1.5 text-xs bg-teal-500 text-white rounded-full px-1.5 py-0.5">{unreadCount}</span>
             )}
           </button>
         ))}
@@ -86,7 +86,7 @@ export default function Notifications() {
                 className={`flex items-start gap-4 p-4 rounded-xl border transition-colors ${
                   notif.read
                     ? 'bg-white border-slate-200'
-                    : 'bg-sky-50/70 border-sky-200'
+                    : 'bg-teal-50/70 border-teal-200'
                 }`}
               >
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${colorClass}`}>
@@ -95,7 +95,7 @@ export default function Notifications() {
                 <div className="flex-1 min-w-0" onClick={() => markRead(notif.id)}>
                   <div className="flex items-start justify-between gap-2">
                     <p className={`text-sm font-medium ${notif.read ? 'text-slate-700' : 'text-slate-900'}`}>{notif.title}</p>
-                    {!notif.read && <div className="w-2 h-2 rounded-full bg-sky-500 mt-1.5 flex-shrink-0" />}
+                    {!notif.read && <div className="w-2 h-2 rounded-full bg-teal-500 mt-1.5 flex-shrink-0" />}
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{notif.message}</p>
                   <p className="text-[10px] text-slate-400 mt-1.5">{notif.time}</p>

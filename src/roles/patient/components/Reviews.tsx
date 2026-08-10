@@ -112,7 +112,7 @@ export default function Reviews() {
                     <div className="flex items-start justify-between flex-wrap gap-2 mb-2">
                       <div>
                         <p className="font-semibold text-slate-800 text-sm">{dr.name}</p>
-                        <p className="text-xs text-sky-600">{dr.specialty}</p>
+                        <p className="text-xs text-teal-600">{dr.specialty}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         {rv.edited && <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">Edited</span>}
@@ -143,7 +143,7 @@ export default function Reviews() {
               <Avatar src={modalDr.photo} name={modalDr.name} size="md" />
               <div>
                 <p className="font-medium text-slate-800 text-sm">{modalDr.name}</p>
-                <p className="text-xs text-sky-600">{modalDr.specialty}</p>
+                <p className="text-xs text-teal-600">{modalDr.specialty}</p>
               </div>
             </div>
 
@@ -174,7 +174,7 @@ export default function Reviews() {
                 onChange={e => setText(e.target.value)}
                 rows={4}
                 placeholder="Share your experience with this doctor..."
-                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-500 resize-none transition placeholder:text-slate-400"
+                className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 resize-none transition placeholder:text-slate-400"
               />
               <p className="text-xs text-slate-400 mt-1 text-right">{text.length}/500</p>
             </div>

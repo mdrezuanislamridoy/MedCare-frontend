@@ -1,7 +1,5 @@
-"use client";
-
-import AdminApp from "../../src/roles/admin/App";
+import { redirect } from "next/navigation";
 
 export default function AdminPage() {
-  return <AdminApp />;
+  redirect("/");
 }

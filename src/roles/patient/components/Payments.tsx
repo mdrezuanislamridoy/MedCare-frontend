@@ -39,7 +39,7 @@ export default function Payments() {
           <button
             key={s}
             onClick={() => setStatusFilter(s)}
-            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors capitalize ${statusFilter === s ? 'bg-sky-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`}
+            className={`px-4 py-1.5 text-sm font-medium rounded-lg transition-colors capitalize ${statusFilter === s ? 'bg-teal-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-50'}`}
           >
             {s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)}
           </button>

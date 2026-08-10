@@ -64,7 +64,7 @@ export default function Prescriptions() {
                       <div className="text-right">
                         <p className="text-xs text-slate-400">Prescribed by</p>
                         <p className="font-medium text-slate-700">{dr.name}</p>
-                        <p className="text-xs text-sky-600">{dr.qualifications.join(', ')}</p>
+                        <p className="text-xs text-teal-600">{dr.qualifications.join(', ')}</p>
                       </div>
                     </div>
 
@@ -110,9 +110,9 @@ export default function Prescriptions() {
                       </div>
 
                       {rx.notes && (
-                        <div className="mt-4 p-3 bg-blue-50 border border-blue-100 rounded-xl">
-                          <p className="text-xs font-semibold text-blue-700 mb-1">Doctor Notes</p>
-                          <p className="text-sm text-blue-700">{rx.notes}</p>
+                        <div className="mt-4 p-3 bg-teal-50 border border-teal-100 rounded-xl">
+                          <p className="text-xs font-semibold text-teal-700 mb-1">Doctor Notes</p>
+                          <p className="text-sm text-teal-700">{rx.notes}</p>
                         </div>
                       )}
 

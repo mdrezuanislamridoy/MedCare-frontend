@@ -1,7 +1,5 @@
-"use client";
-
-import SuperAdminApp from "../../src/roles/super-admin/App";
+import { redirect } from "next/navigation";
 
 export default function SuperAdminPage() {
-  return <SuperAdminApp />;
+  redirect("/");
 }
