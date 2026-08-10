@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import {
   StarIcon,
   MapPinIcon,
@@ -20,13 +21,13 @@ export function FeaturedDoctors() {
           title="Featured doctors accepting patients this week"
           description="Compare experience, patient ratings, consultation fees and the next open slot — all before you book."
           action={
-          <a
+          <Link
             href="/signup"
             className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white px-6 py-3 text-sm font-semibold text-teal-700 transition-colors hover:bg-teal-50">
             
               Browse all doctors
               <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
-            </a>
+            </Link>
           } />
         
 
@@ -80,12 +81,12 @@ export function FeaturedDoctors() {
               }
               </div>
 
-              <button
-              type="button"
-              className="mt-4 w-full rounded-2xl bg-teal-600 px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2">
+              <Link
+              href="/signup"
+              className="mt-4 block w-full rounded-2xl bg-teal-600 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2">
               
                 Book Appointment
-              </button>
+              </Link>
             </article>
           )}
         </div>

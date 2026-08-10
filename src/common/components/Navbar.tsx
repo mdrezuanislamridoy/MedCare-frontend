@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { MenuIcon, XIcon, ActivityIcon } from 'lucide-react';
 
 const links = [
@@ -38,18 +39,18 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <a
+          <Link
             href="/login"
             className="rounded-full px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-teal-50 hover:text-teal-700">
             
             Login
-          </a>
-          <a
+          </Link>
+          <Link
             href="/signup"
             className="rounded-full bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition-colors hover:bg-teal-700">
             
             Signup
-          </a>
+          </Link>
         </div>
 
         <button
@@ -79,20 +80,20 @@ export function Navbar() {
           )}
           </nav>
           <div className="mt-3 flex flex-col gap-2">
-            <a
+            <Link
             href="/login"
             onClick={() => setOpen(false)}
             className="rounded-full border border-teal-200 px-4 py-2.5 text-center text-sm font-semibold text-ink">
             
               Login
-            </a>
-            <a
+            </Link>
+            <Link
             href="/signup"
             onClick={() => setOpen(false)}
             className="rounded-full bg-teal-600 px-4 py-2.5 text-center text-sm font-semibold text-white">
             
               Signup
-            </a>
+            </Link>
           </div>
         </div>
       }

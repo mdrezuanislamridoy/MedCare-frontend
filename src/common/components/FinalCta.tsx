@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { ArrowRightIcon, PhoneIcon } from 'lucide-react';
 
 export function FinalCta() {
@@ -14,13 +15,13 @@ export function FinalCta() {
             and free cancellation.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <a
+            <Link
               href="/signup"
               className="inline-flex items-center gap-2 rounded-full bg-teal-600 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-teal-700">
               
               Get started
               <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
-            </a>
+            </Link>
             <a
               href="#contact"
               className="inline-flex items-center gap-2 rounded-full border border-teal-200 px-7 py-3.5 text-sm font-semibold text-teal-700 transition-colors hover:bg-teal-50">

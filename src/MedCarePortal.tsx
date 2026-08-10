@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   Activity,
@@ -242,9 +244,9 @@ function SignupView({
           <button className="mt-6 w-full rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-600">
             Request access
           </button>
-          <a href="/login" className="mt-3 block text-center text-sm font-medium text-teal-200 hover:text-white">
+          <Link href="/login" className="mt-3 block text-center text-sm font-medium text-teal-200 hover:text-white">
             Already approved? Login
-          </a>
+          </Link>
           <p className="mt-3 text-xs leading-5 text-slate-400">
             Demo note: Super Admin accounts are approved immediately so there is always someone who can review new requests.
           </p>
@@ -261,6 +263,7 @@ function LoginView({
   requests: SignupRequest[];
   onLogin: (session: Session) => void;
 }) {
+  const router = useRouter();
   const approvedRequests = requests.filter((request) => request.status === "approved");
   const [email, setEmail] = useState(approvedRequests[0]?.email ?? "super-admin@medcare.local");
 
@@ -287,7 +290,7 @@ function LoginView({
             event.preventDefault();
             if (selected) {
               onLogin({ email: selected.email, role: selected.role, status: "approved" });
-              window.location.href = "/dashboard";
+              router.push("/dashboard");
             }
           }}
           className="rounded-lg border border-white/10 bg-white/[0.05] p-5 shadow-2xl"
@@ -317,9 +320,9 @@ function LoginView({
           >
             Continue to dashboard
           </button>
-          <a href="/signup" className="mt-3 block text-center text-sm font-medium text-teal-200 hover:text-white">
+          <Link href="/signup" className="mt-3 block text-center text-sm font-medium text-teal-200 hover:text-white">
             Need an account? Signup
-          </a>
+          </Link>
         </form>
       </section>
     </Shell>
@@ -477,6 +480,7 @@ function usePortalState() {
 }
 
 export function SignupPage() {
+  const router = useRouter();
   const { requests, updateRequests, updateSession } = usePortalState();
 
   const handleSignup = (input: Omit<SignupRequest, "id" | "status" | "createdAt">) => {
@@ -489,7 +493,7 @@ export function SignupPage() {
     };
     updateRequests([request, ...requests]);
     updateSession({ email: request.email, role: request.role, status });
-    window.location.href = status === "approved" ? "/dashboard" : "/dashboard";
+    router.push("/dashboard");
   };
 
   return <SignupView onSignup={handleSignup} />;
@@ -502,6 +506,7 @@ export function LoginPage() {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { requests, session, setRequests, updateRequests, updateSession } = usePortalState();
   const [superAdminDashboardOpen, setSuperAdminDashboardOpen] = useState(false);
 
@@ -532,7 +537,7 @@ export default function DashboardPage() {
   const handleSignOut = () => {
     updateSession(null);
     setSuperAdminDashboardOpen(false);
-    window.location.href = "/login";
+    router.push("/login");
   };
 
   if (!session) {
@@ -543,8 +548,8 @@ export default function DashboardPage() {
             <h1 className="text-2xl font-semibold">Login required</h1>
             <p className="mt-3 text-sm leading-6 text-slate-300">Please login with an approved account or signup for a new role request.</p>
             <div className="mt-6 flex justify-center gap-3">
-              <a href="/login" className="rounded-lg bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600">Login</a>
-              <a href="/signup" className="rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10">Signup</a>
+              <Link href="/login" className="rounded-lg bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600">Login</Link>
+              <Link href="/signup" className="rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10">Signup</Link>
             </div>
           </div>
         </section>

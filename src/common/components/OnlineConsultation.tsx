@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import {
   VideoIcon,
   ShieldCheckIcon,
@@ -67,13 +68,13 @@ export function OnlineConsultation() {
               )}
             </ul>
 
-            <a
+            <Link
               href="/signup"
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-teal-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-teal-700">
               
               Consult a Doctor Online
               <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
-            </a>
+            </Link>
           </div>
 
           <div className="relative lg:col-span-5">

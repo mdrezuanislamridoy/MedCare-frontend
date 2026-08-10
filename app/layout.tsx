@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import ThemeProvider from "../src/ThemeProvider";
+import ThemeToggle from "../src/ThemeToggle";
 import "../src/styles.css";
 
 export const metadata: Metadata = {
@@ -12,8 +14,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider>
+          {children}
+          <ThemeToggle />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
