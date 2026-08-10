@@ -15,10 +15,10 @@ export function FinalCta() {
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <a
-              href="#doctors"
+              href="/signup"
               className="inline-flex items-center gap-2 rounded-full bg-teal-600 px-7 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-teal-700">
               
-              Find a Doctor
+              Get started
               <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
             </a>
             <a

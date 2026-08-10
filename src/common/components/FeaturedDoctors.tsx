@@ -21,7 +21,7 @@ export function FeaturedDoctors() {
           description="Compare experience, patient ratings, consultation fees and the next open slot — all before you book."
           action={
           <a
-            href="#doctors"
+            href="/signup"
             className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white px-6 py-3 text-sm font-semibold text-teal-700 transition-colors hover:bg-teal-50">
             
               Browse all doctors

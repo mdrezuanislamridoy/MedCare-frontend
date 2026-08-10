@@ -10,7 +10,7 @@ export function Testimonials() {
         <SectionHeading
           eyebrow="Patient Stories"
           title="Trusted by patients and families every day"
-          description="Reviews are collected only from patients who completed a booking through MediBook." />
+          description="Reviews are collected only from patients who completed a booking through MedCare." />
         
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">

@@ -16,12 +16,12 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-teal-100/70 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-4 lg:px-8">
-        <a href="#top" className="flex items-center gap-2.5" aria-label="MediBook home">
+        <a href="#top" className="flex items-center gap-2.5" aria-label="MedCare home">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600 text-white">
             <ActivityIcon className="h-5 w-5" aria-hidden="true" />
           </span>
           <span className="font-display text-lg font-bold tracking-tight text-ink">
-            Medi<span className="text-teal-600">Book</span>
+            Med<span className="text-teal-600">Care</span>
           </span>
         </a>
 
@@ -39,16 +39,16 @@ export function Navbar() {
 
         <div className="hidden items-center gap-3 lg:flex">
           <a
-            href="#login"
+            href="/login"
             className="rounded-full px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-teal-50 hover:text-teal-700">
             
             Login
           </a>
           <a
-            href="#doctors"
+            href="/signup"
             className="rounded-full bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition-colors hover:bg-teal-700">
             
-            Book an Appointment
+            Signup
           </a>
         </div>
 
@@ -80,18 +80,18 @@ export function Navbar() {
           </nav>
           <div className="mt-3 flex flex-col gap-2">
             <a
-            href="#login"
+            href="/login"
             onClick={() => setOpen(false)}
             className="rounded-full border border-teal-200 px-4 py-2.5 text-center text-sm font-semibold text-ink">
             
               Login
             </a>
             <a
-            href="#doctors"
+            href="/signup"
             onClick={() => setOpen(false)}
             className="rounded-full bg-teal-600 px-4 py-2.5 text-center text-sm font-semibold text-white">
             
-              Book an Appointment
+              Signup
             </a>
           </div>
         </div>

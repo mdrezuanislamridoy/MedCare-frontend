@@ -1,5 +1,5 @@
-import MedCarePortal from "../src/MedCarePortal";
+import { App as LandingPage } from "../src/common/App";
 
 export default function HomePage() {
-  return <MedCarePortal />;
+  return <LandingPage />;
 }

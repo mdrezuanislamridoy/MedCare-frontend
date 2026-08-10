@@ -29,7 +29,7 @@ export function ForProviders() {
             Grow Your Practice With Us
           </h2>
           <p className="mt-4 max-w-lg text-base leading-relaxed text-teal-100">
-            Join 10,000+ practitioners and 100+ clinics using MediBook to fill their schedule, cut
+            Join 10,000+ practitioners and 100+ clinics using MedCare to fill their schedule, cut
             no-shows and run the admin side of care from a single dashboard.
           </p>
 

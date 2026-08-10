@@ -38,12 +38,12 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
-            <a href="#top" className="flex items-center gap-2.5" aria-label="MediBook home">
+            <a href="#top" className="flex items-center gap-2.5" aria-label="MedCare home">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600 text-white">
                 <ActivityIcon className="h-5 w-5" aria-hidden="true" />
               </span>
               <span className="font-display text-lg font-bold tracking-tight text-ink">
-                Medi<span className="text-teal-600">Book</span>
+                Med<span className="text-teal-600">Care</span>
               </span>
             </a>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-ink-soft">
@@ -55,7 +55,7 @@ export function Footer() {
               <li className="flex items-center gap-2.5">
                 <MailIcon className="h-4 w-4 text-teal-500" aria-hidden="true" />
                 <a href="mailto:care@medibook.health" className="hover:text-teal-700">
-                  care@medibook.health
+                  care@medcare.health
                 </a>
               </li>
               <li className="flex items-center gap-2.5">
@@ -93,7 +93,7 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-center justify-between gap-5 border-t border-teal-100 pt-8 sm:flex-row">
           <p className="text-sm text-ink-muted">
-            © {new Date().getFullYear()} MediBook Health. All rights reserved.
+            © {new Date().getFullYear()} MedCare Health. All rights reserved.
           </p>
           <ul className="flex items-center gap-2">
             {socials.map(({ label, icon: Icon }) =>

@@ -242,9 +242,84 @@ function SignupView({
           <button className="mt-6 w-full rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-600">
             Request access
           </button>
+          <a href="/login" className="mt-3 block text-center text-sm font-medium text-teal-200 hover:text-white">
+            Already approved? Login
+          </a>
           <p className="mt-3 text-xs leading-5 text-slate-400">
             Demo note: Super Admin accounts are approved immediately so there is always someone who can review new requests.
           </p>
+        </form>
+      </section>
+    </Shell>
+  );
+}
+
+function LoginView({
+  requests,
+  onLogin,
+}: {
+  requests: SignupRequest[];
+  onLogin: (session: Session) => void;
+}) {
+  const approvedRequests = requests.filter((request) => request.status === "approved");
+  const [email, setEmail] = useState(approvedRequests[0]?.email ?? "super-admin@medcare.local");
+
+  const selected = approvedRequests.find((request) => request.email === email);
+
+  return (
+    <Shell>
+      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_420px] lg:items-center">
+        <div>
+          <p className="text-sm font-medium uppercase tracking-[0.18em] text-teal-300">Login</p>
+          <h1 className="mt-4 max-w-2xl text-4xl font-semibold leading-tight sm:text-5xl">
+            Approved users can continue to their dashboard.
+          </h1>
+          <p className="mt-5 max-w-xl text-base leading-7 text-slate-300">
+            This is a frontend-only login placeholder. Later, the backend can validate credentials and return the approved role.
+          </p>
+          <div className="mt-8 rounded-lg border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
+            No approved account yet? Create a role request from signup. A Super Admin can approve it from their approval workspace.
+          </div>
+        </div>
+
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (selected) {
+              onLogin({ email: selected.email, role: selected.role, status: "approved" });
+              window.location.href = "/dashboard";
+            }
+          }}
+          className="rounded-lg border border-white/10 bg-white/[0.05] p-5 shadow-2xl"
+        >
+          <h2 className="text-lg font-semibold">Login to MedCare</h2>
+          <p className="mt-1 text-sm text-slate-400">Choose an approved local demo account.</p>
+
+          <label className="mt-5 block text-sm font-medium text-slate-200">
+            Approved account
+            <select
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+            >
+              {approvedRequests.length === 0 && <option value="">No approved accounts</option>}
+              {approvedRequests.map((request) => (
+                <option key={request.id} value={request.email}>
+                  {request.email} - {roleLabel(request.role)}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <button
+            disabled={!selected}
+            className="mt-6 w-full rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Continue to dashboard
+          </button>
+          <a href="/signup" className="mt-3 block text-center text-sm font-medium text-teal-200 hover:text-white">
+            Need an account? Signup
+          </a>
         </form>
       </section>
     </Shell>
@@ -367,20 +442,26 @@ function ApprovalWorkspace({
   );
 }
 
-export default function MedCarePortal() {
+function usePortalState() {
   const [requests, setRequests] = useState<SignupRequest[]>([]);
   const [session, setSession] = useState<Session | null>(null);
-  const [superAdminDashboardOpen, setSuperAdminDashboardOpen] = useState(false);
 
   useEffect(() => {
-    setRequests(loadRequests());
+    const storedRequests = loadRequests();
+    if (!storedRequests.some((request) => request.email === "super-admin@medcare.local")) {
+      storedRequests.unshift({
+        id: "seed-super-admin",
+        name: "Super Admin",
+        email: "super-admin@medcare.local",
+        role: "super-admin",
+        status: "approved",
+        createdAt: new Date().toISOString(),
+      });
+      saveRequests(storedRequests);
+    }
+    setRequests(storedRequests);
     setSession(loadSession());
   }, []);
-
-  const activeRequest = useMemo(
-    () => requests.find((request) => request.email === session?.email && request.role === session.role),
-    [requests, session],
-  );
 
   const updateRequests = (nextRequests: SignupRequest[]) => {
     setRequests(nextRequests);
@@ -392,6 +473,12 @@ export default function MedCarePortal() {
     saveSession(nextSession);
   };
 
+  return { requests, session, setRequests, updateRequests, updateSession };
+}
+
+export function SignupPage() {
+  const { requests, updateRequests, updateSession } = usePortalState();
+
   const handleSignup = (input: Omit<SignupRequest, "id" | "status" | "createdAt">) => {
     const status: RequestStatus = input.role === "super-admin" ? "approved" : "pending";
     const request: SignupRequest = {
@@ -402,8 +489,26 @@ export default function MedCarePortal() {
     };
     updateRequests([request, ...requests]);
     updateSession({ email: request.email, role: request.role, status });
-    setSuperAdminDashboardOpen(false);
+    window.location.href = status === "approved" ? "/dashboard" : "/dashboard";
   };
+
+  return <SignupView onSignup={handleSignup} />;
+}
+
+export function LoginPage() {
+  const { requests, updateSession } = usePortalState();
+
+  return <LoginView requests={requests} onLogin={updateSession} />;
+}
+
+export default function DashboardPage() {
+  const { requests, session, setRequests, updateRequests, updateSession } = usePortalState();
+  const [superAdminDashboardOpen, setSuperAdminDashboardOpen] = useState(false);
+
+  const activeRequest = useMemo(
+    () => requests.find((request) => request.email === session?.email && request.role === session.role),
+    [requests, session],
+  );
 
   const handleApprove = (id: string) => {
     const nextRequests = requests.map((request) => (request.id === id ? { ...request, status: "approved" as const } : request));
@@ -427,10 +532,24 @@ export default function MedCarePortal() {
   const handleSignOut = () => {
     updateSession(null);
     setSuperAdminDashboardOpen(false);
+    window.location.href = "/login";
   };
 
   if (!session) {
-    return <SignupView onSignup={handleSignup} />;
+    return (
+      <Shell>
+        <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-xl items-center px-4 py-8 text-center">
+          <div className="rounded-lg border border-white/10 bg-white/[0.05] p-6">
+            <h1 className="text-2xl font-semibold">Login required</h1>
+            <p className="mt-3 text-sm leading-6 text-slate-300">Please login with an approved account or signup for a new role request.</p>
+            <div className="mt-6 flex justify-center gap-3">
+              <a href="/login" className="rounded-lg bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600">Login</a>
+              <a href="/signup" className="rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10">Signup</a>
+            </div>
+          </div>
+        </section>
+      </Shell>
+    );
   }
 
   if (session.role === "super-admin" && !superAdminDashboardOpen) {
