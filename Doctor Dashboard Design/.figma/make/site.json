@@ -1,0 +1,10 @@
+{
+  "description": "Streamline patient management with a comprehensive dashboard for doctors, enabling efficient scheduling, consultations, prescriptions, and earnings tracking.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
