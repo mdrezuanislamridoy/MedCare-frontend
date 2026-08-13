@@ -1,5 +1,5 @@
 import { tickets, appointments, messages, notifications } from '../data/mockData';
-import { Card, StatusBadge, PriorityBadge, Avatar } from './ui';
+import { Card, StatusBadge, PriorityBadge, Avatar } from '../components/ui';
 
 const resolved = tickets.filter(t => t.status === 'Resolved').length;
 const open = tickets.filter(t => t.status === 'Open').length;

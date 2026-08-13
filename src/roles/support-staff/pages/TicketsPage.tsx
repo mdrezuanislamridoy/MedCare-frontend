@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { tickets as initialTickets, type Ticket, type TicketStatus, type TicketPriority, type TicketCategory } from '../data/mockData';
-import { Card, StatusBadge, PriorityBadge, Avatar, Button, Input, Select, Pagination, Modal, ConfirmDialog } from './ui';
+import { Card, StatusBadge, PriorityBadge, Avatar, Button, Input, Select, Pagination, Modal, ConfirmDialog } from '../components/ui';
 
 const categories: TicketCategory[] = ['Appointment', 'Payment', 'Account', 'Doctor', 'Technical', 'General'];
 const priorities: TicketPriority[] = ['Low', 'Medium', 'High', 'Urgent'];

@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { ToastContainer, useToast } from './components/ui';
-import DashboardPage from './components/DashboardPage';
-import TicketsPage from './components/TicketsPage';
-import PatientsPage from './components/PatientsPage';
-import AppointmentsPage from './components/AppointmentsPage';
-import ComplaintsPage from './components/ComplaintsPage';
-import MessagesPage from './components/MessagesPage';
-import NotificationsPage from './components/NotificationsPage';
-import ActivityPage from './components/ActivityPage';
+import DashboardPage from './pages/DashboardPage';
+import TicketsPage from './pages/TicketsPage';
+import PatientsPage from './pages/PatientsPage';
+import AppointmentsPage from './pages/AppointmentsPage';
+import ComplaintsPage from './pages/ComplaintsPage';
+import MessagesPage from './pages/MessagesPage';
+import NotificationsPage from './pages/NotificationsPage';
+import ActivityPage from './pages/ActivityPage';
 import { notifications, messages, tickets } from './data/mockData';
 
 type Page = 'dashboard' | 'tickets' | 'patients' | 'appointments' | 'complaints' | 'messages' | 'notifications' | 'activity';

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { appointments as initialAppts, type Appointment } from '../data/mockData';
-import { Card, StatusBadge, Avatar, Button, Input, Select, Pagination, Modal, ConfirmDialog } from './ui';
+import { Card, StatusBadge, Avatar, Button, Input, Select, Pagination, Modal, ConfirmDialog } from '../components/ui';
 
 const statusOptions = ['Scheduled', 'Confirmed', 'Pending Reschedule', 'Cancelled', 'Completed', 'No Show'];
 

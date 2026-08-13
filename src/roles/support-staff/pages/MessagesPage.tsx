@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { messages as initialMessages, type Message } from '../data/mockData';
-import { StatusBadge, PriorityBadge, Avatar, Button, ConfirmDialog } from './ui';
+import { StatusBadge, PriorityBadge, Avatar, Button, ConfirmDialog } from '../components/ui';
 
 export default function MessagesPage({ showToast }: { showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
   const [data, setData] = useState<Message[]>(initialMessages);

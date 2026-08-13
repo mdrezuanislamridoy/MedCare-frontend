@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { complaints as initial, type Complaint } from '../data/mockData';
-import { Card, StatusBadge, PriorityBadge, Avatar, Button, Input, Select, Pagination, Modal, ConfirmDialog } from './ui';
+import { Card, StatusBadge, PriorityBadge, Avatar, Button, Input, Select, Pagination, Modal, ConfirmDialog } from '../components/ui';
 
 type ComplaintStatus = Complaint['status'];
 

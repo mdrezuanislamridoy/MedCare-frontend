@@ -1,5 +1,5 @@
 import { activityLog, type ActivityItem } from '../data/mockData';
-import { Card } from './ui';
+import { Card } from '../components/ui';
 
 const typeConfig: Record<ActivityItem['type'], { icon: string; color: string }> = {
   ticket: { icon: '🎫', color: 'bg-blue-50 text-blue-600' },

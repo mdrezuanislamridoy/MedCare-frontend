@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { patients, type Patient } from '../data/mockData';
-import { Card, StatusBadge, Avatar, Button, Input, Modal, EmptyState } from './ui';
+import { Card, StatusBadge, Avatar, Button, Input, Modal, EmptyState } from '../components/ui';
 
 export default function PatientsPage({ showToast }: { showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
   const [search, setSearch] = useState('');

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { notifications as initial, type Notification } from '../data/mockData';
-import { Button } from './ui';
+import { Button } from '../components/ui';
 
 const typeConfig: Record<Notification['type'], { icon: string; color: string }> = {
   ticket: { icon: '🎫', color: 'bg-blue-50 text-blue-600' },
