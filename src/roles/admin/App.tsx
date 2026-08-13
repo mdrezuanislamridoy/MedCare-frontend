@@ -1280,7 +1280,7 @@ function Sidebar({ active, onNav, collapsed, onToggle }: {
   active: ViewId; onNav: (v: ViewId) => void; collapsed: boolean; onToggle: () => void;
 }) {
   return (
-    <aside style={{ width: collapsed ? 64 : 240 }} className="bg-[#0F172A] flex flex-col h-full flex-shrink-0 transition-all duration-200 overflow-hidden">
+    <aside className={`bg-[#0F172A] flex flex-col h-full flex-shrink-0 transition-all duration-200 overflow-hidden ${collapsed ? "w-16" : "w-60"}`}>
       <div className="flex items-center h-14 px-4 border-b border-white/[0.06] flex-shrink-0">
         <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center flex-shrink-0">
           <Activity className="w-4 h-4 text-white" />
@@ -1437,7 +1437,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-100 overflow-hidden" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
+    <div className="flex h-screen bg-slate-100 overflow-hidden font-sans">
       <Toaster position="top-right" richColors closeButton />
       <Sidebar active={view} onNav={setView} collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">

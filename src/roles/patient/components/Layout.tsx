@@ -42,7 +42,7 @@ export default function Layout({ current, onChange, children }: {
           <Activity className="w-4 h-4 text-white" />
         </div>
         <div>
-          <p className="font-semibold text-slate-800 text-sm leading-tight" style={{ fontFamily: 'DM Sans, sans-serif' }}>MedCare</p>
+          <p className="font-patient font-semibold text-slate-800 text-sm leading-tight">MedCare</p>
           <p className="text-xs text-slate-400">Patient Portal</p>
         </div>
       </div>

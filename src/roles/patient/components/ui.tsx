@@ -87,7 +87,7 @@ export function StatCard({ label, value, icon, color = 'sky', sub }: { label: st
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>{value}</p>
+        <p className="font-patient text-2xl font-semibold text-slate-800">{value}</p>
         <p className="text-sm text-slate-500 mt-0.5">{label}</p>
         {sub && <p className="text-xs text-slate-400 mt-0.5">{sub}</p>}
       </div>
@@ -100,7 +100,7 @@ export function StatCard({ label, value, icon, color = 'sky', sub }: { label: st
 export function SectionHeader({ title, action, actionLabel }: { title: string; action?: () => void; actionLabel?: string }) {
   return (
     <div className="flex items-center justify-between mb-4">
-      <h2 className="text-base font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>{title}</h2>
+      <h2 className="font-patient text-base font-semibold text-slate-800">{title}</h2>
       {action && (
         <button onClick={action} className="text-sm font-medium text-teal-600 hover:text-teal-700 transition-colors">
           {actionLabel ?? 'View all'}
@@ -202,7 +202,7 @@ export function EmptyState({ icon, title, description, action, actionLabel }: {
       <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 mb-4">
         {icon}
       </div>
-      <h3 className="font-semibold text-slate-700 mb-1" style={{ fontFamily: 'DM Sans, sans-serif' }}>{title}</h3>
+      <h3 className="font-patient font-semibold text-slate-700 mb-1">{title}</h3>
       {description && <p className="text-sm text-slate-500 max-w-xs">{description}</p>}
       {action && (
         <Button onClick={action} className="mt-4">{actionLabel ?? 'Get started'}</Button>
@@ -242,7 +242,7 @@ export function Modal({ children, onClose, title, size = 'md' }: { children: Rea
       >
         {title && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-            <h3 className="font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>{title}</h3>
+            <h3 className="font-patient font-semibold text-slate-800">{title}</h3>
             <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>

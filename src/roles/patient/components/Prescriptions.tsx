@@ -11,7 +11,7 @@ export default function Prescriptions() {
   return (
     <div className="p-6 animate-fade-in">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>Prescriptions</h1>
+        <h1 className="font-patient text-2xl font-semibold text-slate-800">Prescriptions</h1>
         <p className="text-slate-500 text-sm mt-0.5">View and download your digital prescriptions.</p>
       </div>
 
@@ -35,7 +35,7 @@ export default function Prescriptions() {
                 >
                   <Avatar src={dr.photo} name={dr.name} size="md" />
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-800 text-sm">{rx.diagnosis}</p>
+                    <p className="font-patient font-semibold text-slate-800 text-sm">{rx.diagnosis}</p>
                     <p className="text-xs text-slate-500 mt-0.5">{dr.name} · {dr.specialty}</p>
                     <div className="flex items-center gap-2 mt-1.5 text-xs text-slate-400">
                       <Calendar className="w-3 h-3" />
@@ -59,7 +59,7 @@ export default function Prescriptions() {
                     <div className="px-5 py-4 bg-slate-50 flex items-center justify-between flex-wrap gap-3">
                       <div>
                         <p className="text-xs text-slate-400">Prescription for</p>
-                        <p className="font-semibold text-slate-800">Sarah Johnson</p>
+                        <p className="font-patient font-semibold text-slate-800">Sarah Johnson</p>
                       </div>
                       <div className="text-right">
                         <p className="text-xs text-slate-400">Prescribed by</p>

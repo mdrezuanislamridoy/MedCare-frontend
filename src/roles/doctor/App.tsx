@@ -76,8 +76,7 @@ export default function App() {
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed xl:relative z-40 flex flex-col h-full w-64 flex-shrink-0 transition-transform duration-200 ${sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"}`}
-        style={{ background: "#0f172a" }}>
+      <aside className={`fixed xl:relative z-40 flex flex-col h-full w-64 flex-shrink-0 bg-slate-900 transition-transform duration-200 ${sidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"}`}>
         {/* Logo */}
         <div className="flex items-center justify-between h-16 px-5 border-b border-white/10">
           <div className="flex items-center gap-2.5">
@@ -85,7 +84,7 @@ export default function App() {
               <Stethoscope className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="text-white font-bold text-sm leading-tight" style={{ fontFamily: "Outfit, sans-serif" }}>MedCare</div>
+              <div className="font-doctor text-white font-bold text-sm leading-tight">MedCare</div>
               <div className="text-slate-400 text-xs">Doctor Portal</div>
             </div>
           </div>

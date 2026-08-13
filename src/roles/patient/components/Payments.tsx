@@ -21,7 +21,7 @@ export default function Payments() {
   return (
     <div className="p-6 animate-fade-in">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>Payments</h1>
+        <h1 className="font-patient text-2xl font-semibold text-slate-800">Payments</h1>
         <p className="text-slate-500 text-sm mt-0.5">Track your consultation fees, payments, and refunds.</p>
       </div>
 

@@ -376,7 +376,7 @@ type ConfirmState = { open: boolean; title: string; body: string; onConfirm: () 
 function ConfirmModal({ state, onCancel }: { state: ConfirmState; onCancel: () => void }) {
   if (!state.open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(15,23,42,0.45)" }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45">
       <div className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
         <div className="px-6 pt-6 pb-5">
           <div className="flex gap-3 items-start">
@@ -1176,8 +1176,7 @@ function RolesPage({ toast }: { toast: (m: string, t: ToastItem["type"]) => void
                         <td key={p} className="px-2 py-3 text-center border-b border-border/60">
                           {applicable ? (
                             <button onClick={() => toggle(g.id, p)}
-                              className={`w-8 h-4.5 rounded-full transition-all duration-200 mx-auto flex items-center relative ${on ? "bg-primary" : "bg-slate-200"}`}
-                              style={{ width: 32, height: 18 }}>
+                              className={`w-8 h-[18px] rounded-full transition-all duration-200 mx-auto flex items-center relative ${on ? "bg-primary" : "bg-slate-200"}`}>
                               <span className={`absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white shadow-sm transition-all duration-200 ${on ? "right-0.5" : "left-0.5"}`} />
                             </button>
                           ) : (
@@ -1534,11 +1533,10 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+    <div className="flex h-screen overflow-hidden bg-background font-display">
 
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
-      <aside className={`flex flex-col shrink-0 bg-sidebar transition-all duration-200 ease-in-out ${collapsed ? "w-[60px]" : "w-[220px]"} border-r border-sidebar-border`}
-        style={{ background: "linear-gradient(180deg, #0f172a 0%, #0d1529 100%)" }}>
+      <aside className={`flex flex-col shrink-0 bg-[linear-gradient(180deg,#0f172a_0%,#0d1529_100%)] transition-all duration-200 ease-in-out ${collapsed ? "w-[60px]" : "w-[220px]"} border-r border-sidebar-border`}>
 
         {/* Logo */}
         <div className={`flex items-center h-[57px] border-b border-sidebar-border shrink-0 ${collapsed ? "justify-center px-0" : "px-4 gap-3"}`}>
@@ -1554,7 +1552,7 @@ export default function App() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-5" style={{ scrollbarWidth: "none" }}>
+        <nav className="no-scrollbar flex-1 overflow-y-auto py-4 px-2 space-y-5">
           {navConfig.map(group => (
             <div key={group.section}>
               {!collapsed && (
@@ -1734,7 +1732,7 @@ export default function App() {
         </header>
 
         {/* Page */}
-        <main key={page} className="flex-1 overflow-y-auto p-5 lg:p-6" style={{ scrollbarWidth: "thin", scrollbarColor: "#e2e8f0 transparent" }}>
+        <main key={page} className="scrollbar-thin flex-1 overflow-y-auto p-5 lg:p-6">
           {renderPage()}
         </main>
       </div>

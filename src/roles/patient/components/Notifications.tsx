@@ -39,7 +39,7 @@ export default function Notifications() {
     <div className="p-6 animate-fade-in">
       <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>Notifications</h1>
+          <h1 className="font-patient text-2xl font-semibold text-slate-800">Notifications</h1>
           <p className="text-slate-500 text-sm mt-0.5">
             {unreadCount > 0 ? `${unreadCount} unread notification${unreadCount !== 1 ? 's' : ''}` : 'All caught up!'}
           </p>

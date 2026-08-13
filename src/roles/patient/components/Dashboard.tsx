@@ -17,7 +17,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
     <div className="p-6 space-y-6 animate-fade-in">
       {/* Greeting */}
       <div>
-        <h1 className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>
+        <h1 className="font-patient text-2xl font-semibold text-slate-800">
           Good afternoon, {patient.name.split(' ')[0]} 👋
         </h1>
         <p className="text-slate-500 text-sm mt-0.5">Here is your health summary for today.</p>
@@ -71,7 +71,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
                 <Video className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="text-white font-semibold" style={{ fontFamily: 'DM Sans, sans-serif' }}>Active Consultation</p>
+                <p className="font-patient text-white font-semibold">Active Consultation</p>
                 <p className="text-teal-100 text-sm">
                   {getDr(todayAppt.doctorId).name} · {getDr(todayAppt.doctorId).specialty} · Now
                 </p>

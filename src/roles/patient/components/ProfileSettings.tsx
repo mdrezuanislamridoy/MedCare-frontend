@@ -36,7 +36,7 @@ export default function ProfileSettings() {
   return (
     <div className="p-6 animate-fade-in">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>Profile & Settings</h1>
+        <h1 className="font-patient text-2xl font-semibold text-slate-800">Profile & Settings</h1>
         <p className="text-slate-500 text-sm mt-0.5">Manage your personal information, security, and preferences.</p>
       </div>
 
@@ -50,7 +50,7 @@ export default function ProfileSettings() {
                 <Camera className="w-3.5 h-3.5 text-white" />
               </button>
             </div>
-            <h2 className="font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>{patient.name}</h2>
+            <h2 className="font-patient font-semibold text-slate-800">{patient.name}</h2>
             <p className="text-sm text-slate-500 mt-0.5">{patient.email}</p>
             <div className="mt-3 flex items-center justify-center gap-2 text-xs text-slate-500">
               <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 font-medium">Verified</span>
@@ -86,7 +86,7 @@ export default function ProfileSettings() {
         <div className="lg:col-span-3">
           {activeTab === 'Personal Info' && (
             <Card className="p-6 animate-fade-in">
-              <h3 className="font-semibold text-slate-800 mb-5" style={{ fontFamily: 'DM Sans, sans-serif' }}>Personal Information</h3>
+              <h3 className="font-patient font-semibold text-slate-800 mb-5">Personal Information</h3>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
                   <Input label="Full Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
@@ -136,7 +136,7 @@ export default function ProfileSettings() {
 
           {activeTab === 'Emergency Contact' && (
             <Card className="p-6 animate-fade-in">
-              <h3 className="font-semibold text-slate-800 mb-5" style={{ fontFamily: 'DM Sans, sans-serif' }}>Emergency Contact</h3>
+              <h3 className="font-patient font-semibold text-slate-800 mb-5">Emergency Contact</h3>
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input label="Contact Name" defaultValue={patient.emergencyContact.name} />
                 <Input label="Relationship" defaultValue={patient.emergencyContact.relation} />
@@ -150,7 +150,7 @@ export default function ProfileSettings() {
 
           {activeTab === 'Security' && (
             <Card className="p-6 animate-fade-in space-y-5">
-              <h3 className="font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>Security Settings</h3>
+              <h3 className="font-patient font-semibold text-slate-800">Security Settings</h3>
 
               <div className="grid sm:grid-cols-1 gap-4 max-w-md">
                 <Input label="Current Password" type="password" placeholder="••••••••" />
@@ -200,7 +200,7 @@ export default function ProfileSettings() {
 
           {activeTab === 'Notifications' && (
             <Card className="p-6 animate-fade-in">
-              <h3 className="font-semibold text-slate-800 mb-5" style={{ fontFamily: 'DM Sans, sans-serif' }}>Notification Preferences</h3>
+              <h3 className="font-patient font-semibold text-slate-800 mb-5">Notification Preferences</h3>
               <div className="space-y-1">
                 {(Object.entries(notifPrefs) as [keyof typeof notifPrefs, boolean][]).map(([key, val]) => {
                   const labels: Record<string, { label: string; desc: string }> = {
@@ -239,7 +239,7 @@ export default function ProfileSettings() {
 
           {activeTab === 'Privacy' && (
             <Card className="p-6 animate-fade-in space-y-5">
-              <h3 className="font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>Privacy & Data</h3>
+              <h3 className="font-patient font-semibold text-slate-800">Privacy & Data</h3>
               <div className="space-y-3">
                 {[
                   { title: 'Profile Visibility', desc: 'Control who can see your profile information' },

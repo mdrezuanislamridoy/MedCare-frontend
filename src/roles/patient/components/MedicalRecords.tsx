@@ -46,7 +46,7 @@ export default function MedicalRecords() {
   return (
     <div className="p-6 animate-fade-in">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>Medical Records</h1>
+        <h1 className="font-patient text-2xl font-semibold text-slate-800">Medical Records</h1>
         <p className="text-slate-500 text-sm mt-0.5">Your complete medical history, securely stored and accessible.</p>
       </div>
 
@@ -100,7 +100,7 @@ export default function MedicalRecords() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3 flex-wrap">
                       <div>
-                        <p className="font-semibold text-slate-800 text-sm">{record.title}</p>
+                        <p className="font-patient font-semibold text-slate-800 text-sm">{record.title}</p>
                         {dr && <p className="text-xs text-slate-500 mt-0.5">{dr.name} · {dr.specialty}</p>}
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">

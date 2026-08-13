@@ -71,7 +71,7 @@ export default function MyAppointments({ onBook }: { onBook: () => void }) {
     <div className="p-6 animate-fade-in">
       <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>My Appointments</h1>
+          <h1 className="font-patient text-2xl font-semibold text-slate-800">My Appointments</h1>
           <p className="text-slate-500 text-sm mt-0.5">Manage all your doctor appointments in one place.</p>
         </div>
         <Button onClick={onBook}>
@@ -123,7 +123,7 @@ export default function MyAppointments({ onBook }: { onBook: () => void }) {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between flex-wrap gap-2 mb-2">
                         <div>
-                          <p className="font-semibold text-slate-800">{dr.name}</p>
+                          <p className="font-patient font-semibold text-slate-800">{dr.name}</p>
                           <p className="text-sm text-teal-600">{dr.specialty}</p>
                         </div>
                         <div className="flex gap-2 flex-wrap">
@@ -160,7 +160,7 @@ export default function MyAppointments({ onBook }: { onBook: () => void }) {
                 <div className="flex items-center gap-4">
                   <Avatar src={dr.photo} name={dr.name} size="lg" />
                   <div>
-                    <p className="font-semibold text-slate-800">{dr.name}</p>
+                    <p className="font-patient font-semibold text-slate-800">{dr.name}</p>
                     <p className="text-teal-600 text-sm">{dr.specialty}</p>
                   </div>
                 </div>
@@ -234,7 +234,7 @@ function CalendarView({ appointments }: { appointments: Appointment[] }) {
   return (
     <Card className="p-5">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>August 2026</h3>
+        <h3 className="font-patient font-semibold text-slate-800">August 2026</h3>
       </div>
       <div className="grid grid-cols-7 gap-1 mb-1">
         {dayNames.map(d => (

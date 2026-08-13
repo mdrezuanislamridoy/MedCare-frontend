@@ -60,7 +60,7 @@ export default function Reviews() {
   return (
     <div className="p-6 animate-fade-in">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>Reviews</h1>
+        <h1 className="font-patient text-2xl font-semibold text-slate-800">Reviews</h1>
         <p className="text-slate-500 text-sm mt-0.5">Share your experience to help other patients find the right doctor.</p>
       </div>
 
@@ -111,7 +111,7 @@ export default function Reviews() {
                   <div className="flex-1">
                     <div className="flex items-start justify-between flex-wrap gap-2 mb-2">
                       <div>
-                        <p className="font-semibold text-slate-800 text-sm">{dr.name}</p>
+                        <p className="font-patient font-semibold text-slate-800 text-sm">{dr.name}</p>
                         <p className="text-xs text-teal-600">{dr.specialty}</p>
                       </div>
                       <div className="flex items-center gap-2">

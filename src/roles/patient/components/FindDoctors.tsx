@@ -33,7 +33,7 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
   return (
     <div className="p-6 animate-fade-in">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>Find Doctors</h1>
+        <h1 className="font-patient text-2xl font-semibold text-slate-800">Find Doctors</h1>
         <p className="text-slate-500 text-sm mt-0.5">Discover and book appointments with top specialists near you.</p>
       </div>
 
@@ -139,7 +139,7 @@ function DoctorCard({ doctor: dr, onView, onBook }: { doctor: Doctor; onView: ()
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h3 className="font-semibold text-slate-800 text-sm leading-tight" style={{ fontFamily: 'DM Sans, sans-serif' }}>{dr.name}</h3>
+                <h3 className="font-patient font-semibold text-slate-800 text-sm leading-tight">{dr.name}</h3>
                 <p className="text-xs text-teal-600 font-medium mt-0.5">{dr.specialty}</p>
               </div>
               {dr.availableOnline && <Badge variant="online" />}
@@ -208,7 +208,7 @@ function DoctorProfile({ doctor: dr, onBack, onBook }: { doctor: Doctor; onBack:
               <div className="flex-1">
                 <div className="flex items-start justify-between flex-wrap gap-2">
                   <div>
-                    <h2 className="text-xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>{dr.name}</h2>
+                    <h2 className="font-patient text-xl font-semibold text-slate-800">{dr.name}</h2>
                     <p className="text-teal-600 font-medium">{dr.specialty}</p>
                   </div>
                   <div className="flex gap-2">
@@ -218,7 +218,7 @@ function DoctorProfile({ doctor: dr, onBack, onBook }: { doctor: Doctor; onBack:
                 </div>
                 <div className="flex items-center gap-2 mt-2">
                   <Stars rating={dr.rating} size="md" />
-                  <span className="font-semibold text-slate-700">{dr.rating}</span>
+                  <span className="font-patient font-semibold text-slate-700">{dr.rating}</span>
                   <span className="text-slate-400 text-sm">({dr.reviewCount} reviews)</span>
                 </div>
                 <div className="flex flex-wrap gap-3 mt-3 text-sm text-slate-600">
@@ -252,7 +252,7 @@ function DoctorProfile({ doctor: dr, onBack, onBook }: { doctor: Doctor; onBack:
 
           {/* Placeholder reviews */}
           <Card className="p-5">
-            <h3 className="font-semibold text-slate-800 mb-4" style={{ fontFamily: 'DM Sans, sans-serif' }}>Patient Reviews</h3>
+            <h3 className="font-patient font-semibold text-slate-800 mb-4">Patient Reviews</h3>
             {[
               { author: 'Ananya P.', rating: 5, text: 'Exceptional doctor, very thorough and caring. Took the time to explain everything clearly.', ago: '2 weeks ago' },
               { author: 'Rohan K.', rating: 5, text: 'Highly professional. Diagnosed my condition accurately on the first visit. Highly recommended.', ago: '1 month ago' },
@@ -278,7 +278,7 @@ function DoctorProfile({ doctor: dr, onBack, onBook }: { doctor: Doctor; onBack:
         {/* Booking sidebar */}
         <div className="space-y-4">
           <Card className="p-5">
-            <h3 className="font-semibold text-slate-800 mb-4" style={{ fontFamily: 'DM Sans, sans-serif' }}>Book Appointment</h3>
+            <h3 className="font-patient font-semibold text-slate-800 mb-4">Book Appointment</h3>
             <div className="mb-4">
               <p className="text-xs font-medium text-slate-600 mb-2">Select a time slot</p>
               <div className="grid grid-cols-2 gap-2">
@@ -299,7 +299,7 @@ function DoctorProfile({ doctor: dr, onBack, onBook }: { doctor: Doctor; onBack:
             </div>
             <div className="flex items-center justify-between py-3 border-t border-slate-100 text-sm">
               <span className="text-slate-500">Consultation fee</span>
-              <span className="font-semibold text-slate-800">₹{dr.fee}</span>
+              <span className="font-patient font-semibold text-slate-800">₹{dr.fee}</span>
             </div>
             <Button variant="primary" onClick={onBook} className="w-full justify-center mt-2" disabled={!selectedSlot}>
               Book Appointment

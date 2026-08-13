@@ -21,7 +21,7 @@ export default function Reviews() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
         {/* Summary */}
         <div className="bg-white rounded-xl border border-slate-200 p-6 flex flex-col items-center text-center">
-          <div className="text-6xl font-bold text-slate-900 mb-1" style={{ fontFamily: "Outfit, sans-serif" }}>4.8</div>
+          <div className="font-doctor text-6xl font-bold text-slate-900 mb-1">4.8</div>
           <div className="flex mb-2">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className={`w-5 h-5 ${i < 5 ? "text-amber-400 fill-amber-400" : "text-slate-200"}`} />

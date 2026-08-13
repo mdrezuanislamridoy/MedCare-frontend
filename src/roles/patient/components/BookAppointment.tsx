@@ -63,7 +63,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
   return (
     <div className="p-6 animate-fade-in">
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-slate-800" style={{ fontFamily: 'DM Sans, sans-serif' }}>Book Appointment</h1>
+        <h1 className="font-patient text-2xl font-semibold text-slate-800">Book Appointment</h1>
         <p className="text-slate-500 text-sm mt-0.5">Complete the steps below to confirm your appointment.</p>
       </div>
 
@@ -73,11 +73,11 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
         {/* Step 1 – Doctor */}
         {step === 1 && (
           <Card className="p-6 animate-fade-in">
-            <h2 className="font-semibold text-slate-800 mb-4" style={{ fontFamily: 'DM Sans, sans-serif' }}>Your Doctor</h2>
+            <h2 className="font-patient font-semibold text-slate-800 mb-4">Your Doctor</h2>
             <div className="flex items-center gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
               <Avatar src={doctor.photo} name={doctor.name} size="lg" />
               <div className="flex-1">
-                <p className="font-semibold text-slate-800">{doctor.name}</p>
+                <p className="font-patient font-semibold text-slate-800">{doctor.name}</p>
                 <p className="text-teal-600 text-sm">{doctor.specialty}</p>
                 <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
                   <span>{doctor.experience} yrs exp</span>
@@ -97,7 +97,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
         {/* Step 2 – Date & Slot */}
         {step === 2 && (
           <Card className="p-6 animate-fade-in">
-            <h2 className="font-semibold text-slate-800 mb-4" style={{ fontFamily: 'DM Sans, sans-serif' }}>Select Date & Time</h2>
+            <h2 className="font-patient font-semibold text-slate-800 mb-4">Select Date & Time</h2>
 
             <p className="text-sm font-medium text-slate-600 mb-2">Available Dates</p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
@@ -158,7 +158,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
         {/* Step 3 – Type */}
         {step === 3 && (
           <Card className="p-6 animate-fade-in">
-            <h2 className="font-semibold text-slate-800 mb-4" style={{ fontFamily: 'DM Sans, sans-serif' }}>Consultation Type</h2>
+            <h2 className="font-patient font-semibold text-slate-800 mb-4">Consultation Type</h2>
             <div className="grid grid-cols-2 gap-4">
               {(['clinic', 'online'] as const).map(type => {
                 const isOnlineUnavailable = type === 'online' && !doctor.availableOnline;
@@ -196,7 +196,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
         {/* Step 4 – Patient Details */}
         {step === 4 && (
           <Card className="p-6 animate-fade-in">
-            <h2 className="font-semibold text-slate-800 mb-4" style={{ fontFamily: 'DM Sans, sans-serif' }}>Patient Details</h2>
+            <h2 className="font-patient font-semibold text-slate-800 mb-4">Patient Details</h2>
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 mb-4 flex items-center gap-3">
               <User className="w-5 h-5 text-slate-400" />
               <div>
@@ -224,7 +224,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
         {/* Step 5 – Payment */}
         {step === 5 && (
           <Card className="p-6 animate-fade-in">
-            <h2 className="font-semibold text-slate-800 mb-4" style={{ fontFamily: 'DM Sans, sans-serif' }}>Payment</h2>
+            <h2 className="font-patient font-semibold text-slate-800 mb-4">Payment</h2>
 
             {/* Booking summary */}
             <div className="bg-slate-50 rounded-xl border border-slate-100 p-4 mb-5 space-y-2 text-sm">
@@ -245,7 +245,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
                 <Badge variant={consultType} />
               </div>
               <div className="border-t border-slate-200 pt-2 mt-2 flex justify-between">
-                <span className="font-semibold text-slate-700">Total</span>
+                <span className="font-patient font-semibold text-slate-700">Total</span>
                 <span className="font-semibold text-emerald-700">₹{doctor.fee}</span>
               </div>
             </div>
@@ -305,7 +305,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
             <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-8 h-8 text-emerald-600" />
             </div>
-            <h2 className="text-xl font-semibold text-slate-800 mb-2" style={{ fontFamily: 'DM Sans, sans-serif' }}>Appointment Confirmed!</h2>
+            <h2 className="font-patient text-xl font-semibold text-slate-800 mb-2">Appointment Confirmed!</h2>
             <p className="text-slate-500 text-sm mb-6">Your appointment has been successfully booked. A confirmation has been sent to your email.</p>
 
             <div className="bg-slate-50 rounded-xl p-4 mb-6 text-sm space-y-2 text-left">
