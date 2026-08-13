@@ -19,8 +19,9 @@ import ClinicManagerApp from "./roles/clinic-manager/App";
 import DoctorApp from "./roles/doctor/App";
 import PatientApp from "./roles/patient/App";
 import ReceptionistApp from "./roles/receptionist/App";
+import SupportStaffApp from "./roles/support-staff/App";
 
-type Role = "super-admin" | "admin" | "clinic-manager" | "receptionist" | "doctor" | "patient";
+type Role = "super-admin" | "admin" | "clinic-manager" | "receptionist" | "support-staff" | "doctor" | "patient";
 type RequestStatus = "pending" | "approved";
 
 interface SignupRequest {
@@ -78,6 +79,12 @@ const roles: {
     icon: UserCheck,
   },
   {
+    id: "support-staff",
+    label: "Support Staff",
+    description: "Resolve support tickets, patient requests, appointment issues, complaints, messages, and activity logs.",
+    icon: Users,
+  },
+  {
     id: "super-admin",
     label: "Super Admin",
     description: "Approve access requests and control the complete platform workspace.",
@@ -129,6 +136,7 @@ function DashboardForRole({ role }: { role: Role }) {
   if (role === "admin") return <AdminApp />;
   if (role === "clinic-manager") return <ClinicManagerApp />;
   if (role === "receptionist") return <ReceptionistApp />;
+  if (role === "support-staff") return <SupportStaffApp />;
   if (role === "doctor") return <DoctorApp />;
   return <PatientApp />;
 }
