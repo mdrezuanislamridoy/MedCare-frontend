@@ -18,8 +18,9 @@ import AdminApp from "./roles/admin/App";
 import ClinicManagerApp from "./roles/clinic-manager/App";
 import DoctorApp from "./roles/doctor/App";
 import PatientApp from "./roles/patient/App";
+import ReceptionistApp from "./roles/receptionist/App";
 
-type Role = "super-admin" | "admin" | "clinic-manager" | "doctor" | "patient";
+type Role = "super-admin" | "admin" | "clinic-manager" | "receptionist" | "doctor" | "patient";
 type RequestStatus = "pending" | "approved";
 
 interface SignupRequest {
@@ -69,6 +70,12 @@ const roles: {
     label: "Clinic Manager",
     description: "Manage clinic profile, doctors, staff, schedules, rooms, queues, appointments, and payments.",
     icon: Users,
+  },
+  {
+    id: "receptionist",
+    label: "Receptionist",
+    description: "Handle front desk appointments, patient check-in, queues, rooms, schedules, and activity.",
+    icon: UserCheck,
   },
   {
     id: "super-admin",
@@ -121,6 +128,7 @@ function DashboardForRole({ role }: { role: Role }) {
   if (role === "super-admin") return <SuperAdminApp />;
   if (role === "admin") return <AdminApp />;
   if (role === "clinic-manager") return <ClinicManagerApp />;
+  if (role === "receptionist") return <ReceptionistApp />;
   if (role === "doctor") return <DoctorApp />;
   return <PatientApp />;
 }
