@@ -429,7 +429,7 @@ function DoctorsView() {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
@@ -631,7 +631,7 @@ function PatientsView() {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
@@ -819,7 +819,7 @@ function AppointmentsView() {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
@@ -932,7 +932,7 @@ function FinanceView() {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
@@ -1220,7 +1220,7 @@ function AuditView() {
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
@@ -1437,12 +1437,12 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-100 overflow-hidden font-sans">
+    <div className="app-shell-height flex bg-slate-100 overflow-hidden font-sans">
       <Toaster position="top-right" richColors closeButton />
       <Sidebar active={view} onNav={setView} collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header collapsed={collapsed} onToggleSidebar={() => setCollapsed(false)} />
-        <main className="flex-1 overflow-y-auto p-5 lg:p-6">
+        <main className="dashboard-content flex-1 overflow-y-auto">
           {viewMap[view]}
         </main>
       </div>

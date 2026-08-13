@@ -9,7 +9,7 @@ export default function Prescriptions() {
   const getDr = (id: string) => doctors.find(d => d.id === id)!;
 
   return (
-    <div className="p-6 animate-fade-in">
+    <div className="animate-fade-in">
       <div className="mb-6">
         <h1 className="font-patient text-2xl font-semibold text-slate-800">Prescriptions</h1>
         <p className="text-slate-500 text-sm mt-0.5">View and download your digital prescriptions.</p>

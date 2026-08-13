@@ -69,7 +69,7 @@ export default function App() {
   const currentItem = navItems.find((n) => n.key === page);
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden">
+    <div className="app-shell-height flex bg-slate-50 overflow-hidden">
       {/* Sidebar overlay (mobile) */}
       {sidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-30 xl:hidden" onClick={() => setSidebarOpen(false)} />
@@ -140,7 +140,7 @@ export default function App() {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center gap-4 px-4 sm:px-6 flex-shrink-0">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center gap-2 px-3 sm:gap-4 sm:px-6 flex-shrink-0">
           <button onClick={() => setSidebarOpen(true)} className="xl:hidden text-slate-500 hover:text-slate-700 transition-colors">
             <Menu className="w-5 h-5" />
           </button>
@@ -173,7 +173,7 @@ export default function App() {
               <Search className="w-5 h-5" />
             </button>
             {searchOpen && (
-              <div className="absolute right-0 top-10 w-72 bg-white rounded-xl border border-slate-200 shadow-xl p-3 z-50">
+              <div className="absolute right-0 top-10 w-[calc(100vw-1.5rem)] max-w-72 bg-white rounded-xl border border-slate-200 shadow-xl p-3 z-50">
                 <input autoFocus placeholder="Search patients, appointments..." className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
                 <div className="mt-2 text-xs text-slate-400 text-center py-2">Start typing to search...</div>
               </div>
@@ -218,7 +218,7 @@ export default function App() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <main className="dashboard-content flex-1 overflow-y-auto">
           {page === "dashboard" && <Dashboard />}
           {page === "appointments" && <Appointments onToast={showToast} />}
           {page === "patients" && <Patients />}
@@ -235,9 +235,9 @@ export default function App() {
       </div>
 
       {/* Toast Notifications */}
-      <div className="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none">
+      <div className="fixed bottom-4 left-3 right-3 z-50 space-y-2 pointer-events-none sm:left-auto sm:right-4">
         {toasts.map((toast) => (
-          <div key={toast.id} className="toast-enter bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 pointer-events-auto min-w-[240px]">
+          <div key={toast.id} className="toast-enter bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 pointer-events-auto sm:min-w-[240px]">
             <div className="w-2 h-2 bg-teal-400 rounded-full flex-shrink-0" />
             {toast.message}
           </div>

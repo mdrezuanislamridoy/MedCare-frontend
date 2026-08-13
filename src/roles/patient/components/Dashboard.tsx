@@ -14,7 +14,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
   const getDr = (id: string) => doctors.find(d => d.id === id)!;
 
   return (
-    <div className="p-6 space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in">
       {/* Greeting */}
       <div>
         <h1 className="font-patient text-2xl font-semibold text-slate-800">

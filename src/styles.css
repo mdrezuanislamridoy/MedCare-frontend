@@ -30,6 +30,11 @@
     @apply m-0 min-h-full;
   }
 
+  html,
+  body {
+    @apply overflow-x-hidden;
+  }
+
   body {
     @apply font-sans antialiased dark:bg-slate-950 dark:text-slate-200;
   }
@@ -127,6 +132,48 @@
 
   .table-row-hover:hover {
     @apply bg-slate-50;
+  }
+
+  .app-shell-height {
+    height: 100dvh;
+    min-height: 100vh;
+  }
+
+  .responsive-table {
+    @apply overflow-x-auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .responsive-table > table {
+    @apply min-w-[720px];
+  }
+
+  .dashboard-content {
+    @apply min-w-0 p-4 sm:p-6;
+  }
+
+  @media (max-width: 640px) {
+    .dashboard-content {
+      @apply p-3;
+    }
+
+    .dashboard-content h1 {
+      @apply text-xl leading-tight;
+    }
+
+    .dashboard-content h2,
+    .dashboard-content h3 {
+      @apply leading-tight;
+    }
+
+    .dashboard-content .recharts-responsive-container {
+      min-width: 320px;
+    }
+
+    .dashboard-content button,
+    .dashboard-content a {
+      min-height: 2.25rem;
+    }
   }
 }
 

@@ -44,7 +44,7 @@ export default function MedicalRecords() {
   });
 
   return (
-    <div className="p-6 animate-fade-in">
+    <div className="animate-fade-in">
       <div className="mb-6">
         <h1 className="font-patient text-2xl font-semibold text-slate-800">Medical Records</h1>
         <p className="text-slate-500 text-sm mt-0.5">Your complete medical history, securely stored and accessible.</p>

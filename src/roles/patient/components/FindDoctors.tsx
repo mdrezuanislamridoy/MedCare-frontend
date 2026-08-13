@@ -31,7 +31,7 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
   }
 
   return (
-    <div className="p-6 animate-fade-in">
+    <div className="animate-fade-in">
       <div className="mb-6">
         <h1 className="font-patient text-2xl font-semibold text-slate-800">Find Doctors</h1>
         <p className="text-slate-500 text-sm mt-0.5">Discover and book appointments with top specialists near you.</p>
@@ -39,7 +39,7 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
 
       {/* Search + filter bar */}
       <div className="bg-white rounded-xl border border-slate-200 p-4 mb-5 shadow-sm">
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
@@ -50,11 +50,11 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
               className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition"
             />
           </div>
-          <div className="relative">
+          <div className="relative sm:w-auto">
             <select
               value={specialty}
               onChange={e => setSpecialty(e.target.value)}
-              className="appearance-none pl-4 pr-10 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 bg-white text-slate-700 transition min-w-[180px]"
+              className="w-full appearance-none pl-4 pr-10 py-2.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 bg-white text-slate-700 transition sm:min-w-[180px]"
             >
               {specialties.map(s => <option key={s}>{s}</option>)}
             </select>
@@ -62,7 +62,7 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
           </div>
           <button
             onClick={() => setFiltersOpen(!filtersOpen)}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${filtersOpen ? 'bg-teal-50 border-teal-300 text-teal-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-colors ${filtersOpen ? 'bg-teal-50 border-teal-300 text-teal-700' : 'border-slate-200 text-slate-600 hover:bg-slate-50'}`}
           >
             <SlidersHorizontal className="w-4 h-4" />
             Filters
@@ -71,7 +71,7 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
 
         {/* Expanded filters */}
         {filtersOpen && (
-          <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-in">
+          <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 animate-fade-in">
             <div>
               <label className="text-xs font-medium text-slate-600 block mb-1.5">Gender</label>
               <div className="flex gap-2">

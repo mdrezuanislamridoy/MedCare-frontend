@@ -34,7 +34,7 @@ export default function ProfileSettings() {
   });
 
   return (
-    <div className="p-6 animate-fade-in">
+    <div className="animate-fade-in">
       <div className="mb-6">
         <h1 className="font-patient text-2xl font-semibold text-slate-800">Profile & Settings</h1>
         <p className="text-slate-500 text-sm mt-0.5">Manage your personal information, security, and preferences.</p>
@@ -85,7 +85,7 @@ export default function ProfileSettings() {
         {/* Settings content */}
         <div className="lg:col-span-3">
           {activeTab === 'Personal Info' && (
-            <Card className="p-6 animate-fade-in">
+            <Card className="p-4 sm:p-6 animate-fade-in">
               <h3 className="font-patient font-semibold text-slate-800 mb-5">Personal Information</h3>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
@@ -135,7 +135,7 @@ export default function ProfileSettings() {
           )}
 
           {activeTab === 'Emergency Contact' && (
-            <Card className="p-6 animate-fade-in">
+            <Card className="p-4 sm:p-6 animate-fade-in">
               <h3 className="font-patient font-semibold text-slate-800 mb-5">Emergency Contact</h3>
               <div className="grid sm:grid-cols-2 gap-4">
                 <Input label="Contact Name" defaultValue={patient.emergencyContact.name} />
@@ -149,7 +149,7 @@ export default function ProfileSettings() {
           )}
 
           {activeTab === 'Security' && (
-            <Card className="p-6 animate-fade-in space-y-5">
+            <Card className="p-4 sm:p-6 animate-fade-in space-y-5">
               <h3 className="font-patient font-semibold text-slate-800">Security Settings</h3>
 
               <div className="grid sm:grid-cols-1 gap-4 max-w-md">
@@ -199,7 +199,7 @@ export default function ProfileSettings() {
           )}
 
           {activeTab === 'Notifications' && (
-            <Card className="p-6 animate-fade-in">
+            <Card className="p-4 sm:p-6 animate-fade-in">
               <h3 className="font-patient font-semibold text-slate-800 mb-5">Notification Preferences</h3>
               <div className="space-y-1">
                 {(Object.entries(notifPrefs) as [keyof typeof notifPrefs, boolean][]).map(([key, val]) => {
@@ -238,7 +238,7 @@ export default function ProfileSettings() {
           )}
 
           {activeTab === 'Privacy' && (
-            <Card className="p-6 animate-fade-in space-y-5">
+            <Card className="p-4 sm:p-6 animate-fade-in space-y-5">
               <h3 className="font-patient font-semibold text-slate-800">Privacy & Data</h3>
               <div className="space-y-3">
                 {[

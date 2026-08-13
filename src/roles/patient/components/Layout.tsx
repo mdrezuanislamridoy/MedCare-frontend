@@ -94,7 +94,7 @@ export default function Layout({ current, onChange, children }: {
   );
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="app-shell-height flex overflow-hidden bg-slate-50">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex flex-col w-60 bg-white border-r border-slate-200 flex-shrink-0">
         <SidebarContent />
@@ -119,7 +119,7 @@ export default function Layout({ current, onChange, children }: {
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="bg-white border-b border-slate-200 px-4 lg:px-6 py-3.5 flex items-center gap-4 flex-shrink-0">
+        <header className="bg-white border-b border-slate-200 px-3 py-3 sm:px-4 lg:px-6 lg:py-3.5 flex items-center gap-2 sm:gap-4 flex-shrink-0">
           <button
             onClick={() => setSidebarOpen(true)}
             className="lg:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-500"
@@ -128,19 +128,19 @@ export default function Layout({ current, onChange, children }: {
           </button>
 
           {/* Search */}
-          <div className="flex-1 max-w-md relative">
+          <div className="relative min-w-0 flex-1 sm:max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Search doctors, specialties..."
+              placeholder="Search..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && onChange('find-doctors')}
-              className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 focus:bg-white transition placeholder:text-slate-400"
+              className="w-full pl-9 pr-3 sm:pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 focus:bg-white transition placeholder:text-slate-400"
             />
           </div>
 
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             {/* Upcoming indicator */}
             <button
               onClick={() => onChange('my-appointments')}
@@ -189,7 +189,7 @@ export default function Layout({ current, onChange, children }: {
         </header>
 
         {/* Page content */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="dashboard-content flex-1 overflow-y-auto">
           {children}
         </main>
       </div>

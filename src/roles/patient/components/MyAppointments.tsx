@@ -68,7 +68,7 @@ export default function MyAppointments({ onBook }: { onBook: () => void }) {
   };
 
   return (
-    <div className="p-6 animate-fade-in">
+    <div className="animate-fade-in">
       <div className="flex items-start justify-between mb-6 flex-wrap gap-4">
         <div>
           <h1 className="font-patient text-2xl font-semibold text-slate-800">My Appointments</h1>

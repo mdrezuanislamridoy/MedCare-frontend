@@ -104,7 +104,7 @@ export default function Earnings() {
             <option>Last 90 days</option>
           </select>
         </div>
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">

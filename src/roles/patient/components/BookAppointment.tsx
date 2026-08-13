@@ -61,7 +61,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
   );
 
   return (
-    <div className="p-6 animate-fade-in">
+    <div className="animate-fade-in">
       <div className="mb-6">
         <h1 className="font-patient text-2xl font-semibold text-slate-800">Book Appointment</h1>
         <p className="text-slate-500 text-sm mt-0.5">Complete the steps below to confirm your appointment.</p>
@@ -72,7 +72,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
 
         {/* Step 1 – Doctor */}
         {step === 1 && (
-          <Card className="p-6 animate-fade-in">
+          <Card className="p-4 sm:p-6 animate-fade-in">
             <h2 className="font-patient font-semibold text-slate-800 mb-4">Your Doctor</h2>
             <div className="flex items-center gap-4 p-4 bg-teal-50 rounded-xl border border-teal-100">
               <Avatar src={doctor.photo} name={doctor.name} size="lg" />
@@ -96,7 +96,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
 
         {/* Step 2 – Date & Slot */}
         {step === 2 && (
-          <Card className="p-6 animate-fade-in">
+          <Card className="p-4 sm:p-6 animate-fade-in">
             <h2 className="font-patient font-semibold text-slate-800 mb-4">Select Date & Time</h2>
 
             <p className="text-sm font-medium text-slate-600 mb-2">Available Dates</p>
@@ -157,7 +157,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
 
         {/* Step 3 – Type */}
         {step === 3 && (
-          <Card className="p-6 animate-fade-in">
+          <Card className="p-4 sm:p-6 animate-fade-in">
             <h2 className="font-patient font-semibold text-slate-800 mb-4">Consultation Type</h2>
             <div className="grid grid-cols-2 gap-4">
               {(['clinic', 'online'] as const).map(type => {
@@ -195,7 +195,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
 
         {/* Step 4 – Patient Details */}
         {step === 4 && (
-          <Card className="p-6 animate-fade-in">
+          <Card className="p-4 sm:p-6 animate-fade-in">
             <h2 className="font-patient font-semibold text-slate-800 mb-4">Patient Details</h2>
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 mb-4 flex items-center gap-3">
               <User className="w-5 h-5 text-slate-400" />
@@ -223,7 +223,7 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
 
         {/* Step 5 – Payment */}
         {step === 5 && (
-          <Card className="p-6 animate-fade-in">
+          <Card className="p-4 sm:p-6 animate-fade-in">
             <h2 className="font-patient font-semibold text-slate-800 mb-4">Payment</h2>
 
             {/* Booking summary */}

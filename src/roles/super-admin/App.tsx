@@ -679,7 +679,7 @@ function VerificationPage({ toast, confirm }: { toast: (m: string, t: ToastItem[
             <Btn variant="outline"><Filter size={12} />Filter</Btn>
           }
         />
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full">
             <thead>
               <tr>
@@ -796,7 +796,7 @@ function AppointmentsPage() {
       </div>
 
       <Card>
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full">
             <thead>
               <tr>
@@ -930,7 +930,7 @@ function PaymentsPage() {
       <Card>
         <CardHeader title="Recent Transactions" sub="Last 7 transactions"
           action={<Btn variant="outline" size="xs"><Download size={11} />Export</Btn>} />
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full">
             <thead><tr><Th ch="ID" /><Th ch="Patient" /><Th ch="Doctor" /><Th ch="Amount" /><Th ch="Commission" /><Th ch="Provider" /><Th ch="Status" /><Th ch="Date" /><Th ch="" /></tr></thead>
             <tbody>
@@ -1018,7 +1018,7 @@ function UsersPage({ active, toast, confirm }: { active: PageId; toast: (m: stri
       </div>
 
       <Card>
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           {isClinics ? (
             <table className="w-full">
               <thead><tr>
@@ -1154,7 +1154,7 @@ function RolesPage({ toast }: { toast: (m: string, t: ToastItem["type"]) => void
             sub="Click toggles to grant or revoke individual permissions"
             action={<Btn variant="outline" size="xs"><Download size={11} />Export Role</Btn>}
           />
-          <div className="overflow-x-auto">
+          <div className="responsive-table">
             <table className="w-full">
               <thead>
                 <tr>
@@ -1332,7 +1332,7 @@ function AuditPage() {
       </div>
 
       <Card>
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full">
             <thead><tr>
               <Th ch="Actor" />
@@ -1533,10 +1533,13 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background font-display">
+    <div className="app-shell-height flex overflow-hidden bg-background font-display">
 
       {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
-      <aside className={`flex flex-col shrink-0 bg-[linear-gradient(180deg,#0f172a_0%,#0d1529_100%)] transition-all duration-200 ease-in-out ${collapsed ? "w-[60px]" : "w-[220px]"} border-r border-sidebar-border`}>
+      {!collapsed && (
+        <div className="fixed inset-0 z-30 bg-black/45 lg:hidden" onClick={() => setCollapsed(true)} />
+      )}
+      <aside className={`fixed inset-y-0 left-0 z-40 flex flex-col shrink-0 bg-[linear-gradient(180deg,#0f172a_0%,#0d1529_100%)] transition-all duration-200 ease-in-out lg:relative lg:translate-x-0 ${collapsed ? "-translate-x-full lg:w-[60px]" : "w-[220px] translate-x-0"} border-r border-sidebar-border`}>
 
         {/* Logo */}
         <div className={`flex items-center h-[57px] border-b border-sidebar-border shrink-0 ${collapsed ? "justify-center px-0" : "px-4 gap-3"}`}>
@@ -1619,16 +1622,20 @@ export default function App() {
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
 
         {/* Header */}
-        <header className="h-[57px] bg-card border-b border-border flex items-center gap-3 px-5 shrink-0">
+        <header className="min-h-[57px] bg-card border-b border-border flex flex-wrap items-center gap-2 px-3 py-2 sm:gap-3 sm:px-5 shrink-0">
+          <button onClick={() => setCollapsed(false)}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-slate-100 hover:text-foreground lg:hidden">
+            <Menu size={16} />
+          </button>
           {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground font-medium shrink-0">
+          <div className="flex min-w-0 items-center gap-1.5 text-[12px] text-muted-foreground font-medium shrink-0">
             <span className="hover:text-foreground cursor-pointer transition-colors" onClick={() => navTo("dashboard")}>Platform</span>
             <span>/</span>
-            <span className="text-foreground font-semibold">{currentLabel}</span>
+            <span className="truncate text-foreground font-semibold">{currentLabel}</span>
           </div>
 
           {/* Search */}
-          <div className="relative flex-1 max-w-md mx-4">
+          <div className="relative order-last w-full sm:order-none sm:mx-2 sm:min-w-[220px] sm:flex-1 sm:max-w-md lg:mx-4">
             <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
             <input value={searchQ} onChange={e => setSearchQ(e.target.value)}
               placeholder="Search anything…"
@@ -1636,18 +1643,18 @@ export default function App() {
             <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground bg-slate-100 border border-border rounded px-1.5 py-0.5 font-mono">⌘K</kbd>
           </div>
 
-          <div className="flex-1" />
+          <div className="hidden flex-1 lg:block" />
 
           {/* Security alert pill */}
           <button onClick={() => navTo("security")}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold bg-red-50 border border-red-200 text-red-700 rounded-full hover:bg-red-100 transition-colors">
+            className="hidden items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold bg-red-50 border border-red-200 text-red-700 rounded-full hover:bg-red-100 transition-colors sm:inline-flex">
             <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
             2 alerts
           </button>
 
           {/* System health */}
           <button onClick={() => navTo("system")}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold bg-amber-50 border border-amber-200 text-amber-700 rounded-full hover:bg-amber-100 transition-colors">
+            className="hidden items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold bg-amber-50 border border-amber-200 text-amber-700 rounded-full hover:bg-amber-100 transition-colors md:inline-flex">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
             1 degraded
           </button>
@@ -1660,7 +1667,7 @@ export default function App() {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border-2 border-card" />
             </button>
             {notifOpen && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-card border border-border rounded-2xl shadow-2xl z-40 overflow-hidden">
+              <div className="absolute right-0 top-full mt-2 w-[calc(100vw-1.5rem)] max-w-80 bg-card border border-border rounded-2xl shadow-2xl z-40 overflow-hidden">
                 <div className="px-4 py-3 border-b border-border flex items-center justify-between">
                   <span className="font-bold text-[13px] text-foreground">Notifications</span>
                   <div className="flex items-center gap-2">

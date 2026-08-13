@@ -19,7 +19,7 @@ export default function Payments() {
   const filtered = payments.filter(p => statusFilter === 'all' || p.status === statusFilter);
 
   return (
-    <div className="p-6 animate-fade-in">
+    <div className="animate-fade-in">
       <div className="mb-6">
         <h1 className="font-patient text-2xl font-semibold text-slate-800">Payments</h1>
         <p className="text-slate-500 text-sm mt-0.5">Track your consultation fees, payments, and refunds.</p>
@@ -48,7 +48,7 @@ export default function Payments() {
 
       {/* Transactions table */}
       <Card className="overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="responsive-table">
           <table className="w-full">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200">

@@ -58,7 +58,7 @@ export default function Reviews() {
   const modalDr = modalAppt ? getDr(modalAppt.doctorId) : null;
 
   return (
-    <div className="p-6 animate-fade-in">
+    <div className="animate-fade-in">
       <div className="mb-6">
         <h1 className="font-patient text-2xl font-semibold text-slate-800">Reviews</h1>
         <p className="text-slate-500 text-sm mt-0.5">Share your experience to help other patients find the right doctor.</p>
