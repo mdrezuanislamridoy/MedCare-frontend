@@ -15,10 +15,11 @@ import {
 } from "lucide-react";
 import SuperAdminApp from "./roles/super-admin/App";
 import AdminApp from "./roles/admin/App";
+import ClinicManagerApp from "./roles/clinic-manager/App";
 import DoctorApp from "./roles/doctor/App";
 import PatientApp from "./roles/patient/App";
 
-type Role = "super-admin" | "admin" | "doctor" | "patient";
+type Role = "super-admin" | "admin" | "clinic-manager" | "doctor" | "patient";
 type RequestStatus = "pending" | "approved";
 
 interface SignupRequest {
@@ -62,6 +63,12 @@ const roles: {
     label: "Admin",
     description: "Operate doctor verification, patients, clinics, appointments, finance, and reviews.",
     icon: Activity,
+  },
+  {
+    id: "clinic-manager",
+    label: "Clinic Manager",
+    description: "Manage clinic profile, doctors, staff, schedules, rooms, queues, appointments, and payments.",
+    icon: Users,
   },
   {
     id: "super-admin",
@@ -113,6 +120,7 @@ function roleLabel(role: Role) {
 function DashboardForRole({ role }: { role: Role }) {
   if (role === "super-admin") return <SuperAdminApp />;
   if (role === "admin") return <AdminApp />;
+  if (role === "clinic-manager") return <ClinicManagerApp />;
   if (role === "doctor") return <DoctorApp />;
   return <PatientApp />;
 }
