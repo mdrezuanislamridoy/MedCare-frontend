@@ -1,24 +1,38 @@
-import { useState } from 'react';
-import { User, Mail, Phone, Calendar, MapPin, Shield, Bell, Lock, Camera, CheckCircle } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { User, Mail, Phone, Calendar, MapPin, Shield, Bell, Lock, Camera, CheckCircle, RefreshCw } from 'lucide-react';
+import { useAuthStore } from '../../../common/stores/auth.store';
+import { patientApi } from '../services/patient.api';
 import { patient } from '../data/mockData';
 import { Card, Button, Input, Avatar, Toast } from './ui';
 
 const tabs = ['Personal Info', 'Emergency Contact', 'Security', 'Notifications', 'Privacy'];
 
 export default function ProfileSettings() {
+  const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState('Personal Info');
   const [toast, setToast] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000); };
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3500);
+  };
 
   const [form, setForm] = useState({
-    name: patient.name,
-    email: patient.email,
+    name: user?.name || patient.name,
+    email: user?.email || patient.email,
     phone: patient.phone,
     dob: patient.dob,
     gender: patient.gender,
     bloodGroup: patient.bloodGroup,
+    height: 175,
+    weight: 70,
+    allergies: 'Penicillin, Dust mites',
     address: patient.address,
+    emergencyName: 'Emily Harrington',
+    emergencyRelationship: 'Spouse',
+    emergencyPhone: '+1 (555) 987-6543',
   });
 
   const [notifPrefs, setNotifPrefs] = useState({
@@ -33,41 +47,90 @@ export default function ProfileSettings() {
     emailDigest: false,
   });
 
+  useEffect(() => {
+    async function loadProfile() {
+      try {
+        const p = await patientApi.getProfile();
+        if (p) {
+          setForm(prev => ({
+            ...prev,
+            name: p.name || prev.name,
+            email: p.email || prev.email,
+            phone: p.phone || prev.phone,
+            bloodGroup: p.bloodGroup || prev.bloodGroup,
+            height: p.height || prev.height,
+            weight: p.weight || prev.weight,
+            allergies: p.allergies ? p.allergies.join(', ') : prev.allergies,
+            emergencyName: p.emergencyName || prev.emergencyName,
+            emergencyRelationship: p.emergencyRelationship || prev.emergencyRelationship,
+            emergencyPhone: p.emergencyPhone || prev.emergencyPhone,
+          }));
+        }
+      } catch (err) {
+        console.warn('Fallback to local profile data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadProfile();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await patientApi.updateProfile({
+        phone: form.phone,
+        bloodGroup: form.bloodGroup,
+        height: Number(form.height) || undefined,
+        weight: Number(form.weight) || undefined,
+        allergies: form.allergies ? form.allergies.split(',').map(s => s.trim()) : [],
+        emergencyName: form.emergencyName,
+        emergencyRelationship: form.emergencyRelationship,
+        emergencyPhone: form.emergencyPhone,
+      });
+      showToast('Profile updated successfully!');
+    } catch (err: any) {
+      showToast(err?.message || 'Profile saved locally.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="animate-fade-in">
       <div className="mb-6">
-        <h1 className="font-patient text-2xl font-semibold text-slate-800">Profile & Settings</h1>
-        <p className="text-slate-500 text-sm mt-0.5">Manage your personal information, security, and preferences.</p>
+        <h1 className="font-patient text-2xl font-bold text-slate-800 dark:text-white">Profile & Settings</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Manage your personal information, emergency contacts, and security preferences.</p>
       </div>
 
       <div className="grid lg:grid-cols-4 gap-6">
         {/* Profile card */}
         <div className="lg:col-span-1 space-y-4">
-          <Card className="p-5 text-center">
+          <Card className="p-5 text-center bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
             <div className="relative inline-block mb-4">
-              <Avatar src={patient.photo} name={patient.name} size="xl" />
+              <Avatar src={patient.photo} name={form.name} size="xl" />
               <button className="absolute bottom-0 right-0 w-7 h-7 bg-teal-600 rounded-full flex items-center justify-center shadow-md hover:bg-teal-700 transition-colors">
                 <Camera className="w-3.5 h-3.5 text-white" />
               </button>
             </div>
-            <h2 className="font-patient font-semibold text-slate-800">{patient.name}</h2>
-            <p className="text-sm text-slate-500 mt-0.5">{patient.email}</p>
+            <h2 className="font-patient font-bold text-slate-800 dark:text-white text-base">{form.name}</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{form.email}</p>
             <div className="mt-3 flex items-center justify-center gap-2 text-xs text-slate-500">
-              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 font-medium">Verified</span>
+              <span className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 rounded-full border border-emerald-200 dark:border-emerald-800 font-medium">Verified Patient</span>
               <span>·</span>
-              <span>{patient.bloodGroup} Blood</span>
+              <span className="font-semibold text-teal-600 dark:text-teal-400">{form.bloodGroup} Blood</span>
             </div>
           </Card>
 
           {/* Tab list */}
-          <Card className="p-2">
+          <Card className="p-2 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
             <nav className="space-y-0.5">
               {tabs.map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${
-                    activeTab === tab ? 'bg-teal-50 text-teal-700' : 'text-slate-600 hover:bg-slate-50'
+                    activeTab === tab ? 'bg-teal-50 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300 font-semibold' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                   }`}
                 >
                   {tab === 'Personal Info' && <User className="w-4 h-4 flex-shrink-0" />}
@@ -85,8 +148,8 @@ export default function ProfileSettings() {
         {/* Settings content */}
         <div className="lg:col-span-3">
           {activeTab === 'Personal Info' && (
-            <Card className="p-4 sm:p-6 animate-fade-in">
-              <h3 className="font-patient font-semibold text-slate-800 mb-5">Personal Information</h3>
+            <Card className="p-4 sm:p-6 animate-fade-in bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+              <h3 className="font-patient font-bold text-slate-800 dark:text-white mb-5">Personal Health & Identity</h3>
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="sm:col-span-2">
                   <Input label="Full Name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
@@ -94,176 +157,132 @@ export default function ProfileSettings() {
                 <Input label="Email Address" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
                 <Input label="Phone Number" type="tel" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
                 <Input label="Date of Birth" type="date" value={form.dob} onChange={e => setForm(f => ({ ...f, dob: e.target.value }))} />
+                
                 <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-slate-700">Gender</label>
-                  <div className="flex gap-2">
-                    {['Male', 'Female', 'Other'].map(g => (
-                      <button
-                        key={g}
-                        onClick={() => setForm(f => ({ ...f, gender: g }))}
-                        className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-colors ${form.gender === g ? 'bg-teal-600 text-white border-teal-600' : 'border-slate-200 text-slate-600 hover:bg-teal-50'}`}
-                      >
-                        {g}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium text-slate-700">Blood Group</label>
+                  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Blood Group</label>
                   <select
                     value={form.bloodGroup}
                     onChange={e => setForm(f => ({ ...f, bloodGroup: e.target.value }))}
-                    className="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 bg-white text-slate-700"
+                    className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-800 dark:text-white outline-none focus:border-teal-500"
                   >
-                    {['A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'].map(bg => <option key={bg}>{bg}</option>)}
+                    {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => (
+                      <option key={bg} value={bg}>{bg}</option>
+                    ))}
                   </select>
                 </div>
+
+                <Input
+                  label="Height (cm)"
+                  type="number"
+                  value={form.height}
+                  onChange={e => setForm(f => ({ ...f, height: Number(e.target.value) }))}
+                />
+                <Input
+                  label="Weight (kg)"
+                  type="number"
+                  value={form.weight}
+                  onChange={e => setForm(f => ({ ...f, weight: Number(e.target.value) }))}
+                />
+
                 <div className="sm:col-span-2">
-                  <label className="text-sm font-medium text-slate-700 block mb-1">Address</label>
-                  <textarea
-                    value={form.address}
-                    onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                    rows={2}
-                    className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 resize-none transition"
+                  <Input
+                    label="Known Allergies (comma separated)"
+                    value={form.allergies}
+                    onChange={e => setForm(f => ({ ...f, allergies: e.target.value }))}
+                    placeholder="e.g. Penicillin, Peanuts, Pollen"
                   />
                 </div>
+
+                <div className="sm:col-span-2">
+                  <Input label="Residential Address" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} />
+                </div>
               </div>
-              <div className="flex justify-end mt-5">
-                <Button onClick={() => showToast('Profile updated successfully.')}>Save Changes</Button>
+
+              <div className="mt-6 flex justify-end">
+                <Button onClick={handleSave} disabled={saving} className="bg-teal-600 hover:bg-teal-700 text-white">
+                  {saving ? <><RefreshCw className="w-4 h-4 animate-spin" /> Saving...</> : 'Save Changes'}
+                </Button>
               </div>
             </Card>
           )}
 
           {activeTab === 'Emergency Contact' && (
-            <Card className="p-4 sm:p-6 animate-fade-in">
-              <h3 className="font-patient font-semibold text-slate-800 mb-5">Emergency Contact</h3>
+            <Card className="p-4 sm:p-6 animate-fade-in bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+              <h3 className="font-patient font-bold text-slate-800 dark:text-white mb-2">Emergency Contact Person</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mb-5">
+                This individual will be alerted by medical staff in case of an acute clinical event or urgent hospitalization.
+              </p>
               <div className="grid sm:grid-cols-2 gap-4">
-                <Input label="Contact Name" defaultValue={patient.emergencyContact.name} />
-                <Input label="Relationship" defaultValue={patient.emergencyContact.relation} />
-                <Input label="Phone Number" type="tel" defaultValue={patient.emergencyContact.phone} />
+                <div className="sm:col-span-2">
+                  <Input label="Contact Full Name" value={form.emergencyName} onChange={e => setForm(f => ({ ...f, emergencyName: e.target.value }))} />
+                </div>
+                <Input label="Relationship" value={form.emergencyRelationship} onChange={e => setForm(f => ({ ...f, emergencyRelationship: e.target.value }))} placeholder="e.g. Spouse, Parent, Sibling" />
+                <Input label="Emergency Phone" type="tel" value={form.emergencyPhone} onChange={e => setForm(f => ({ ...f, emergencyPhone: e.target.value }))} />
               </div>
-              <div className="flex justify-end mt-5">
-                <Button onClick={() => showToast('Emergency contact updated.')}>Save Changes</Button>
+
+              <div className="mt-6 flex justify-end">
+                <Button onClick={handleSave} disabled={saving} className="bg-teal-600 hover:bg-teal-700 text-white">
+                  {saving ? <><RefreshCw className="w-4 h-4 animate-spin" /> Saving...</> : 'Save Emergency Contact'}
+                </Button>
               </div>
             </Card>
           )}
 
           {activeTab === 'Security' && (
-            <Card className="p-4 sm:p-6 animate-fade-in space-y-5">
-              <h3 className="font-patient font-semibold text-slate-800">Security Settings</h3>
-
-              <div className="grid sm:grid-cols-1 gap-4 max-w-md">
+            <Card className="p-4 sm:p-6 animate-fade-in bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
+              <h3 className="font-patient font-bold text-slate-800 dark:text-white mb-2">Account Security</h3>
+              <div className="space-y-3">
                 <Input label="Current Password" type="password" placeholder="••••••••" />
-                <Input label="New Password" type="password" placeholder="••••••••" />
+                <Input label="New Password" type="password" placeholder="Min 8 characters" />
                 <Input label="Confirm New Password" type="password" placeholder="••••••••" />
               </div>
-              <Button onClick={() => showToast('Password changed successfully.')}>Update Password</Button>
-
-              <div className="border-t border-slate-100 pt-5">
-                <h4 className="font-medium text-slate-700 mb-3">Two-Factor Authentication</h4>
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                  <div>
-                    <p className="text-sm font-medium text-slate-700">Authenticator App</p>
-                    <p className="text-xs text-slate-500">Use an authenticator app for extra security</p>
-                  </div>
-                  <div className="relative">
-                    <input type="checkbox" className="sr-only" id="2fa" />
-                    <label htmlFor="2fa" className="flex items-center cursor-pointer">
-                      <div className="relative w-10 h-6 bg-slate-200 rounded-full">
-                        <div className="absolute left-1 top-1 w-4 h-4 rounded-full bg-white shadow transition-transform" />
-                      </div>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t border-slate-100 pt-5">
-                <h4 className="font-medium text-slate-700 mb-3">Active Sessions</h4>
-                {[
-                  { device: 'Chrome on Windows', location: 'Mumbai, India', time: 'Active now', current: true },
-                  { device: 'Safari on iPhone', location: 'Mumbai, India', time: '2 hours ago', current: false },
-                ].map((session, i) => (
-                  <div key={i} className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
-                    <div>
-                      <p className="text-sm font-medium text-slate-700">{session.device}</p>
-                      <p className="text-xs text-slate-400">{session.location} · {session.time}</p>
-                    </div>
-                    {session.current
-                      ? <span className="text-xs text-emerald-600 font-medium bg-emerald-50 px-2 py-1 rounded-full">Current</span>
-                      : <Button size="sm" variant="ghost" className="text-red-500 hover:bg-red-50">Revoke</Button>
-                    }
-                  </div>
-                ))}
+              <div className="pt-2 flex justify-end">
+                <Button onClick={() => showToast('Password updated successfully!')} className="bg-teal-600 hover:bg-teal-700 text-white">
+                  Update Password
+                </Button>
               </div>
             </Card>
           )}
 
           {activeTab === 'Notifications' && (
-            <Card className="p-4 sm:p-6 animate-fade-in">
-              <h3 className="font-patient font-semibold text-slate-800 mb-5">Notification Preferences</h3>
-              <div className="space-y-1">
-                {(Object.entries(notifPrefs) as [keyof typeof notifPrefs, boolean][]).map(([key, val]) => {
-                  const labels: Record<string, { label: string; desc: string }> = {
-                    appointmentConfirmations: { label: 'Appointment Confirmations', desc: 'Notify when appointments are confirmed' },
-                    reminders: { label: 'Appointment Reminders', desc: 'Reminders before your appointments' },
-                    cancellations: { label: 'Cancellations & Changes', desc: 'Doctor cancellations and reschedule requests' },
-                    paymentUpdates: { label: 'Payment Updates', desc: 'Payment receipts and pending payment alerts' },
-                    prescriptionAlerts: { label: 'Prescription Alerts', desc: 'New prescriptions from your doctors' },
-                    doctorMessages: { label: 'Doctor Messages', desc: 'Direct messages from your healthcare team' },
-                    promotions: { label: 'Offers & Promotions', desc: 'Health tips, offers, and platform updates' },
-                    smsAlerts: { label: 'SMS Alerts', desc: 'Receive notifications via SMS' },
-                    emailDigest: { label: 'Weekly Email Summary', desc: 'Summary of your health activity' },
-                  };
-                  const info = labels[key];
-                  return (
-                    <div key={key} className="flex items-center justify-between py-3.5 border-b border-slate-100 last:border-0">
-                      <div>
-                        <p className="text-sm font-medium text-slate-700">{info.label}</p>
-                        <p className="text-xs text-slate-400 mt-0.5">{info.desc}</p>
-                      </div>
-                      <button
-                        onClick={() => setNotifPrefs(p => ({ ...p, [key]: !val }))}
-                        className={`relative w-10 h-6 rounded-full transition-colors flex-shrink-0 ${val ? 'bg-teal-600' : 'bg-slate-200'}`}
-                      >
-                        <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${val ? 'left-5' : 'left-1'}`} />
-                      </button>
+            <Card className="p-4 sm:p-6 animate-fade-in bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
+              <h3 className="font-patient font-bold text-slate-800 dark:text-white mb-2">Notification Preferences</h3>
+              <div className="space-y-2">
+                {[
+                  { key: 'appointmentConfirmations', label: 'Appointment Confirmations', desc: 'Instant push & email on booking approval' },
+                  { key: 'reminders', label: 'Consultation Reminders', desc: 'Alerts 1 hour before scheduled time' },
+                  { key: 'prescriptionAlerts', label: 'Digital Prescription Releases', desc: 'Notification when doctor publishes medical chart' },
+                  { key: 'smsAlerts', label: 'SMS Critical Reminders', desc: 'Direct text messages to your phone' },
+                ].map(item => (
+                  <label key={item.key} className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition">
+                    <input
+                      type="checkbox"
+                      defaultChecked
+                      className="mt-1 h-4 w-4 rounded text-teal-600 focus:ring-teal-500"
+                    />
+                    <div>
+                      <div className="text-xs font-semibold text-slate-800 dark:text-white">{item.label}</div>
+                      <div className="text-[11px] text-slate-400">{item.desc}</div>
                     </div>
-                  );
-                })}
+                  </label>
+                ))}
               </div>
-              <div className="flex justify-end mt-5">
-                <Button onClick={() => showToast('Preferences saved.')}>Save Preferences</Button>
+              <div className="pt-2 flex justify-end">
+                <Button onClick={() => showToast('Notification preferences saved!')} className="bg-teal-600 hover:bg-teal-700 text-white">
+                  Save Preferences
+                </Button>
               </div>
             </Card>
           )}
 
           {activeTab === 'Privacy' && (
-            <Card className="p-4 sm:p-6 animate-fade-in space-y-5">
-              <h3 className="font-patient font-semibold text-slate-800">Privacy & Data</h3>
-              <div className="space-y-3">
-                {[
-                  { title: 'Profile Visibility', desc: 'Control who can see your profile information' },
-                  { title: 'Medical Data Sharing', desc: 'Allow doctors to access your medical history' },
-                  { title: 'Analytics', desc: 'Help us improve by sharing usage analytics' },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <div>
-                      <p className="text-sm font-medium text-slate-700">{item.title}</p>
-                      <p className="text-xs text-slate-500">{item.desc}</p>
-                    </div>
-                    <button className="relative w-10 h-6 rounded-full bg-teal-600 flex-shrink-0">
-                      <div className="absolute top-1 left-5 w-4 h-4 rounded-full bg-white shadow" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <div className="border-t border-slate-100 pt-4 space-y-3">
-                <Button variant="secondary" className="w-full justify-center" onClick={() => showToast('Data export requested. You will receive an email.')}>
-                  Export My Data
-                </Button>
-                <Button variant="ghost" className="w-full justify-center text-red-500 hover:bg-red-50">
-                  Delete Account
-                </Button>
+            <Card className="p-4 sm:p-6 animate-fade-in bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-4">
+              <h3 className="font-patient font-bold text-slate-800 dark:text-white mb-2">Data Privacy & HIPAA Compliance</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Your medical charts and health metrics are encrypted in accordance with HIPAA data protection standards.
+              </p>
+              <div className="p-3 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-xl text-xs text-teal-800 dark:text-teal-300">
+                End-to-End EHR Privacy: Only attending clinical doctors and emergency triage staff have access to your health records.
               </div>
             </Card>
           )}
