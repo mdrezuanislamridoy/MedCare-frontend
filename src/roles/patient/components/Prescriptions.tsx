@@ -75,7 +75,7 @@ export default function Prescriptions() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); alert(`Downloading PDF prescription for ${rx.diagnosis}...`); }}>
+                    <Button size="sm" variant="secondary" onClick={() => alert(`Downloading PDF prescription for ${rx.diagnosis}...`)}>
                       <Download className="w-3.5 h-3.5" /> PDF
                     </Button>
                     {isOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}

@@ -43,21 +43,24 @@ export default function MyAppointments({ onBook }: { onBook: () => void }) {
 
   const getDr = (id: string) => doctors.find(d => d.id === id) || doctors[0];
 
-  const apptList = liveAppointments.length > 0 ? liveAppointments.map(a => ({
-    id: a.id,
-    doctorId: a.doctorId,
-    doctorName: a.doctor?.user?.name || a.doctor?.name || 'Doctor',
-    doctorSpecialty: a.doctor?.specialty || 'Specialist',
-    doctorAvatar: a.doctor?.photo || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&auto=format',
-    date: a.date ? String(a.date).split('T')[0] : '2026-08-12',
-    time: a.timeSlot || a.time || '10:00 AM',
-    type: a.type === 'VIDEO' ? 'online' : 'clinic',
-    status: (cancelledIds.includes(a.id) ? 'cancelled' : a.status || 'confirmed').toLowerCase(),
-    paymentStatus: a.paymentStatus || 'paid',
-    reason: a.reason || 'General Consultation',
-    clinicName: a.clinic?.name || 'MedCare Central Clinic',
-    roomNumber: a.doctor?.roomNumber || '302',
-  })) : mockAppointments.map(a => cancelledIds.includes(a.id) ? { ...a, status: 'cancelled' as const } : a);
+  const apptList = (liveAppointments.length > 0 ? liveAppointments : mockAppointments).map(a => {
+    const dr = getDr(a.doctorId);
+    return {
+      id: a.id,
+      doctorId: a.doctorId,
+      doctorName: a.doctor?.user?.name || a.doctor?.name || dr?.name || 'Doctor',
+      doctorSpecialty: a.doctor?.specialty || dr?.specialty || 'Specialist',
+      doctorAvatar: a.doctor?.photo || dr?.photo || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&auto=format',
+      date: a.date ? String(a.date).split('T')[0] : '2026-08-12',
+      time: a.timeSlot || a.time || '10:00 AM',
+      type: a.type === 'VIDEO' || a.type === 'online' ? 'online' : 'clinic',
+      status: (cancelledIds.includes(a.id) ? 'cancelled' : a.status || 'confirmed').toLowerCase(),
+      paymentStatus: a.paymentStatus || 'paid',
+      reason: a.reason || 'General Consultation',
+      clinicName: a.clinic?.name || dr?.clinicName || 'MedCare Central Clinic',
+      roomNumber: a.doctor?.roomNumber || '302',
+    };
+  });
 
   const displayed = apptList.filter(a => filter === 'All' || getStatusGroup(a.status) === filter);
 
