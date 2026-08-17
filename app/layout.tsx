@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import ThemeProvider from "../src/ThemeProvider";
 import ThemeToggle from "../src/ThemeToggle";
+import { AuthProvider } from "../src/common/context/AuthContext";
 import "../src/styles.css";
 
 export const metadata: Metadata = {
-  title: "MedCare Role Portals",
-  description: "MedCare role dashboards for super admin, admin, doctor, and patient users.",
+  title: "MedCare Unified Healthcare Portal",
+  description: "Enterprise healthcare portal for patients, doctors, receptionists, clinic managers, and administrators.",
 };
 
 export default function RootLayout({
@@ -16,10 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider>
-          {children}
-          <ThemeToggle />
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            {children}
+            <ThemeToggle />
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

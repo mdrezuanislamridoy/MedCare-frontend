@@ -2,17 +2,25 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Activity,
-  Check,
-  Clock,
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  KeyRound,
+  Lock,
   LogOut,
+  Mail,
+  RefreshCw,
   ShieldCheck,
+  Sparkles,
   Stethoscope,
+  User,
   UserCheck,
   Users,
 } from "lucide-react";
+import { useAuth, Role, normalizeBackendRole } from "./common/context/AuthContext";
 import SuperAdminApp from "./roles/super-admin/App";
 import AdminApp from "./roles/admin/App";
 import ClinicManagerApp from "./roles/clinic-manager/App";
@@ -21,111 +29,63 @@ import PatientApp from "./roles/patient/App";
 import ReceptionistApp from "./roles/receptionist/App";
 import SupportStaffApp from "./roles/support-staff/App";
 
-type Role = "super-admin" | "admin" | "clinic-manager" | "receptionist" | "support-staff" | "doctor" | "patient";
-type RequestStatus = "pending" | "approved";
-
-interface SignupRequest {
-  id: string;
-  name: string;
-  email: string;
-  role: Role;
-  status: RequestStatus;
-  createdAt: string;
-}
-
-interface Session {
-  email: string;
-  role: Role;
-  status: RequestStatus;
-}
-
-const REQUESTS_KEY = "medcare.signupRequests";
-const SESSION_KEY = "medcare.session";
-
-const roles: {
+export const roles: {
   id: Role;
   label: string;
   description: string;
   icon: typeof Users;
+  demoEmail: string;
 }[] = [
   {
     id: "patient",
     label: "Patient",
-    description: "Book appointments, manage medical records, payments, prescriptions, and reviews.",
+    description: "Book appointments, manage medical records, prescriptions, and video visits.",
     icon: UserCheck,
+    demoEmail: "patient@medcare.com",
   },
   {
     id: "doctor",
     label: "Doctor",
-    description: "Manage patients, appointments, consultations, schedules, and clinical notes.",
+    description: "Manage clinical chart workspace, consultation notes, prescriptions, and schedule.",
     icon: Stethoscope,
-  },
-  {
-    id: "admin",
-    label: "Admin",
-    description: "Operate doctor verification, patients, clinics, appointments, finance, and reviews.",
-    icon: Activity,
-  },
-  {
-    id: "clinic-manager",
-    label: "Clinic Manager",
-    description: "Manage clinic profile, doctors, staff, schedules, rooms, queues, appointments, and payments.",
-    icon: Users,
+    demoEmail: "doctor@medcare.com",
   },
   {
     id: "receptionist",
     label: "Receptionist",
-    description: "Handle front desk appointments, patient check-in, queues, rooms, schedules, and activity.",
+    description: "Handle front desk check-in wizard, token queues, walk-in visits, and doctor schedules.",
     icon: UserCheck,
+    demoEmail: "receptionist@medcare.com",
   },
   {
     id: "support-staff",
     label: "Support Staff",
-    description: "Resolve support tickets, patient requests, appointment issues, complaints, messages, and activity logs.",
+    description: "Resolve support tickets, complaints, appointment disputes, and live chat messages.",
     icon: Users,
+    demoEmail: "support@medcare.com",
+  },
+  {
+    id: "clinic-manager",
+    label: "Clinic Manager",
+    description: "Manage clinic branches, doctor rosters, rooms, staff accounts, and revenue.",
+    icon: Users,
+    demoEmail: "manager@medcare.com",
+  },
+  {
+    id: "admin",
+    label: "Admin",
+    description: "Operate doctor verification queue, patients, clinics, finance, and reviews.",
+    icon: Activity,
+    demoEmail: "admin@medcare.com",
   },
   {
     id: "super-admin",
     label: "Super Admin",
-    description: "Approve access requests and control the complete platform workspace.",
+    description: "Control platform RBAC matrix, access approvals, system health, and backups.",
     icon: ShieldCheck,
+    demoEmail: "superadmin@medcare.com",
   },
 ];
-
-function loadRequests(): SignupRequest[] {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const value = window.localStorage.getItem(REQUESTS_KEY);
-    return value ? JSON.parse(value) : [];
-  } catch {
-    return [];
-  }
-}
-
-function loadSession(): Session | null {
-  if (typeof window === "undefined") return null;
-
-  try {
-    const value = window.localStorage.getItem(SESSION_KEY);
-    return value ? JSON.parse(value) : null;
-  } catch {
-    return null;
-  }
-}
-
-function saveRequests(requests: SignupRequest[]) {
-  window.localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests));
-}
-
-function saveSession(session: Session | null) {
-  if (!session) {
-    window.localStorage.removeItem(SESSION_KEY);
-    return;
-  }
-
-  window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-}
 
 function roleLabel(role: Role) {
   return roles.find((item) => item.id === role)?.label ?? role;
@@ -141,35 +101,63 @@ function DashboardForRole({ role }: { role: Role }) {
   return <PatientApp />;
 }
 
-function Shell({
+export function Shell({
   children,
-  session,
   onSignOut,
 }: {
   children: React.ReactNode;
-  session?: Session | null;
   onSignOut?: () => void;
 }) {
+  const { user, role, logout } = useAuth();
+  const handleSignOut = onSignOut || logout;
+
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <header className="border-b border-white/10 bg-slate-950/95">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/95 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-500">
-            <Stethoscope className="h-5 w-5" />
-          </div>
-          <div>
-            <div className="text-sm font-semibold leading-tight">MedCare</div>
-            <div className="text-xs text-slate-400">Unified role access</div>
-          </div>
+          <Link href="/" className="flex items-center gap-2.5 transition hover:opacity-90">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-500 shadow-md shadow-teal-500/20">
+              <Stethoscope className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <div className="text-sm font-bold tracking-tight text-white">MedCare</div>
+              <div className="text-[11px] text-teal-300">Unified Healthcare Platform</div>
+            </div>
+          </Link>
+
           <div className="flex-1" />
-          {session && onSignOut && (
-            <button
-              onClick={onSignOut}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-slate-200 transition hover:bg-white/10"
-            >
-              <LogOut className="h-4 w-4" />
-              Sign out
-            </button>
+
+          {user ? (
+            <div className="flex items-center gap-3">
+              <div className="hidden text-right sm:block">
+                <div className="text-xs font-semibold text-white">{user.name || user.email}</div>
+                <div className="text-[10px] font-medium uppercase tracking-wider text-teal-400">
+                  {roleLabel(role)}
+                </div>
+              </div>
+              <button
+                onClick={handleSignOut}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/30"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/login"
+                className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:text-white"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-lg bg-teal-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-teal-600"
+              >
+                Sign up
+              </Link>
+            </div>
           )}
         </div>
       </header>
@@ -178,402 +166,395 @@ function Shell({
   );
 }
 
-function SignupView({
-  onSignup,
-}: {
-  onSignup: (request: Omit<SignupRequest, "id" | "status" | "createdAt">) => void;
-}) {
-  const [role, setRole] = useState<Role>("patient");
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+export function LoginPage() {
+  const router = useRouter();
+  const { login, switchDemoRole, isAuthenticated, isLoading: authLoading } = useAuth();
+  const [email, setEmail] = useState("doctor@medcare.com");
+  const [password, setPassword] = useState("Password123!");
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const selected = roles.find((item) => item.id === role)!;
-  const SelectedIcon = selected.icon;
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setLoading(true);
+
+    try {
+      await login({ email: email.trim(), password });
+      router.push("/dashboard");
+    } catch (err: any) {
+      setErrorMessage(
+        err?.message || "Invalid credentials. Please verify your email and password.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDemoLogin = (targetRole: Role) => {
+    switchDemoRole(targetRole);
+    router.push("/dashboard");
+  };
 
   return (
     <Shell>
-      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_440px] lg:items-center">
+      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.1fr_450px] lg:items-center">
         <div>
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-teal-300">Access request</p>
-          <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-tight sm:text-5xl">
-            Sign up with your role before entering MedCare.
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-teal-300 ring-1 ring-teal-500/30">
+            <Sparkles className="h-3.5 w-3.5" /> Secure Authentication
+          </span>
+          <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+            Welcome back to the MedCare Portal.
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-slate-300">
-            New users request access by role. Super Admin approval unlocks the matching dashboard. Backend auth can replace this local demo store later without changing the role flow.
+          <p className="mt-4 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">
+            Access your unified clinical dashboard, consultations, appointments, medical records, or administrative control room.
           </p>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+          {/* Quick Demo Role Switcher */}
+          <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-teal-400">
+                ⚡ Instant One-Click Demo Access
+              </span>
+              <span className="text-[11px] text-slate-400">No password required</span>
+            </div>
+            <p className="mt-1 text-xs text-slate-400">
+              Click any role below to enter the portal workspace instantly:
+            </p>
+
+            <div className="mt-3.5 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {roles.map((r) => {
+                const Icon = r.icon;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => handleDemoLogin(r.id)}
+                    className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-2.5 text-left text-xs font-medium text-slate-200 transition hover:border-teal-400/50 hover:bg-teal-500/15 hover:text-white"
+                  >
+                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-teal-500/20 text-teal-300">
+                      <Icon className="h-3.5 w-3.5" />
+                    </span>
+                    <span className="truncate">{r.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Login Card */}
+        <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+          <div className="mb-6">
+            <h2 className="text-xl font-bold text-white">Sign In</h2>
+            <p className="mt-1 text-xs text-slate-400">
+              Enter your verified MedCare credentials below.
+            </p>
+          </div>
+
+          {errorMessage && (
+            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-200">Email Address</label>
+              <div className="relative mt-1.5">
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@medcare.com"
+                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-medium text-slate-200">Password</label>
+              </div>
+              <div className="relative mt-1.5">
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/25 transition hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" /> Signing in...
+                </>
+              ) : (
+                <>
+                  Sign In <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 border-t border-white/10 pt-4 text-center">
+            <p className="text-xs text-slate-400">
+              Don't have an account yet?{" "}
+              <Link href="/signup" className="font-semibold text-teal-400 hover:text-teal-300">
+                Create Account
+              </Link>
+            </p>
+          </div>
+        </div>
+      </section>
+    </Shell>
+  );
+}
+
+export function SignupPage() {
+  const router = useRouter();
+  const { register } = useAuth();
+  const [role, setRole] = useState<Role>("patient");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("Password123!");
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const selectedRole = roles.find((r) => r.id === role)!;
+  const SelectedIcon = selectedRole.icon;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage(null);
+    setLoading(true);
+
+    try {
+      await register({
+        name: name.trim() || `${selectedRole.label} User`,
+        email: email.trim(),
+        password,
+        role: selectedRole.id,
+      });
+      setSuccess(true);
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1200);
+    } catch (err: any) {
+      setErrorMessage(
+        err?.message || "Registration failed. Please verify your details.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Shell>
+      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.1fr_460px] lg:items-center">
+        <div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-teal-300 ring-1 ring-teal-500/30">
+            <UserCheck className="h-3.5 w-3.5" /> Role Registration
+          </span>
+          <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+            Choose your role & create your MedCare account.
+          </h1>
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">
+            Select your clinical, administrative, or patient role to receive the tailored workspace and tool suite.
+          </p>
+
+          <div className="mt-6 grid gap-2.5 sm:grid-cols-2">
             {roles.map((item) => {
               const Icon = item.icon;
               const active = item.id === role;
               return (
                 <button
                   key={item.id}
+                  type="button"
                   onClick={() => setRole(item.id)}
-                  className={`rounded-lg border p-4 text-left transition ${
-                    active ? "border-teal-300 bg-teal-500/15" : "border-white/10 bg-white/[0.04] hover:bg-white/[0.07]"
+                  className={`rounded-xl border p-3.5 text-left transition ${
+                    active
+                      ? "border-teal-400 bg-teal-500/20 shadow-md shadow-teal-500/10"
+                      : "border-white/10 bg-white/[0.03] hover:border-white/20 hover:bg-white/[0.06]"
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <span className={`flex h-9 w-9 items-center justify-center rounded-lg ${active ? "bg-teal-500" : "bg-white/10"}`}>
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className={`flex h-8 w-8 items-center justify-center rounded-lg ${
+                        active ? "bg-teal-500 text-white" : "bg-white/10 text-slate-300"
+                      }`}
+                    >
                       <Icon className="h-4 w-4" />
                     </span>
-                    <span className="font-semibold">{item.label}</span>
+                    <span className="font-semibold text-sm text-white">{item.label}</span>
                   </div>
-                  <p className="mt-3 text-sm leading-6 text-slate-300">{item.description}</p>
+                  <p className="mt-2 text-xs text-slate-300 leading-snug line-clamp-2">
+                    {item.description}
+                  </p>
                 </button>
               );
             })}
           </div>
         </div>
 
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            onSignup({ name: name.trim() || "New User", email: email.trim() || `${role}@medcare.local`, role });
-          }}
-          className="rounded-lg border border-white/10 bg-white/[0.05] p-5 shadow-2xl"
-        >
+        {/* Signup Form Card */}
+        <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
           <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-500">
-              <SelectedIcon className="h-5 w-5" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500 shadow-md shadow-teal-500/20">
+              <SelectedIcon className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="font-semibold">{selected.label} signup</h2>
-              <p className="text-sm text-slate-400">Approval required before workspace access.</p>
+              <h2 className="font-bold text-white">{selectedRole.label} Registration</h2>
+              <p className="text-xs text-slate-400">Join the MedCare healthcare network.</p>
             </div>
           </div>
 
-          <label className="block text-sm font-medium text-slate-200">
-            Full name
-            <input
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
-              placeholder="Sarah Mitchell"
-            />
-          </label>
+          {errorMessage && (
+            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
 
-          <label className="mt-4 block text-sm font-medium text-slate-200">
-            Email
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
-              placeholder="name@medcare.com"
-            />
-          </label>
+          {success && (
+            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-200">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
+              <span>Account created successfully! Redirecting to workspace...</span>
+            </div>
+          )}
 
-          <button className="mt-6 w-full rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-600">
-            Request access
-          </button>
-          <Link href="/login" className="mt-3 block text-center text-sm font-medium text-teal-200 hover:text-white">
-            Already approved? Login
-          </Link>
-          <p className="mt-3 text-xs leading-5 text-slate-400">
-            Demo note: Super Admin accounts are approved immediately so there is always someone who can review new requests.
-          </p>
-        </form>
-      </section>
-    </Shell>
-  );
-}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-medium text-slate-200">Full Name</label>
+              <div className="relative mt-1.5">
+                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Dr. Sarah Mitchell"
+                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                />
+              </div>
+            </div>
 
-function LoginView({
-  requests,
-  onLogin,
-}: {
-  requests: SignupRequest[];
-  onLogin: (session: Session) => void;
-}) {
-  const router = useRouter();
-  const approvedRequests = requests.filter((request) => request.status === "approved");
-  const [email, setEmail] = useState(approvedRequests[0]?.email ?? "super-admin@medcare.local");
+            <div>
+              <label className="block text-xs font-medium text-slate-200">Email Address</label>
+              <div className="relative mt-1.5">
+                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="sarah@medcare.com"
+                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                />
+              </div>
+            </div>
 
-  const selected = approvedRequests.find((request) => request.email === email);
+            <div>
+              <label className="block text-xs font-medium text-slate-200">Password</label>
+              <div className="relative mt-1.5">
+                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Min 8 characters"
+                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                />
+              </div>
+            </div>
 
-  return (
-    <Shell>
-      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1fr_420px] lg:items-center">
-        <div>
-          <p className="text-sm font-medium uppercase tracking-[0.18em] text-teal-300">Login</p>
-          <h1 className="mt-4 max-w-2xl text-4xl font-semibold leading-tight sm:text-5xl">
-            Approved users can continue to their dashboard.
-          </h1>
-          <p className="mt-5 max-w-xl text-base leading-7 text-slate-300">
-            This is a frontend-only login placeholder. Later, the backend can validate credentials and return the approved role.
-          </p>
-          <div className="mt-8 rounded-lg border border-white/10 bg-white/[0.04] p-4 text-sm text-slate-300">
-            No approved account yet? Create a role request from signup. A Super Admin can approve it from their approval workspace.
-          </div>
-        </div>
-
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (selected) {
-              onLogin({ email: selected.email, role: selected.role, status: "approved" });
-              router.push("/dashboard");
-            }
-          }}
-          className="rounded-lg border border-white/10 bg-white/[0.05] p-5 shadow-2xl"
-        >
-          <h2 className="text-lg font-semibold">Login to MedCare</h2>
-          <p className="mt-1 text-sm text-slate-400">Choose an approved local demo account.</p>
-
-          <label className="mt-5 block text-sm font-medium text-slate-200">
-            Approved account
-            <select
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+            <button
+              type="submit"
+              disabled={loading || success}
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/25 transition hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {approvedRequests.length === 0 && <option value="">No approved accounts</option>}
-              {approvedRequests.map((request) => (
-                <option key={request.id} value={request.email}>
-                  {request.email} - {roleLabel(request.role)}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <button
-            disabled={!selected}
-            className="mt-6 w-full rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Continue to dashboard
-          </button>
-          <Link href="/signup" className="mt-3 block text-center text-sm font-medium text-teal-200 hover:text-white">
-            Need an account? Signup
-          </Link>
-        </form>
-      </section>
-    </Shell>
-  );
-}
-
-function PendingView({
-  session,
-  request,
-  onRefresh,
-  onSignOut,
-}: {
-  session: Session;
-  request?: SignupRequest;
-  onRefresh: () => void;
-  onSignOut: () => void;
-}) {
-  return (
-    <Shell session={session} onSignOut={onSignOut}>
-      <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-2xl items-center px-4 py-8">
-        <div className="w-full rounded-lg border border-white/10 bg-white/[0.05] p-6 text-center">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg bg-amber-400/15 text-amber-300">
-            <Clock className="h-6 w-6" />
-          </div>
-          <h1 className="mt-5 text-2xl font-semibold">Waiting for Super Admin approval</h1>
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            {request?.name ?? session.email} requested {roleLabel(session.role)} access. Once approved, this same app will open the matching role dashboard.
-          </p>
-          <div className="mt-6 flex justify-center gap-3">
-            <button onClick={onRefresh} className="rounded-lg bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600">
-              Check status
+              {loading ? (
+                <>
+                  <RefreshCw className="h-4 w-4 animate-spin" /> Creating Account...
+                </>
+              ) : (
+                <>
+                  Create Account <ArrowRight className="h-4 w-4" />
+                </>
+              )}
             </button>
-            <button onClick={onSignOut} className="rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10">
-              Change request
-            </button>
+          </form>
+
+          <div className="mt-6 border-t border-white/10 pt-4 text-center">
+            <p className="text-xs text-slate-400">
+              Already have an account?{" "}
+              <Link href="/login" className="font-semibold text-teal-400 hover:text-teal-300">
+                Sign In
+              </Link>
+            </p>
           </div>
         </div>
       </section>
     </Shell>
   );
-}
-
-function ApprovalWorkspace({
-  requests,
-  onApprove,
-  onOpenDashboard,
-  session,
-  onSignOut,
-}: {
-  requests: SignupRequest[];
-  onApprove: (id: string) => void;
-  onOpenDashboard: () => void;
-  session: Session;
-  onSignOut: () => void;
-}) {
-  const pending = requests.filter((request) => request.status === "pending");
-  const approved = requests.filter((request) => request.status === "approved");
-
-  return (
-    <Shell session={session} onSignOut={onSignOut}>
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-sm font-medium uppercase tracking-[0.18em] text-teal-300">Super Admin gate</p>
-            <h1 className="mt-3 text-3xl font-semibold">Approve role access before users enter dashboards.</h1>
-          </div>
-          <button onClick={onOpenDashboard} className="rounded-lg bg-teal-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-teal-600">
-            Open Super Admin dashboard
-          </button>
-        </div>
-
-        <div className="mt-8 grid gap-4 lg:grid-cols-[1fr_320px]">
-          <div className="overflow-hidden rounded-lg border border-white/10 bg-white/[0.05]">
-            <div className="border-b border-white/10 px-5 py-4">
-              <h2 className="font-semibold">Pending requests</h2>
-              <p className="text-sm text-slate-400">These are local demo records until the backend is added.</p>
-            </div>
-            {pending.length === 0 ? (
-              <div className="px-5 py-12 text-center text-sm text-slate-400">No pending access requests.</div>
-            ) : (
-              <div className="divide-y divide-white/10">
-                {pending.map((request) => (
-                  <div key={request.id} className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center">
-                    <div className="flex-1">
-                      <div className="font-semibold">{request.name}</div>
-                      <div className="mt-1 text-sm text-slate-400">{request.email}</div>
-                    </div>
-                    <span className="w-fit rounded-full bg-teal-400/10 px-3 py-1 text-xs font-semibold text-teal-200">
-                      {roleLabel(request.role)}
-                    </span>
-                    <button
-                      onClick={() => onApprove(request.id)}
-                      className="inline-flex items-center justify-center gap-2 rounded-lg bg-teal-500 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-600"
-                    >
-                      <Check className="h-4 w-4" />
-                      Approve
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-lg border border-white/10 bg-white/[0.05] p-5">
-            <h2 className="font-semibold">Access summary</h2>
-            <div className="mt-5 space-y-3 text-sm">
-              <div className="flex items-center justify-between rounded-lg bg-white/[0.05] px-3 py-2">
-                <span className="text-slate-300">Pending</span>
-                <span className="font-semibold">{pending.length}</span>
-              </div>
-              <div className="flex items-center justify-between rounded-lg bg-white/[0.05] px-3 py-2">
-                <span className="text-slate-300">Approved</span>
-                <span className="font-semibold">{approved.length}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </Shell>
-  );
-}
-
-function usePortalState() {
-  const [requests, setRequests] = useState<SignupRequest[]>([]);
-  const [session, setSession] = useState<Session | null>(null);
-
-  useEffect(() => {
-    const storedRequests = loadRequests();
-    if (!storedRequests.some((request) => request.email === "super-admin@medcare.local")) {
-      storedRequests.unshift({
-        id: "seed-super-admin",
-        name: "Super Admin",
-        email: "super-admin@medcare.local",
-        role: "super-admin",
-        status: "approved",
-        createdAt: new Date().toISOString(),
-      });
-      saveRequests(storedRequests);
-    }
-    setRequests(storedRequests);
-    setSession(loadSession());
-  }, []);
-
-  const updateRequests = (nextRequests: SignupRequest[]) => {
-    setRequests(nextRequests);
-    saveRequests(nextRequests);
-  };
-
-  const updateSession = (nextSession: Session | null) => {
-    setSession(nextSession);
-    saveSession(nextSession);
-  };
-
-  return { requests, session, setRequests, updateRequests, updateSession };
-}
-
-export function SignupPage() {
-  const router = useRouter();
-  const { requests, updateRequests, updateSession } = usePortalState();
-
-  const handleSignup = (input: Omit<SignupRequest, "id" | "status" | "createdAt">) => {
-    const status: RequestStatus = input.role === "super-admin" ? "approved" : "pending";
-    const request: SignupRequest = {
-      ...input,
-      id: crypto.randomUUID(),
-      status,
-      createdAt: new Date().toISOString(),
-    };
-    updateRequests([request, ...requests]);
-    updateSession({ email: request.email, role: request.role, status });
-    router.push("/dashboard");
-  };
-
-  return <SignupView onSignup={handleSignup} />;
-}
-
-export function LoginPage() {
-  const { requests, updateSession } = usePortalState();
-
-  return <LoginView requests={requests} onLogin={updateSession} />;
 }
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { requests, session, setRequests, updateRequests, updateSession } = usePortalState();
-  const [superAdminDashboardOpen, setSuperAdminDashboardOpen] = useState(false);
+  const { user, role, isLoading, isAuthenticated, logout } = useAuth();
 
-  const activeRequest = useMemo(
-    () => requests.find((request) => request.email === session?.email && request.role === session.role),
-    [requests, session],
-  );
+  if (isLoading) {
+    return (
+      <Shell>
+        <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+          <div className="text-center">
+            <RefreshCw className="mx-auto h-8 w-8 animate-spin text-teal-400" />
+            <p className="mt-3 text-sm text-slate-400">Loading your MedCare workspace...</p>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
 
-  const handleApprove = (id: string) => {
-    const nextRequests = requests.map((request) => (request.id === id ? { ...request, status: "approved" as const } : request));
-    updateRequests(nextRequests);
-
-    const approvedRequest = nextRequests.find((request) => request.id === id);
-    if (approvedRequest && session?.email === approvedRequest.email && session.role === approvedRequest.role) {
-      updateSession({ email: approvedRequest.email, role: approvedRequest.role, status: "approved" });
-    }
-  };
-
-  const handleRefresh = () => {
-    const nextRequests = loadRequests();
-    setRequests(nextRequests);
-    const request = nextRequests.find((item) => item.email === session?.email && item.role === session.role);
-    if (request?.status === "approved") {
-      updateSession({ email: request.email, role: request.role, status: "approved" });
-    }
-  };
-
-  const handleSignOut = () => {
-    updateSession(null);
-    setSuperAdminDashboardOpen(false);
-    router.push("/login");
-  };
-
-  if (!session) {
+  if (!isAuthenticated || !user) {
     return (
       <Shell>
         <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-xl items-center px-4 py-8 text-center">
-          <div className="rounded-lg border border-white/10 bg-white/[0.05] p-6">
-            <h1 className="text-2xl font-semibold">Login required</h1>
-            <p className="mt-3 text-sm leading-6 text-slate-300">Please login with an approved account or signup for a new role request.</p>
+          <div className="w-full rounded-2xl border border-white/10 bg-white/[0.05] p-8 shadow-2xl">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-teal-500/20 text-teal-400">
+              <KeyRound className="h-6 w-6" />
+            </div>
+            <h1 className="mt-4 text-2xl font-bold text-white">Authentication Required</h1>
+            <p className="mt-2 text-sm leading-relaxed text-slate-300">
+              Please sign in to access your designated healthcare role workspace.
+            </p>
             <div className="mt-6 flex justify-center gap-3">
-              <Link href="/login" className="rounded-lg bg-teal-500 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-600">Login</Link>
-              <Link href="/signup" className="rounded-lg border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-white/10">Signup</Link>
+              <Link
+                href="/login"
+                className="rounded-xl bg-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-teal-500/20 hover:bg-teal-600"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/signup"
+                className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/10"
+              >
+                Register
+              </Link>
             </div>
           </div>
         </section>
@@ -581,23 +562,5 @@ export default function DashboardPage() {
     );
   }
 
-  if (session.role === "super-admin" && !superAdminDashboardOpen) {
-    return (
-      <ApprovalWorkspace
-        requests={requests}
-        onApprove={handleApprove}
-        onOpenDashboard={() => setSuperAdminDashboardOpen(true)}
-        session={session}
-        onSignOut={handleSignOut}
-      />
-    );
-  }
-
-  if (session.status !== "approved" && activeRequest?.status !== "approved") {
-    return <PendingView session={session} request={activeRequest} onRefresh={handleRefresh} onSignOut={handleSignOut} />;
-  }
-
-  const approvedSession: Session = activeRequest?.status === "approved" ? { ...session, status: "approved" } : session;
-
-  return <DashboardForRole role={approvedSession.role} />;
+  return <DashboardForRole role={role} />;
 }
