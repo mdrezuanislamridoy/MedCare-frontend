@@ -10,7 +10,8 @@ export default function Prescriptions({ onToast }: { onToast: (msg: string) => v
   const [creating, setCreating] = useState(false);
   const [preview, setPreview] = useState<any | null>(null);
   const [saving, setSaving] = useState(false);
-  const [newRx, setNewRx] = useState<{ patient: string; diagnosis: string; medicines: Medicine[]; notes: string }>({
+  const [newRx, setNewRx] = useState<{ patientId: string; patient: string; diagnosis: string; medicines: Medicine[]; notes: string }>({
+    patientId: patients[0]?.id || "PAT-001",
     patient: patients[0]?.name || "James Harrington",
     diagnosis: "Primary Hypertension",
     medicines: [{ name: "Amlodipine Besylate", dosage: "5mg", frequency: "Once daily (Morning)", duration: "30 days", instructions: "Take after breakfast" }],
@@ -58,7 +59,7 @@ export default function Prescriptions({ onToast }: { onToast: (msg: string) => v
     try {
       await doctorApi.createPrescription({
         appointmentId: "APT-1001",
-        patientId: "PAT-001",
+        patientId: newRx.patientId,
         diagnosis: newRx.diagnosis,
         medicines: newRx.medicines,
         notes: newRx.notes,
@@ -170,12 +171,15 @@ export default function Prescriptions({ onToast }: { onToast: (msg: string) => v
             <div>
               <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">Select Patient</label>
               <select
-                value={newRx.patient}
-                onChange={(e) => setNewRx({ ...newRx, patient: e.target.value })}
+                value={newRx.patientId}
+                onChange={(e) => {
+                  const sel = patients.find(p => p.id === e.target.value);
+                  setNewRx({ ...newRx, patientId: e.target.value, patient: sel?.name || 'Patient' });
+                }}
                 className="w-full text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
                 {patients.map((p) => (
-                  <option key={p.id} value={p.name}>{p.name} ({p.bloodType})</option>
+                  <option key={p.id} value={p.id}>{p.name} ({p.bloodType})</option>
                 ))}
               </select>
             </div>

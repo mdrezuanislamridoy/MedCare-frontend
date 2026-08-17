@@ -49,10 +49,12 @@ export const patientApi = {
   },
 
   // 3. Doctors Search & Details
-  async searchDoctors(query?: { specialty?: string; search?: string; page?: number; limit?: number }) {
+  async searchDoctors(query?: { specialty?: string; search?: string; minRating?: number; maxFee?: number; page?: number; limit?: number }) {
     const params = new URLSearchParams();
     if (query?.specialty) params.append('specialty', query.specialty);
     if (query?.search) params.append('search', query.search);
+    if (query?.minRating) params.append('minRating', String(query.minRating));
+    if (query?.maxFee) params.append('maxFee', String(query.maxFee));
     if (query?.page) params.append('page', String(query.page));
     if (query?.limit) params.append('limit', String(query.limit));
 
