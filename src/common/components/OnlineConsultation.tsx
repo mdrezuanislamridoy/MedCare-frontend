@@ -1,45 +1,59 @@
+"use client";
+
 import React from 'react';
-import Link from 'next/link';
 import {
   VideoIcon,
   ShieldCheckIcon,
   FileTextIcon,
   FolderLockIcon,
   BellRingIcon,
-  ArrowRightIcon } from
-'lucide-react';
+  ArrowRightIcon,
+} from 'lucide-react';
 
 const features = [
-{
-  icon: VideoIcon,
-  title: 'Video consultation',
-  description: 'HD video visits with the same doctors you would see in clinic.'
-},
-{
-  icon: ShieldCheckIcon,
-  title: 'Secure communication',
-  description: 'End-to-end encrypted calls and messages, HIPAA compliant.'
-},
-{
-  icon: FileTextIcon,
-  title: 'Digital prescriptions',
-  description: 'Issued during the call and sent straight to your pharmacy.'
-},
-{
-  icon: FolderLockIcon,
-  title: 'Medical records',
-  description: 'Reports, notes and history in one private, portable place.'
-},
-{
-  icon: BellRingIcon,
-  title: 'Appointment reminders',
-  description: 'Timely email and SMS nudges so nothing gets missed.'
-}];
+  {
+    icon: VideoIcon,
+    title: 'Video consultation',
+    description: 'HD video visits with the same doctors you would see in clinic.',
+  },
+  {
+    icon: ShieldCheckIcon,
+    title: 'Secure communication',
+    description: 'End-to-end encrypted calls and messages, HIPAA compliant.',
+  },
+  {
+    icon: FileTextIcon,
+    title: 'Digital prescriptions',
+    description: 'Issued during the call and sent straight to your pharmacy.',
+  },
+  {
+    icon: FolderLockIcon,
+    title: 'Medical records',
+    description: 'Reports, notes and history in one private, portable place.',
+  },
+  {
+    icon: BellRingIcon,
+    title: 'Appointment reminders',
+    description: 'Timely email and SMS nudges so nothing gets missed.',
+  },
+];
 
+interface OnlineConsultationProps {
+  onStartOnlineConsult?: () => void;
+}
 
-export function OnlineConsultation() {
+export function OnlineConsultation({ onStartOnlineConsult }: OnlineConsultationProps) {
+  const handleClick = () => {
+    if (onStartOnlineConsult) {
+      onStartOnlineConsult();
+    } else {
+      const docSection = document.getElementById('doctors');
+      if (docSection) docSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <section id="online" className="bg-white py-20 lg:py-24">
+    <section id="online" className="bg-white py-20 lg:py-24 scroll-mt-12">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <div className="overflow-hidden rounded-4xl border border-teal-100 bg-canvas lg:grid lg:grid-cols-12">
           <div className="p-8 sm:p-12 lg:col-span-7">
@@ -55,8 +69,8 @@ export function OnlineConsultation() {
             </p>
 
             <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-              {features.map(({ icon: Icon, title, description }) =>
-              <li key={title} className="flex gap-3 rounded-2xl bg-white p-4 ring-1 ring-teal-100/80">
+              {features.map(({ icon: Icon, title, description }) => (
+                <li key={title} className="flex gap-3 rounded-2xl bg-white p-4 ring-1 ring-teal-100/80">
                   <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-600">
                     <Icon className="h-4 w-4" aria-hidden="true" />
                   </span>
@@ -65,16 +79,17 @@ export function OnlineConsultation() {
                     <p className="mt-1 text-sm leading-snug text-ink-soft">{description}</p>
                   </div>
                 </li>
-              )}
+              ))}
             </ul>
 
-            <Link
-              href="/signup"
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-teal-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-teal-700">
-              
+            <button
+              type="button"
+              onClick={handleClick}
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-teal-600 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-teal-700 shadow-card"
+            >
               Consult a Doctor Online
               <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
-            </Link>
+            </button>
           </div>
 
           <div className="relative lg:col-span-5">
@@ -83,11 +98,11 @@ export function OnlineConsultation() {
               alt="A patient at home having a video consultation with a doctor on a tablet"
               className="h-64 w-full object-cover lg:h-full"
               width={1200}
-              height={900} />
-            
+              height={900}
+            />
           </div>
         </div>
       </div>
-    </section>);
-
+    </section>
+  );
 }
