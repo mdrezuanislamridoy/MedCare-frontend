@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Lock, Save, RefreshCw, Clock } from "lucide-react";
+import { Plus, Trash2, Lock, Save, RefreshCw, Clock, DollarSign, Calendar, CheckCircle2 } from "lucide-react";
 import { weeklySchedule as initialSchedule } from "../data/mockData";
 import { doctorApi } from "../services/doctor.api";
 
@@ -25,8 +25,58 @@ const calendarSlots = [
 export default function Schedule({ onToast }: { onToast: (msg: string) => void }) {
   const [schedule, setSchedule] = useState<Schedule>(initialSchedule);
   const [duration, setDuration] = useState("30");
+  const [fee, setFee] = useState("150");
+  const [isAvailableToday, setIsAvailableToday] = useState(true);
   const [mode, setMode] = useState<"weekly" | "calendar">("weekly");
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load existing schedule and doctor profile configuration
+  useEffect(() => {
+    let isMounted = true;
+    async function loadDoctorSchedule() {
+      try {
+        const [schedData, profileData]: any = await Promise.all([
+          doctorApi.getSchedule(),
+          doctorApi.getProfile(),
+        ]);
+
+        if (isMounted) {
+          if (profileData?.consultationFee) {
+            setFee(String(profileData.consultationFee));
+          }
+          if (profileData?.isAvailableToday !== undefined) {
+            setIsAvailableToday(profileData.isAvailableToday);
+          }
+
+          if (schedData?.schedules && Array.isArray(schedData.schedules) && schedData.schedules.length > 0) {
+            const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const updatedSchedule: Schedule = { ...initialSchedule };
+            schedData.schedules.forEach((s: any) => {
+              const dayName = typeof s.dayOfWeek === "number" ? dayNames[s.dayOfWeek] : s.dayOfWeek;
+              if (dayName && updatedSchedule[dayName]) {
+                updatedSchedule[dayName] = {
+                  ...updatedSchedule[dayName],
+                  enabled: s.isAvailable ?? true,
+                  start: s.startTime || "09:00",
+                  end: s.endTime || "17:00",
+                };
+              }
+            });
+            setSchedule(updatedSchedule);
+          }
+        }
+      } catch (err) {
+        console.warn("Using offline fallback schedule:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    loadDoctorSchedule();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const toggleDay = (day: string) => {
     setSchedule((prev) => ({
@@ -45,14 +95,21 @@ export default function Schedule({ onToast }: { onToast: (msg: string) => void }
   const handleSave = async () => {
     setSaving(true);
     try {
-      await doctorApi.setSchedules({
-        dayOfWeek: 1,
-        startTime: "09:00",
-        endTime: "17:00",
-        slotDurationMinutes: Number(duration) || 30,
-        isAvailable: true,
+      const daysPayload = Object.entries(schedule).map(([dayName, cfg]) => ({
+        dayOfWeek: dayName,
+        startTime: cfg.start,
+        endTime: cfg.end,
+        slotDurationMin: Number(duration) || 30,
+        isEnabled: cfg.enabled,
+        isAvailable: cfg.enabled,
+      }));
+
+      await doctorApi.updateDoctorSchedule({
+        consultationFee: Number(fee) || 150,
+        isAvailableToday,
+        days: daysPayload,
       });
-      onToast("Weekly clinical schedule updated & synced!");
+      onToast("Weekly clinical roster & consultation rates updated!");
     } catch (err) {
       onToast("Schedule saved locally.");
     } finally {
@@ -94,23 +151,57 @@ export default function Schedule({ onToast }: { onToast: (msg: string) => void }
       </div>
 
       {mode === "weekly" ? (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-            <h3 className="font-bold text-slate-900 dark:text-white text-sm">Consultation Slot Duration</h3>
-            <select
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              className="text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white rounded-xl px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-teal-500"
-            >
-              <option value="15">15 Minutes per patient</option>
-              <option value="20">20 Minutes per patient</option>
-              <option value="30">30 Minutes per patient</option>
-              <option value="45">45 Minutes per patient</option>
-              <option value="60">60 Minutes per patient</option>
-            </select>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-5">
+          {/* Rate & Global Settings */}
+          <div className="grid sm:grid-cols-3 gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">Consultation Slot Duration</label>
+              <select
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                className="w-full text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                <option value="15">15 Minutes per patient</option>
+                <option value="20">20 Minutes per patient</option>
+                <option value="30">30 Minutes per patient</option>
+                <option value="45">45 Minutes per patient</option>
+                <option value="60">60 Minutes per patient</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">Consultation Fee ($ USD)</label>
+              <div className="relative">
+                <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <input
+                  type="number"
+                  value={fee}
+                  onChange={(e) => setFee(e.target.value)}
+                  placeholder="150"
+                  className="w-full text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white rounded-xl pl-9 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">Available for Walk-ins Today</label>
+              <button
+                type="button"
+                onClick={() => setIsAvailableToday(!isAvailableToday)}
+                className={`w-full text-xs px-3 py-2 rounded-xl font-semibold border flex items-center justify-between transition-colors ${
+                  isAvailableToday
+                    ? "bg-teal-50 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800 text-teal-700 dark:text-teal-300"
+                    : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500"
+                }`}
+              >
+                <span>{isAvailableToday ? "Available On-Duty" : "Off Duty / Busy"}</span>
+                <CheckCircle2 className={`w-4 h-4 ${isAvailableToday ? "text-teal-600" : "text-slate-400"}`} />
+              </button>
+            </div>
           </div>
 
           <div className="space-y-3">
+            <h3 className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider">Weekly Shift Working Hours</h3>
             {days.map((day) => {
               const cfg = schedule[day] || { enabled: false, start: "09:00", end: "17:00", breakStart: "13:00", breakEnd: "14:00" };
               return (
