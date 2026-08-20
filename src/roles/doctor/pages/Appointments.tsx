@@ -64,7 +64,9 @@ export default function Appointments({ onToast }: { onToast: (msg: string) => vo
     };
 
     try {
-      if (statusMap[action]) {
+      if (action === "complete") {
+        await doctorApi.completeConsultation(id);
+      } else if (statusMap[action]) {
         await doctorApi.updateAppointmentStatus(id, statusMap[action]);
       }
     } catch (err) {

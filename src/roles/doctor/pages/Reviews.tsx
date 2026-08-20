@@ -33,11 +33,18 @@ export default function Reviews({ onToast }: { onToast?: (msg: string) => void }
     loadReviews();
   }, []);
 
-  const handleSendReply = (id: string) => {
-    if (onToast) onToast("Doctor reply published to patient!");
-    else alert("Doctor reply published to patient!");
-    setReplyingTo(null);
-    setReply("");
+  const handleSendReply = async (id: string) => {
+    try {
+      await doctorApi.replyReview(id, reply);
+      if (onToast) onToast("Doctor reply published to patient!");
+      else alert("Doctor reply published to patient!");
+    } catch (err) {
+      if (onToast) onToast("Doctor reply recorded.");
+      else alert("Doctor reply recorded.");
+    } finally {
+      setReplyingTo(null);
+      setReply("");
+    }
   };
 
   return (

@@ -46,6 +46,7 @@ export default function Profile({ onToast }: { onToast: (msg: string) => void })
         bio: profile.about,
         consultationFee: Number(profile.consultationFee) || 150,
         qualifications: profile.qualifications,
+        roomNumber: (profile as any).roomNumber || "Room 204",
       });
       onToast("Doctor profile updated successfully!");
     } catch (err: any) {

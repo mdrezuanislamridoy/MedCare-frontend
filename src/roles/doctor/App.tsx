@@ -5,6 +5,8 @@ import {
   Search, Menu, X, ChevronRight, Clock
 } from "lucide-react";
 import { doctorProfile, notifications } from "./data/mockData";
+import { useAuthStore } from "../../common/stores/auth.store";
+import { doctorApi } from "./services/doctor.api";
 import Dashboard from "./pages/Dashboard";
 import Appointments from "./pages/Appointments";
 import Patients from "./pages/Patients";
@@ -41,6 +43,8 @@ interface Toast {
 }
 
 export default function App() {
+  const { user, logout } = useAuthStore();
+  const [liveDoctor, setLiveDoctor] = useState<{ name: string; specialty: string } | null>(null);
   const [page, setPage] = useState<Page>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -59,6 +63,26 @@ export default function App() {
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, []);
+
+  useEffect(() => {
+    async function loadDoctorInfo() {
+      try {
+        const p = await doctorApi.getProfile();
+        if (p) {
+          setLiveDoctor({
+            name: p.name || user?.name || "Dr. Sarah Mitchell",
+            specialty: p.specialty || "Cardiologist",
+          });
+        }
+      } catch (err) {
+        // Use auth store or default fallback
+      }
+    }
+    loadDoctorInfo();
+  }, [user]);
+
+  const docName = liveDoctor?.name || user?.name || "Dr. Sarah Mitchell";
+  const docSpecialty = liveDoctor?.specialty || "Cardiologist";
 
   const navigate = (p: Page) => {
     setPage(p);
@@ -96,10 +120,10 @@ export default function App() {
         {/* Doctor mini card */}
         <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5">
-            <img src={doctorProfile.avatar} alt={doctorProfile.name} className="w-10 h-10 rounded-xl object-cover bg-slate-700 flex-shrink-0" />
+            <img src={doctorProfile.avatar} alt={docName} className="w-10 h-10 rounded-xl object-cover bg-slate-700 flex-shrink-0" />
             <div className="min-w-0">
-              <div className="text-white font-medium text-sm truncate">Dr. Sarah Mitchell</div>
-              <div className="text-teal-400 text-xs">Cardiologist</div>
+              <div className="text-white font-medium text-sm truncate">{docName.startsWith("Dr.") ? docName : `Dr. ${docName}`}</div>
+              <div className="text-teal-400 text-xs">{docSpecialty}</div>
             </div>
           </div>
         </div>
@@ -196,8 +220,8 @@ export default function App() {
             >
               <img src={doctorProfile.avatar} alt="Profile" className="w-8 h-8 rounded-lg object-cover bg-slate-200" />
               <div className="hidden sm:block text-left">
-                <div className="text-sm font-medium text-slate-900 leading-tight">Dr. Mitchell</div>
-                <div className="text-xs text-slate-500">Cardiologist</div>
+                <div className="text-sm font-medium text-slate-900 leading-tight">{docName.startsWith("Dr.") ? docName : `Dr. ${docName}`}</div>
+                <div className="text-xs text-slate-500">{docSpecialty}</div>
               </div>
             </button>
             {profileMenuOpen && (
@@ -209,7 +233,7 @@ export default function App() {
                   <SettingsIcon className="w-4 h-4 text-slate-400" /> Settings
                 </button>
                 <div className="border-t border-slate-100 my-1" />
-                <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                <button onClick={() => logout()} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>
               </div>

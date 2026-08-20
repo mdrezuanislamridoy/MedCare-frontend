@@ -61,6 +61,8 @@ export default function Prescriptions({ onToast }: { onToast: (msg: string) => v
         appointmentId: "APT-1001",
         patientId: newRx.patientId,
         diagnosis: newRx.diagnosis,
+        advice: newRx.notes,
+        instructions: newRx.notes,
         medicines: newRx.medicines,
         notes: newRx.notes,
       });

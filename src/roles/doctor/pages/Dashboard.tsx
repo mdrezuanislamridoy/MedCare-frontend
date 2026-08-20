@@ -9,6 +9,8 @@ import {
   AlertCircle,
   ArrowUp,
   Sparkles,
+  Building2,
+  MapPin,
 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import StatusBadge from "../components/StatusBadge";
@@ -24,7 +26,6 @@ export default function Dashboard() {
   const now = new Date();
   const currentHour = now.getHours();
   const greeting = currentHour < 12 ? "Morning" : currentHour < 17 ? "Afternoon" : "Evening";
-  const doctorName = user?.name || "Dr. Sarah Mitchell";
 
   useEffect(() => {
     async function loadDashboard() {
@@ -40,21 +41,26 @@ export default function Dashboard() {
     loadDashboard();
   }, []);
 
-  const todayCount = liveData?.stats?.todayAppointments ?? 6;
-  const completedCount = liveData?.stats?.completedToday ?? 124;
-  const pendingNotes = liveData?.stats?.pendingNotes ?? 4;
-  const totalPatients = liveData?.stats?.totalPatients ?? 1247;
-  const monthlyEarnings = liveData?.stats?.monthlyEarnings ?? 11200;
-  const rating = liveData?.stats?.rating ?? 4.8;
-  const totalReviews = liveData?.stats?.totalReviews ?? 312;
+  const doctorName = liveData?.profile?.name || user?.name || "Dr. Sarah Mitchell";
+  const clinicName = liveData?.profile?.clinicName || "MedCare Main Clinic";
+  const roomNumber = liveData?.profile?.roomNumber || "Room 204";
+
+  const todayCount = liveData?.stats?.todayAppointments ?? 8;
+  const completedCount = liveData?.stats?.completedToday ?? 5;
+  const pendingToday = liveData?.stats?.pendingToday ?? liveData?.stats?.pendingNotes ?? 3;
+  const totalPatients = liveData?.stats?.totalPatients ?? 42;
+  const todayEarnings = liveData?.stats?.todayEarnings ?? 250;
+  const totalEarnings = liveData?.stats?.totalEarnings ?? liveData?.stats?.monthlyEarnings ?? 11200;
+  const rating = liveData?.profile?.rating ?? liveData?.stats?.rating ?? 4.8;
+  const totalReviews = liveData?.profile?.reviewCount ?? liveData?.stats?.totalReviews ?? 312;
 
   const kpiCards = [
-    { label: "Today's Consults", value: String(todayCount), sub: "+2 queue", icon: Calendar, color: "bg-teal-500", light: "bg-teal-50 dark:bg-teal-950/40", text: "text-teal-600 dark:text-teal-400" },
-    { label: "Upcoming", value: "18", sub: "Next 7 days", icon: Clock, color: "bg-blue-500", light: "bg-blue-50 dark:bg-blue-950/40", text: "text-blue-600 dark:text-blue-400" },
-    { label: "Completed", value: String(completedCount), sub: "This month", icon: CheckCircle, color: "bg-green-500", light: "bg-green-50 dark:bg-green-950/40", text: "text-green-600 dark:text-green-400" },
-    { label: "Pending Notes", value: String(pendingNotes), sub: "Needs chart", icon: AlertCircle, color: "bg-amber-500", light: "bg-amber-50 dark:bg-amber-950/40", text: "text-amber-600 dark:text-amber-400" },
-    { label: "Total Patients", value: String(totalPatients), sub: "+12 this month", icon: Users, color: "bg-indigo-500", light: "bg-indigo-50 dark:bg-indigo-950/40", text: "text-indigo-600 dark:text-indigo-400" },
-    { label: "Monthly Revenue", value: `$${monthlyEarnings.toLocaleString()}`, sub: "+8.2% vs last month", icon: DollarSign, color: "bg-purple-500", light: "bg-purple-50 dark:bg-purple-950/40", text: "text-purple-600 dark:text-purple-400" },
+    { label: "Today's Consults", value: String(todayCount), sub: `${pendingToday} pending`, icon: Calendar, color: "bg-teal-500", light: "bg-teal-50 dark:bg-teal-950/40", text: "text-teal-600 dark:text-teal-400" },
+    { label: "Completed Today", value: String(completedCount), sub: "Recorded in EHR", icon: CheckCircle, color: "bg-green-500", light: "bg-green-50 dark:bg-green-950/40", text: "text-green-600 dark:text-green-400" },
+    { label: "Pending in Queue", value: String(pendingToday), sub: "Needs chart", icon: AlertCircle, color: "bg-amber-500", light: "bg-amber-50 dark:bg-amber-950/40", text: "text-amber-600 dark:text-amber-400" },
+    { label: "Today's Revenue", value: `$${todayEarnings.toLocaleString()}`, sub: "Consultation fees", icon: DollarSign, color: "bg-emerald-500", light: "bg-emerald-50 dark:bg-emerald-950/40", text: "text-emerald-600 dark:text-emerald-400" },
+    { label: "Total Patients", value: String(totalPatients), sub: "Patient records", icon: Users, color: "bg-indigo-500", light: "bg-indigo-50 dark:bg-indigo-950/40", text: "text-indigo-600 dark:text-indigo-400" },
+    { label: "Total Revenue", value: `$${totalEarnings.toLocaleString()}`, sub: "Settled payouts", icon: DollarSign, color: "bg-purple-500", light: "bg-purple-50 dark:bg-purple-950/40", text: "text-purple-600 dark:text-purple-400" },
     { label: "Avg. Rating", value: String(rating), sub: `From ${totalReviews} reviews`, icon: Star, color: "bg-orange-500", light: "bg-orange-50 dark:bg-orange-950/40", text: "text-orange-600 dark:text-orange-400" },
   ];
 
@@ -66,9 +72,13 @@ export default function Dashboard() {
             Good {greeting}, {doctorName.startsWith("Dr.") ? doctorName : `Dr. ${doctorName}`}
             <span className="inline-block animate-bounce">👋</span>
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">
-            {now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })} · You have {todayCount} consultations scheduled today
-          </p>
+          <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 mt-1 text-xs sm:text-sm">
+            <span>{now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</span>
+            <span>·</span>
+            <span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5 text-teal-600" /> {clinicName}</span>
+            <span>·</span>
+            <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-400" /> {roomNumber}</span>
+          </div>
         </div>
         <button className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md shadow-teal-600/20 transition-all">
           <Sparkles className="w-4 h-4" />
@@ -135,8 +145,8 @@ export default function Dashboard() {
             </span>
           </div>
           <div className="px-5 pt-4 pb-2">
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">${monthlyEarnings.toLocaleString()}</div>
-            <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">This month (estimated payouts)</div>
+            <div className="text-3xl font-bold text-slate-900 dark:text-white">${totalEarnings.toLocaleString()}</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total processed consultation earnings</div>
             <div className="mt-4 h-36">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={earningsData.chartData} margin={{ top: 2, right: 4, left: -20, bottom: 0 }}>
