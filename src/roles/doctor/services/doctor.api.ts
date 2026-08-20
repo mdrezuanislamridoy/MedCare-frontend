@@ -1,18 +1,33 @@
 import { apiClient } from '../../../common/services/api';
 
 export interface DoctorDashboardData {
+  profile?: {
+    id: string;
+    name: string;
+    specialty?: string;
+    qualifications?: string[];
+    experienceYears?: number;
+    consultationFee?: number;
+    rating?: number;
+    reviewCount?: number;
+    roomNumber?: string;
+    clinicName?: string;
+  };
   stats: {
     todayAppointments: number;
     completedToday: number;
-    pendingNotes: number;
+    pendingToday?: number;
+    pendingNotes?: number;
     totalPatients: number;
-    monthlyEarnings: number;
+    todayEarnings?: number;
+    totalEarnings?: number;
+    monthlyEarnings?: number;
     rating: number;
-    totalReviews: number;
+    totalReviews?: number;
   };
-  todayQueue: any[];
-  upcomingAppointments: any[];
-  recentReviews: any[];
+  todayQueue?: any[];
+  upcomingAppointments?: any[];
+  recentReviews?: any[];
 }
 
 export interface DoctorProfileData {
@@ -30,6 +45,36 @@ export interface DoctorProfileData {
   clinicId?: string;
   rating?: number;
   reviewCount?: number;
+}
+
+export interface SaveConsultationNotesPayload {
+  patientId?: string;
+  symptoms?: string | string[];
+  diagnosis: string;
+  vitals?: Record<string, any>;
+  treatmentPlan?: string;
+  internalNotes?: string;
+  followUpDate?: string;
+}
+
+export interface DoctorScheduleUpdatePayload {
+  consultationFee?: number;
+  isAvailableToday?: boolean;
+  days?: Array<{
+    dayOfWeek: string | number;
+    startTime: string;
+    endTime: string;
+    slotDurationMin?: number;
+    isEnabled?: boolean;
+    isAvailable?: boolean;
+  }>;
+  schedules?: any[];
+}
+
+export interface DoctorPayoutRequestPayload {
+  amount: number;
+  bankName?: string;
+  payoutMethod?: string;
 }
 
 export const doctorApi = {
@@ -74,29 +119,48 @@ export const doctorApi = {
     });
   },
 
-  // 4. Consultation Notes
-  async getConsultationNote(appointmentId: string) {
-    return apiClient(`/doctor/consultations/${appointmentId}/note`);
+  // 4. Consultation Workspace, Notes & Completion
+  async getConsultationWorkspace(appointmentId: string) {
+    return apiClient(`/doctor/consultations/${appointmentId}/workspace`);
   },
 
-  async saveConsultationNote(appointmentId: string, data: {
-    symptoms?: string[];
-    diagnosis: string;
-    vitals?: Record<string, any>;
-    treatmentPlan?: string;
-    followUpDate?: string;
-  }) {
-    return apiClient(`/doctor/consultations/${appointmentId}/note`, {
+  async getConsultationNote(appointmentId: string) {
+    return apiClient(`/doctor/consultations/${appointmentId}/workspace`).catch(() =>
+      apiClient(`/doctor/consultations/${appointmentId}/notes`),
+    );
+  },
+
+  async saveConsultationNote(appointmentId: string, data: SaveConsultationNotesPayload) {
+    const payload = {
+      ...data,
+      symptoms: Array.isArray(data.symptoms) ? data.symptoms.join(', ') : data.symptoms,
+    };
+    return apiClient(`/doctor/consultations/${appointmentId}/notes`, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
+    });
+  },
+
+  async completeConsultation(appointmentId: string, notesDto?: SaveConsultationNotesPayload) {
+    const payload = notesDto
+      ? {
+          ...notesDto,
+          symptoms: Array.isArray(notesDto.symptoms) ? notesDto.symptoms.join(', ') : notesDto.symptoms,
+        }
+      : {};
+    return apiClient(`/doctor/consultations/${appointmentId}/complete`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
   },
 
   // 5. Prescriptions
   async createPrescription(data: {
-    appointmentId: string;
+    appointmentId?: string;
     patientId: string;
     diagnosis: string;
+    advice?: string;
+    instructions?: string;
     medicines: Array<{
       name: string;
       dosage: string;
@@ -123,6 +187,10 @@ export const doctorApi = {
     return apiClient(`/doctor/prescriptions${qs ? `?${qs}` : ''}`);
   },
 
+  async getPrescription(id: string) {
+    return apiClient(`/doctor/prescriptions/${id}`);
+  },
+
   // 6. Patients & Medical Charts
   async listPatients(filter?: { search?: string; page?: number; limit?: number }) {
     const params = new URLSearchParams();
@@ -138,23 +206,38 @@ export const doctorApi = {
     return apiClient(`/doctor/patients/${patientId}/chart`);
   },
 
-  // 7. Schedule & Slots
-  async getSchedules(date?: string) {
+  // 7. Schedule & Roster Management
+  async getSchedule(date?: string) {
     const qs = date ? `?date=${date}` : '';
     return apiClient(`/doctor/schedules${qs}`);
   },
 
-  async setSchedules(data: {
-    dayOfWeek: number;
-    startTime: string;
-    endTime: string;
-    slotDurationMinutes?: number;
-    maxPatients?: number;
-    isAvailable?: boolean;
-  }) {
+  async getSchedules(date?: string) {
+    return this.getSchedule(date);
+  },
+
+  async updateDoctorSchedule(data: DoctorScheduleUpdatePayload) {
     return apiClient('/doctor/schedules', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  },
+
+  async setSchedules(data: any) {
+    if (data && (data.days || data.schedules || data.consultationFee !== undefined)) {
+      return this.updateDoctorSchedule(data);
+    }
+    // Backward compatibility for single day payload
+    return this.updateDoctorSchedule({
+      days: [
+        {
+          dayOfWeek: data.dayOfWeek ?? 1,
+          startTime: data.startTime || '09:00',
+          endTime: data.endTime || '17:00',
+          slotDurationMin: data.slotDurationMinutes || 30,
+          isEnabled: data.isAvailable ?? true,
+        },
+      ],
     });
   },
 
@@ -168,23 +251,51 @@ export const doctorApi = {
     return apiClient(`/doctor/earnings${qs ? `?${qs}` : ''}`);
   },
 
-  async requestPayout(amount: number, payoutMethod?: string) {
+  async requestPayout(
+    amountOrDto: number | DoctorPayoutRequestPayload,
+    payoutMethod?: string,
+  ) {
+    const payload =
+      typeof amountOrDto === 'number'
+        ? {
+            amount: amountOrDto,
+            bankName: 'Default Bank',
+            payoutMethod: payoutMethod || 'BANK_TRANSFER',
+          }
+        : {
+            amount: amountOrDto.amount,
+            bankName: amountOrDto.bankName || 'Default Bank',
+            payoutMethod: amountOrDto.payoutMethod || payoutMethod || 'BANK_TRANSFER',
+          };
+
     return apiClient('/doctor/payouts/request', {
       method: 'POST',
-      body: JSON.stringify({ amount, payoutMethod: payoutMethod || 'BANK_TRANSFER' }),
+      body: JSON.stringify(payload),
     });
   },
 
-  // 9. Reviews
+  // 9. Reviews & Feedback
   async listReviews(page?: number, limit?: number) {
     const qs = page ? `?page=${page}&limit=${limit || 20}` : '';
     return apiClient(`/doctor/reviews${qs}`);
+  },
+
+  async replyReview(reviewId: string, reply: string) {
+    return apiClient(`/doctor/reviews/${reviewId}/reply`, {
+      method: 'POST',
+      body: JSON.stringify({ reply }),
+    });
   },
 
   // 10. Video Consultation Session Token
   async getVideoToken(appointmentId: string) {
     return apiClient(`/doctor/video-sessions/${appointmentId}/token`, {
       method: 'POST',
-    });
+    }).catch(() =>
+      apiClient(`/doctor/consultations/${appointmentId}/video-token`, {
+        method: 'POST',
+      }),
+    );
   },
 };
+

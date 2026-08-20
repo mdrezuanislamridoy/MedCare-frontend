@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Stethoscope, Save, CheckCircle, User, Clock, FileText, Pill, RefreshCw, Video } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Stethoscope, Save, CheckCircle, Clock, Video, RefreshCw, Activity, Heart, ShieldAlert } from "lucide-react";
 import { todayAppointments, patients } from "../data/mockData";
 import { doctorApi } from "../services/doctor.api";
 
@@ -11,21 +11,56 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
   const [treatmentPlan, setTreatmentPlan] = useState("");
   const [completed, setCompleted] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loadingWorkspace, setLoadingWorkspace] = useState(false);
+  const [videoSession, setVideoSession] = useState<{ room?: string; channelName?: string } | null>(null);
 
   const patient = patients.find((p) => p.name === activePatient.patient) || patients[0];
   const inProgressApts = todayAppointments.filter((a) => a.status === "in-progress" || a.status === "confirmed");
+
+  // Load Consultation Workspace & EHR Chart for selected patient
+  useEffect(() => {
+    let isMounted = true;
+    async function loadWorkspace() {
+      setLoadingWorkspace(true);
+      try {
+        const workspace: any = await doctorApi.getConsultationWorkspace(activePatient.id);
+        if (isMounted && workspace?.notes) {
+          if (workspace.notes.diagnosis) setDiagnosis(workspace.notes.diagnosis);
+          if (workspace.notes.symptoms) {
+            setSymptoms(
+              Array.isArray(workspace.notes.symptoms)
+                ? workspace.notes.symptoms.join(", ")
+                : workspace.notes.symptoms
+            );
+          }
+          if (workspace.notes.treatmentPlan) setTreatmentPlan(workspace.notes.treatmentPlan);
+          if (workspace.notes.internalNotes) setNotes(workspace.notes.internalNotes);
+        }
+      } catch (err) {
+        // Fallback to local state if offline or workspace not yet created
+      } finally {
+        if (isMounted) setLoadingWorkspace(false);
+      }
+    }
+    loadWorkspace();
+    return () => {
+      isMounted = false;
+    };
+  }, [activePatient.id]);
 
   const handleSaveNote = async () => {
     setSaving(true);
     try {
       await doctorApi.saveConsultationNote(activePatient.id, {
+        patientId: patient.id,
         symptoms: symptoms ? symptoms.split(",").map((s) => s.trim()) : [],
         diagnosis: diagnosis || "Clinical Review",
         treatmentPlan: treatmentPlan || notes,
+        internalNotes: notes,
       });
-      onToast("Clinical consultation note saved!");
+      onToast("Clinical consultation note saved to patient record!");
     } catch (err) {
-      console.warn("Saved consultation note offline");
+      console.warn("Saved consultation note offline:", err);
       onToast("Note saved locally.");
     } finally {
       setSaving(false);
@@ -35,19 +70,31 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
   const handleComplete = async () => {
     setSaving(true);
     try {
-      await doctorApi.saveConsultationNote(activePatient.id, {
+      // Calls atomic backend completion: sets appointment COMPLETED, clears queue, creates transaction fee
+      await doctorApi.completeConsultation(activePatient.id, {
+        patientId: patient.id,
         symptoms: symptoms ? symptoms.split(",").map((s) => s.trim()) : [],
         diagnosis: diagnosis || "Clinical Review Completed",
         treatmentPlan: treatmentPlan || notes,
+        internalNotes: notes,
       });
-      await doctorApi.updateAppointmentStatus(activePatient.id, "COMPLETED");
       setCompleted(true);
-      onToast("Consultation completed and saved!");
+      onToast("Consultation completed, queue advanced & fee billed successfully!");
     } catch (err) {
       setCompleted(true);
       onToast("Consultation completed!");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleStartVideo = async () => {
+    try {
+      const res: any = await doctorApi.getVideoToken(activePatient.id);
+      setVideoSession(res);
+      onToast(`Connected to teleconsultation room: ${res?.channelName || "Live Room"}`);
+    } catch (err) {
+      onToast(`Launching WebRTC HD Room for ${activePatient.patient}...`);
     }
   };
 
@@ -60,7 +107,7 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
         </div>
         {completed && (
           <span className="inline-flex items-center gap-2 bg-green-50 dark:bg-green-950/40 text-green-700 dark:text-green-300 px-3.5 py-1.5 rounded-xl text-xs font-bold border border-green-200 dark:border-green-800">
-            <CheckCircle className="w-4 h-4" /> Consultation Completed
+            <CheckCircle className="w-4 h-4" /> Consultation Completed & Recorded
           </span>
         )}
       </div>
@@ -74,7 +121,15 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
               {inProgressApts.map((apt) => (
                 <button
                   key={apt.id}
-                  onClick={() => { setActivePatient(apt); setCompleted(false); setNotes(""); setDiagnosis(""); }}
+                  onClick={() => {
+                    setActivePatient(apt);
+                    setCompleted(false);
+                    setNotes("");
+                    setDiagnosis("");
+                    setSymptoms("");
+                    setTreatmentPlan("");
+                    setVideoSession(null);
+                  }}
                   className={`w-full text-left p-3 rounded-xl border transition-all ${
                     activePatient.id === apt.id
                       ? "border-teal-500 bg-teal-50 dark:bg-teal-950/40"
@@ -123,13 +178,15 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
               <div className="flex items-center gap-2">
                 <Stethoscope className="w-5 h-5 text-teal-600" />
                 <h3 className="font-bold text-slate-900 dark:text-white">Clinical Observations & Diagnosis</h3>
+                {loadingWorkspace && <RefreshCw className="w-3.5 h-3.5 animate-spin text-teal-600" />}
               </div>
               {activePatient.type === "Online" && (
                 <button
-                  onClick={() => alert(`Launching WebRTC Agora HD Room for ${activePatient.patient}...`)}
+                  onClick={handleStartVideo}
                   className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-sm"
                 >
-                  <Video className="w-4 h-4" /> Start Video Room
+                  <Video className="w-4 h-4" />
+                  {videoSession?.channelName ? "In Video Call" : "Start Video Room"}
                 </button>
               )}
             </div>
