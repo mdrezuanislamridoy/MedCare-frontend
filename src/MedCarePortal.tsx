@@ -25,6 +25,7 @@ import {
   useAuth,
   Role,
   normalizeBackendRole,
+  toBackendRole,
   getRoleRoute,
 } from "./common/context/AuthContext";
 import SuperAdminApp from "./roles/super-admin/App";
@@ -44,8 +45,8 @@ export const roles: {
   {
     id: "patient",
     label: "Patient",
-    description: "Book appointments, manage medical records, prescriptions, and video visits.",
-    icon: UserCheck,
+    description: "Book appointments, telehealth consults, view lab results, and prescriptions.",
+    icon: User,
   },
   {
     id: "doctor",
@@ -84,6 +85,47 @@ export const roles: {
     icon: ShieldCheck,
   },
 ];
+
+export const DEFAULT_ROLE_CREDENTIALS: Record<
+  Role,
+  { email: string; password: string; name: string }
+> = {
+  patient: {
+    email: "patient@medcare.com",
+    password: "Password123!",
+    name: "John Doe",
+  },
+  doctor: {
+    email: "doctor@medcare.com",
+    password: "Password123!",
+    name: "Dr. Sarah Jenkins",
+  },
+  receptionist: {
+    email: "receptionist@medcare.com",
+    password: "Password123!",
+    name: "Emma Watson",
+  },
+  "support-staff": {
+    email: "support@medcare.com",
+    password: "Password123!",
+    name: "Alex Taylor",
+  },
+  "clinic-manager": {
+    email: "manager@medcare.com",
+    password: "Password123!",
+    name: "Michael Scott",
+  },
+  admin: {
+    email: "admin@medcare.com",
+    password: "Password123!",
+    name: "System Administrator",
+  },
+  "super-admin": {
+    email: "superadmin@medcare.com",
+    password: "Password123!",
+    name: "Super Administrator",
+  },
+};
 
 export function roleLabel(role: Role) {
   return roles.find((item) => item.id === role)?.label ?? role;
@@ -199,193 +241,249 @@ function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTarget = searchParams?.get("redirect");
-  const { login, googleAuth } = useAuth();
+  const { login } = useAuth();
 
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
+  const handleRoleSelect = (roleId: Role) => {
+    setSelectedRole(roleId);
+    setErrorMessage(null);
+    const creds = DEFAULT_ROLE_CREDENTIALS[roleId];
+    if (creds) {
+      setEmail(creds.email);
+      setPassword(creds.password);
+      setInfoMessage(
+        `Default credentials loaded for ${roleLabel(roleId)}. You may sign in directly or enter custom credentials.`,
+      );
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedRole) {
+      setErrorMessage("Please select a role on the left before signing in.");
+      return;
+    }
     setErrorMessage(null);
     setInfoMessage(null);
     setLoading(true);
 
     try {
       const user = await login({ email: email.trim(), password });
-      const target = redirectTarget || getRoleRoute(normalizeBackendRole(user.role));
+      const target =
+        redirectTarget || getRoleRoute(normalizeBackendRole(user.role));
       router.push(target);
     } catch (err: any) {
       setErrorMessage(
-        err?.message || "Invalid credentials. Please check your email and password.",
+        err?.message ||
+          "Invalid credentials. Please verify your email and password.",
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleAuth = async () => {
-    setErrorMessage(null);
-    setInfoMessage(null);
-
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-    if (!clientId) {
-      setInfoMessage(
-        "Google SSO requires NEXT_PUBLIC_GOOGLE_CLIENT_ID configured in the environment. Please use verified email and password credentials.",
-      );
-      return;
-    }
-
-    setGoogleLoading(true);
-    try {
-      setInfoMessage("Connecting to Google OAuth authentication...");
-    } catch (err: any) {
-      setErrorMessage(err?.message || "Google authentication failed.");
-    } finally {
-      setGoogleLoading(false);
-    }
-  };
-
   return (
     <Shell>
-      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1400px] gap-12 px-6 py-12 lg:grid-cols-[1.1fr_470px] lg:items-center">
+      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1536px] gap-8 px-6 py-8 lg:grid-cols-[1.2fr_470px] lg:items-center lg:px-12">
+        {/* Left Side: Role Selector */}
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-teal-700 ring-1 ring-teal-200">
-            <ShieldCheck className="h-3.5 w-3.5" /> Verified Access Control
+            <ShieldCheck className="h-3.5 w-3.5" /> Portal Role Selection
           </span>
-          <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-            Welcome to MedCare Healthcare Portal
+          <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+            Choose Your Portal Role
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
-            Access your secure clinical workspace, electronic health records, consultations, and operations control room. Authorized credentials required.
+          <p className="mt-2 max-w-xl text-xs sm:text-sm leading-relaxed text-slate-600">
+            Select the role you wish to sign in as. The login form on the right is locked until a role is selected. Default seeded credentials will be filled automatically.
           </p>
 
-          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-3.5">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-700">
-              <KeyRound className="h-4 w-4" /> Secure Enterprise Identity
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+            <div className="flex items-center justify-between mb-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                Available Roles (Click to Select)
+              </span>
+              {selectedRole ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-bold text-teal-800">
+                  <CheckCircle2 className="h-3 w-3" /> Selected: {roleLabel(selectedRole)}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-xs text-amber-700 font-medium">
+                  <AlertCircle className="h-3 w-3" /> Select a role below
+                </span>
+              )}
             </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              MedCare uses secure JSON Web Tokens (JWT) verified against the microservices API Gateway. Unauthenticated requests are strictly blocked from accessing patient records and clinical tools.
-            </p>
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs text-slate-500">
-              <div>✓ End-to-End RBAC Protection</div>
-              <div>✓ Automatic Token Validation</div>
-              <div>✓ Encrypted Session Tokens</div>
-              <div>✓ Audit Logged Actions</div>
+
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              {roles.map((r) => {
+                const Icon = r.icon;
+                const isSelected = selectedRole === r.id;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => handleRoleSelect(r.id)}
+                    className={`group flex items-start gap-3 rounded-xl border p-3 text-left transition-all ${
+                      isSelected
+                        ? "border-teal-600 bg-teal-50/80 shadow-xs ring-2 ring-teal-600/30"
+                        : "border-slate-200 bg-white hover:border-teal-300 hover:bg-slate-50/80"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                        isSelected
+                          ? "bg-teal-600 text-white shadow-xs"
+                          : "bg-slate-100 text-slate-600 group-hover:bg-teal-100 group-hover:text-teal-700"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-xs sm:text-sm font-bold ${
+                            isSelected ? "text-teal-950" : "text-slate-900"
+                          }`}
+                        >
+                          {r.label}
+                        </span>
+                        {isSelected && (
+                          <span className="rounded-full bg-teal-600 px-1.5 py-0.2 text-[10px] font-bold text-white">
+                            Selected
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
+                        {r.description}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Login Card */}
-        <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-slate-900">Sign In</h2>
+        {/* Right Side: Login Card (Disabled until role selected) */}
+        <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-7">
+          <div className="mb-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900">Sign In</h2>
+              {selectedRole && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-bold text-teal-700 border border-teal-200">
+                  {roleLabel(selectedRole)}
+                </span>
+              )}
+            </div>
             <p className="mt-1 text-xs text-slate-500">
-              Enter your verified credentials to access your workspace.
+              {selectedRole
+                ? `Enter credentials to access the ${roleLabel(selectedRole)} portal.`
+                : "Form is locked. Select your role on the left to continue."}
             </p>
           </div>
 
+          {!selectedRole && (
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 font-medium">
+              <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
+              <span>
+                <strong>Role selection required:</strong> Click a role card on the left (e.g. Doctor, Patient, Admin) to unlock this form.
+              </span>
+            </div>
+          )}
+
           {errorMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
               <AlertCircle className="h-4 w-4 shrink-0 text-red-600 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
-          {infoMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-teal-200 bg-teal-50 p-3.5 text-xs text-teal-800">
+          {infoMessage && selectedRole && (
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-teal-200 bg-teal-50 p-3 text-xs text-teal-800">
               <Sparkles className="h-4 w-4 shrink-0 text-teal-600 mt-0.5" />
               <span>{infoMessage}</span>
             </div>
           )}
 
-          {/* Google SSO Button */}
-          <button
-            type="button"
-            onClick={handleGoogleAuth}
-            disabled={googleLoading || loading}
-            className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
-          >
-            {googleLoading ? (
-              <RefreshCw className="h-4 w-4 animate-spin text-teal-600" />
-            ) : (
-              <GoogleIcon />
-            )}
-            <span>Sign in with Google SSO</span>
-          </button>
-
-          <div className="relative my-5 text-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <span className="relative bg-white px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              Or sign in with email
-            </span>
-          </div>
-
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
-                />
+            <fieldset disabled={!selectedRole} className="space-y-4 disabled:opacity-50">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={
+                      selectedRole
+                        ? DEFAULT_ROLE_CREDENTIALS[selectedRole].email
+                        : "Select role on the left..."
+                    }
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-semibold text-slate-700">Password</label>
-                <Link
-                  href="/forgot-password"
-                  className="text-xs font-semibold text-teal-700 transition hover:text-teal-800 hover:underline"
-                >
-                  Forgot password?
-                </Link>
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    Password
+                  </label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs font-semibold text-teal-700 transition hover:text-teal-800 hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed"
+                  />
+                </div>
               </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
-                />
-              </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? (
-                <>
-                  <RefreshCw className="h-4 w-4 animate-spin" /> Verifying Credentials...
-                </>
-              ) : (
-                <>
-                  Sign In <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </button>
+              <button
+                type="submit"
+                disabled={!selectedRole || loading}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-xs sm:text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" /> Verifying Credentials...
+                  </>
+                ) : (
+                  <>
+                    Sign In as {selectedRole ? roleLabel(selectedRole) : "Selected Role"}{" "}
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </button>
+            </fieldset>
           </form>
 
-          <div className="mt-6 border-t border-slate-100 pt-4 text-center">
+          <div className="mt-5 border-t border-slate-100 pt-3 text-center">
             <p className="text-xs text-slate-500">
               Need an account?{" "}
-              <Link href="/signup" className="font-semibold text-teal-700 hover:underline">
+              <Link
+                href="/signup"
+                className="font-semibold text-teal-700 hover:underline"
+              >
                 Create Account
               </Link>
             </p>
@@ -398,7 +496,13 @@ function LoginPageContent() {
 
 export function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><RefreshCw className="h-7 w-7 animate-spin text-teal-600" /></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <RefreshCw className="h-7 w-7 animate-spin text-teal-600" />
+        </div>
+      }
+    >
       <LoginPageContent />
     </Suspense>
   );
@@ -407,6 +511,7 @@ export function LoginPage() {
 function SignupPageContent() {
   const router = useRouter();
   const { register } = useAuth();
+  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -414,8 +519,17 @@ function SignupPageContent() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  const handleRoleSelect = (roleId: Role) => {
+    setSelectedRole(roleId);
+    setErrorMessage(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedRole) {
+      setErrorMessage("Please select a role on the left before registering.");
+      return;
+    }
     setErrorMessage(null);
     setLoading(true);
 
@@ -424,6 +538,7 @@ function SignupPageContent() {
         name: name.trim() || undefined,
         email: email.trim(),
         password,
+        role: toBackendRole(selectedRole),
       });
 
       setSuccess(true);
@@ -442,122 +557,212 @@ function SignupPageContent() {
 
   return (
     <Shell>
-      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_460px] lg:items-center">
+      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1536px] gap-8 px-6 py-8 lg:grid-cols-[1.2fr_470px] lg:items-center lg:px-12">
+        {/* Left Side: Role Selector */}
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-teal-700 ring-1 ring-teal-200">
-            <UserCheck className="h-3.5 w-3.5" /> Verified User Registration
+            <UserCheck className="h-3.5 w-3.5" /> Portal Role Registration
           </span>
-          <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
-            Create your MedCare healthcare account.
+          <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
+            Choose Your Registration Role
           </h1>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
-            Register for authorized access to the healthcare platform. All initial accounts start with Patient access privileges.
+          <p className="mt-2 max-w-xl text-xs sm:text-sm leading-relaxed text-slate-600">
+            Select the role you are registering for. The registration form on the right is unlocked once you select a role.
           </p>
 
-          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
-              Role Allocation & Security Guidelines
-            </h3>
-            <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed">
-              <p>
-                • <strong>Patients</strong>: Immediate self-service registration to book appointments, manage medical records, and access telehealth.
-              </p>
-              <p>
-                • <strong>Clinical & Administrative Roles</strong>: Doctor, Clinic Manager, Receptionist, and Administrator accounts require identity verification and role elevation by platform administrators.
-              </p>
+          <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+            <div className="flex items-center justify-between mb-3.5">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+                Available Roles (Click to Select)
+              </span>
+              {selectedRole ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-bold text-teal-800">
+                  <CheckCircle2 className="h-3 w-3" /> Registering as: {roleLabel(selectedRole)}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-xs text-amber-700 font-medium">
+                  <AlertCircle className="h-3 w-3" /> Select a role below
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              {roles.map((r) => {
+                const Icon = r.icon;
+                const isSelected = selectedRole === r.id;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => handleRoleSelect(r.id)}
+                    className={`group flex items-start gap-3 rounded-xl border p-3 text-left transition-all ${
+                      isSelected
+                        ? "border-teal-600 bg-teal-50/80 shadow-xs ring-2 ring-teal-600/30"
+                        : "border-slate-200 bg-white hover:border-teal-300 hover:bg-slate-50/80"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                        isSelected
+                          ? "bg-teal-600 text-white shadow-xs"
+                          : "bg-slate-100 text-slate-600 group-hover:bg-teal-100 group-hover:text-teal-700"
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-xs sm:text-sm font-bold ${
+                            isSelected ? "text-teal-950" : "text-slate-900"
+                          }`}
+                        >
+                          {r.label}
+                        </span>
+                        {isSelected && (
+                          <span className="rounded-full bg-teal-600 px-1.5 py-0.2 text-[10px] font-bold text-white">
+                            Selected
+                          </span>
+                        )}
+                      </div>
+                      <p className="mt-0.5 text-[11px] text-slate-500 line-clamp-2 leading-relaxed">
+                        {r.description}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Signup Form Card */}
-        <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8">
-          <div className="mb-5">
-            <h2 className="text-2xl font-bold text-slate-900">Register Account</h2>
-            <p className="text-xs text-slate-500">Join the MedCare unified healthcare network.</p>
+        {/* Right Side: Signup Form Card (Disabled until role selected) */}
+        <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-7">
+          <div className="mb-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-slate-900">Register Account</h2>
+              {selectedRole && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-bold text-teal-700 border border-teal-200">
+                  {roleLabel(selectedRole)}
+                </span>
+              )}
+            </div>
+            <p className="mt-1 text-xs text-slate-500">
+              {selectedRole
+                ? `Creating a verified ${roleLabel(selectedRole)} account.`
+                : "Form is locked. Select a role on the left to continue."}
+            </p>
           </div>
 
+          {!selectedRole && (
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 font-medium">
+              <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 mt-0.5" />
+              <span>
+                <strong>Role selection required:</strong> Click a role on the left to unlock this registration form.
+              </span>
+            </div>
+          )}
+
           {errorMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
               <AlertCircle className="h-4 w-4 shrink-0 text-red-600 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {success && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-800">
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-800">
               <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
-              <span>Account created successfully! Redirecting to workspace...</span>
+              <span>
+                Account created as {selectedRole ? roleLabel(selectedRole) : "user"}! Redirecting to workspace...
+              </span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Full Name</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Sarah Mitchell"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
-                />
+            <fieldset disabled={!selectedRole || success} className="space-y-4 disabled:opacity-50">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Full Name
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder={
+                      selectedRole === "doctor"
+                        ? "Dr. Sarah Mitchell"
+                        : "Full Name"
+                    }
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="sarah@example.com"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
-                />
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="password"
-                  required
-                  minLength={8}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Minimum 8 characters"
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
-                />
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="password"
+                    required
+                    minLength={8}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Minimum 8 characters"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed"
+                  />
+                </div>
               </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading || success}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {loading ? (
-                <>
-                  <RefreshCw className="h-4 w-4 animate-spin" /> Creating Account...
-                </>
-              ) : (
-                <>
-                  Create Account <ArrowRight className="h-4 w-4" />
-                </>
-              )}
-            </button>
+              <button
+                type="submit"
+                disabled={!selectedRole || loading || success}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-xs sm:text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" /> Creating Account...
+                  </>
+                ) : (
+                  <>
+                    Create {selectedRole ? roleLabel(selectedRole) : ""} Account{" "}
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
+              </button>
+            </fieldset>
           </form>
 
-          <div className="mt-6 border-t border-slate-100 pt-4 text-center">
+          <div className="mt-5 border-t border-slate-100 pt-3 text-center">
             <p className="text-xs text-slate-500">
               Already have an account?{" "}
-              <Link href="/login" className="font-semibold text-teal-700 hover:underline">
+              <Link
+                href="/login"
+                className="font-semibold text-teal-700 hover:underline"
+              >
                 Sign In
               </Link>
             </p>

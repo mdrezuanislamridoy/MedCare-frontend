@@ -54,11 +54,15 @@ export const authService = {
   },
 
   async register(payload: RegisterPayload): Promise<AuthResponse> {
-    // Backend RegisterDto only accepts email, password, and optional name
-    const { email, password, name } = payload;
+    const { email, password, name, role } = payload;
     const data = await apiClient<AuthResponse>('/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, name }),
+      body: JSON.stringify({
+        email,
+        password,
+        name,
+        ...(role ? { role } : {}),
+      }),
     });
 
     if (typeof window !== 'undefined' && data.accessToken) {
