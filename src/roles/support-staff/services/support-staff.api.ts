@@ -7,6 +7,7 @@ export interface SupportStaffKpis {
   activeDisputes: number;
   satisfactionRate: number;
   escalatedTickets: number;
+  firstContactResolution?: number;
 }
 
 export const supportStaffApi = {

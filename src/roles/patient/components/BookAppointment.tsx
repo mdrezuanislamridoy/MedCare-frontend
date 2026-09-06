@@ -6,9 +6,6 @@ import { useAuthStore } from '../../../common/stores/auth.store';
 
 const STEPS = ['Doctor', 'Date & Slot', 'Type', 'Details', 'Payment', 'Confirmation'];
 
-const fallbackSlots: Record<string, string[]> = {
-  default: ['9:00 AM', '10:00 AM', '11:30 AM', '2:00 PM', '3:00 PM', '5:00 PM'],
-};
 
 export default function BookAppointment({ doctorId, onDone }: { doctorId: string; onDone: () => void }) {
   const { user } = useAuthStore();

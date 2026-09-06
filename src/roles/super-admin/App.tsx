@@ -29,59 +29,12 @@ type SystemStatus = "healthy" | "warning" | "down";
 type Severity = "low" | "medium" | "high" | "critical";
 type SortDir = "asc" | "desc" | null;
 
-// ─── Mock fallback data ───────────────────────────────────────────────────────
-const revenueDataFallback = [
-  { month: "Jan", revenue: 48200, commission: 7230, payouts: 38000, refunds: 1200 },
-  { month: "Feb", revenue: 52400, commission: 7860, payouts: 41200, refunds: 980 },
-  { month: "Mar", revenue: 61800, commission: 9270, payouts: 48800, refunds: 1540 },
-  { month: "Apr", revenue: 58900, commission: 8835, payouts: 46400, refunds: 1120 },
-  { month: "May", revenue: 67300, commission: 10095, payouts: 53000, refunds: 1890 },
-  { month: "Jun", revenue: 73100, commission: 10965, payouts: 57600, refunds: 2100 },
-  { month: "Jul", revenue: 69800, commission: 10470, payouts: 55000, refunds: 1760 },
-  { month: "Aug", revenue: 81400, commission: 12210, payouts: 64200, refunds: 2340 },
-];
-
-const weeklyApptsFallback = [
-  { day: "Mon", completed: 142, cancelled: 18, noShow: 9, pending: 34 },
-  { day: "Tue", completed: 168, cancelled: 12, noShow: 5, pending: 41 },
-  { day: "Wed", completed: 155, cancelled: 22, noShow: 11, pending: 28 },
-  { day: "Thu", completed: 189, cancelled: 15, noShow: 7, pending: 52 },
-  { day: "Fri", completed: 174, cancelled: 28, noShow: 13, pending: 37 },
-  { day: "Sat", completed: 98, cancelled: 8, noShow: 4, pending: 19 },
-  { day: "Sun", completed: 54, cancelled: 5, noShow: 2, pending: 11 },
-];
-
-const userGrowthDataFallback = [
-  { month: "Mar", doctors: 320, patients: 2140, clinics: 148 },
-  { month: "Apr", doctors: 368, patients: 2580, clinics: 156 },
-  { month: "May", doctors: 412, patients: 3120, clinics: 163 },
-  { month: "Jun", doctors: 445, patients: 3690, clinics: 170 },
-  { month: "Jul", doctors: 498, patients: 4340, clinics: 177 },
-  { month: "Aug", doctors: 541, patients: 5180, clinics: 183 },
-];
-
-const apptStatusPie = [
-  { name: "Completed", value: 780, color: "#0d9488" },
-  { name: "Pending", value: 222, color: "#f59e0b" },
-  { name: "Cancelled", value: 108, color: "#ef4444" },
-  { name: "No Show", value: 51, color: "#94a3b8" },
-];
-
-const topDoctorsFallback = [
-  { name: "Dr. Aisha Patel", specialty: "Cardiology", appts: 184, rating: 4.9 },
-  { name: "Dr. Marcus Chen", specialty: "Neurology", appts: 162, rating: 4.8 },
-  { name: "Dr. Sofia Rodriguez", specialty: "Pediatrics", appts: 149, rating: 4.9 },
-  { name: "Dr. James Okonkwo", specialty: "Orthopedics", appts: 131, rating: 4.7 },
-  { name: "Dr. Priya Nair", specialty: "Dermatology", appts: 118, rating: 4.8 },
-];
-
-const revenueByClinicFallback = [
-  { name: "City Heart", revenue: 24800 },
-  { name: "NeuroHealth", revenue: 19200 },
-  { name: "KidsCare", revenue: 16400 },
-  { name: "BoneWell", revenue: 14100 },
-  { name: "DermaCare", revenue: 11900 },
-  { name: "EyeVision", revenue: 9800 },
+// ─── Default empty chart data (populated from live API) ──────────────────────
+const emptyStatusPie = [
+  { name: "Completed", value: 0, color: "#0d9488" },
+  { name: "Pending", value: 0, color: "#f59e0b" },
+  { name: "Cancelled", value: 0, color: "#ef4444" },
+  { name: "No Show", value: 0, color: "#94a3b8" },
 ];
 
 const permissionGroups = [
@@ -97,12 +50,12 @@ const permissionGroups = [
 ];
 
 const rolesData = [
-  { name: "Super Admin", users: 2, color: "bg-purple-100 text-purple-700 border-purple-200", desc: "Full unrestricted platform access" },
-  { name: "Administrator", users: 8, color: "bg-blue-100 text-blue-700 border-blue-200", desc: "Manage users, content, reports" },
-  { name: "Doctor", users: 541, color: "bg-teal-100 text-teal-700 border-teal-200", desc: "Appointments and patient notes" },
-  { name: "Clinic Manager", users: 34, color: "bg-cyan-100 text-cyan-700 border-cyan-200", desc: "Clinic staff and schedules" },
-  { name: "Receptionist", users: 89, color: "bg-amber-100 text-amber-700 border-amber-200", desc: "View and book appointments" },
-  { name: "Support Staff", users: 23, color: "bg-rose-100 text-rose-700 border-rose-200", desc: "Patient support queries" },
+  { name: "Super Admin", users: 0, color: "bg-purple-100 text-purple-700 border-purple-200", desc: "Full unrestricted platform access" },
+  { name: "Administrator", users: 0, color: "bg-blue-100 text-blue-700 border-blue-200", desc: "Manage users, content, reports" },
+  { name: "Doctor", users: 0, color: "bg-teal-100 text-teal-700 border-teal-200", desc: "Appointments and patient notes" },
+  { name: "Clinic Manager", users: 0, color: "bg-cyan-100 text-cyan-700 border-cyan-200", desc: "Clinic staff and schedules" },
+  { name: "Receptionist", users: 0, color: "bg-amber-100 text-amber-700 border-amber-200", desc: "View and book appointments" },
+  { name: "Support Staff", users: 0, color: "bg-rose-100 text-rose-700 border-rose-200", desc: "Patient support queries" },
 ];
 
 const defaultPerms: Record<string, Record<string, boolean>> = {
@@ -375,7 +328,7 @@ function DashboardPage() {
         const live: any = await superAdminApi.getAnalyticsOverview();
         if (live) setStats(live);
       } catch (err) {
-        console.warn("Using offline analytics KPI fallback:", err);
+        console.warn("Dashboard KPI fetch error:", err);
       }
     }
     loadLiveKPIs();
@@ -391,18 +344,18 @@ function DashboardPage() {
   const verifs = stats?.pendingVerifications ?? stats?.kpis?.pendingVerifications;
 
   const kpis = [
-    { label: "Total Users", value: totalPts !== undefined ? `${((totalPts || 0) + (totalDocs || 0) + 1).toLocaleString()}` : "12,847", change: "+8.2%", up: true, icon: Users, accent: "bg-blue-500", sub: "across all roles" },
-    { label: "Doctors", value: totalDocs !== undefined ? `${totalDocs.toLocaleString()}` : "541", change: "+4.1%", up: true, icon: Stethoscope, accent: "bg-violet-500", sub: "verified active" },
-    { label: "Patients", value: totalPts !== undefined ? `${totalPts.toLocaleString()}` : "11,320", change: "+9.7%", up: true, icon: UserCheck, accent: "bg-teal-500", sub: "registered on platform" },
-    { label: "Clinics", value: totalCln !== undefined ? `${totalCln.toLocaleString()}` : "183", change: "+2.8%", up: true, icon: Building2, accent: "bg-cyan-500", sub: "active branches" },
-    { label: "Today's Appointments", value: todayAppts !== undefined ? `${todayAppts.toLocaleString()}` : (totalAppts ? `${totalAppts.toLocaleString()}` : "284"), change: "+12.4%", up: true, icon: CalendarDays, accent: "bg-amber-500", sub: `${Math.round((todayAppts || 284) * 0.5)} completed so far` },
-    { label: "Monthly Revenue", value: rev !== undefined ? `$${rev.toLocaleString()}` : "$81,400", change: "+16.7%", up: true, icon: DollarSign, accent: "bg-teal-600", sub: "Current month" },
-    { label: "Platform Commission", value: comm !== undefined ? `$${comm.toLocaleString()}` : "$12,210", change: "+16.7%", up: true, icon: TrendingUp, accent: "bg-indigo-500", sub: "15% avg rate" },
-    { label: "Pending Verifications", value: verifs !== undefined ? `${verifs.toLocaleString()}` : "6", change: "−2", up: false, icon: Clock, accent: "bg-orange-500", sub: "requires attention" },
+    { label: "Total Users", value: totalPts !== undefined ? `${((totalPts || 0) + (totalDocs || 0) + 1).toLocaleString()}` : "0", change: stats?.patientsGrowth !== undefined ? `+${stats.patientsGrowth}%` : "—", up: true, icon: Users, accent: "bg-blue-500", sub: "across all roles" },
+    { label: "Doctors", value: totalDocs !== undefined ? `${totalDocs.toLocaleString()}` : "0", change: stats?.doctorsGrowth !== undefined ? `+${stats.doctorsGrowth}%` : "—", up: true, icon: Stethoscope, accent: "bg-violet-500", sub: "verified active" },
+    { label: "Patients", value: totalPts !== undefined ? `${totalPts.toLocaleString()}` : "0", change: stats?.patientsGrowth !== undefined ? `+${stats.patientsGrowth}%` : "—", up: true, icon: UserCheck, accent: "bg-teal-500", sub: "registered on platform" },
+    { label: "Clinics", value: totalCln !== undefined ? `${totalCln.toLocaleString()}` : "0", change: "—", up: true, icon: Building2, accent: "bg-cyan-500", sub: "active branches" },
+    { label: "Today's Appointments", value: todayAppts !== undefined ? `${todayAppts.toLocaleString()}` : (totalAppts ? `${totalAppts.toLocaleString()}` : "0"), change: stats?.appointmentsGrowth !== undefined ? `+${stats.appointmentsGrowth}%` : "—", up: true, icon: CalendarDays, accent: "bg-amber-500", sub: `${Math.round((todayAppts || 0) * 0.5)} completed so far` },
+    { label: "Monthly Revenue", value: rev !== undefined ? `$${rev.toLocaleString()}` : "$0", change: stats?.revenueGrowth !== undefined ? `+${stats.revenueGrowth}%` : "—", up: true, icon: DollarSign, accent: "bg-teal-600", sub: "Current month" },
+    { label: "Platform Commission", value: comm !== undefined ? `$${comm.toLocaleString()}` : "$0", change: stats?.revenueGrowth !== undefined ? `+${stats.revenueGrowth}%` : "—", up: true, icon: TrendingUp, accent: "bg-indigo-500", sub: "15% avg rate" },
+    { label: "Pending Verifications", value: verifs !== undefined ? `${verifs.toLocaleString()}` : "0", change: verifs !== undefined ? `${verifs}` : "—", up: false, icon: Clock, accent: "bg-orange-500", sub: "requires attention" },
   ];
 
-  const dynamicRevenueData = stats?.revenueTrends?.length ? stats.revenueTrends : revenueDataFallback;
-  const dynamicStatusPie = stats?.statusDistribution?.length ? stats.statusDistribution : apptStatusPie;
+  const dynamicRevenueData = stats?.revenueTrends?.length ? stats.revenueTrends : [];
+  const dynamicStatusPie = stats?.statusDistribution?.length ? stats.statusDistribution : emptyStatusPie;
   const totalPieCount = dynamicStatusPie.reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
 
   return (
@@ -472,20 +425,41 @@ function DashboardPage() {
 // ─── Page: Analytics ─────────────────────────────────────────────────────────
 function AnalyticsPage() {
   const [liveAnalytics, setLiveAnalytics] = useState<any | null>(null);
+  const [revenueByClinic, setRevenueByClinic] = useState<any[]>([]);
+  const [topDoctors, setTopDoctors] = useState<any[]>([]);
 
   useEffect(() => {
     async function load() {
       try {
-        const res = await superAdminApi.getAnalyticsOverview();
-        if (res) setLiveAnalytics(res);
+        const [overview, revenue, performance] = await Promise.all([
+          superAdminApi.getAnalyticsOverview().catch(() => null),
+          superAdminApi.getAnalyticsRevenue().catch(() => null),
+          superAdminApi.getAnalyticsPerformance().catch(() => null),
+        ]);
+        if (overview) setLiveAnalytics(overview);
+        if (revenue) {
+          const clinics = revenue.revenueByClinic || revenue.clinics || (Array.isArray(revenue) ? revenue : []);
+          setRevenueByClinic(clinics);
+        }
+        if (performance) {
+          const docs = performance.topDoctors || performance.doctors || (Array.isArray(performance) ? performance : []);
+          setTopDoctors(docs.map((d: any) => ({
+            name: d.name || d.user?.name || 'Doctor',
+            specialty: d.specialty || 'Specialist',
+            appts: d.appointmentCount || d.appts || d.totalAppointments || 0,
+            rating: d.rating || d.avgRating || 0,
+          })));
+        }
       } catch (err) {
-        console.warn("Analytics page live fallback:", err);
+        console.warn("Analytics API error:", err);
       }
     }
     load();
   }, []);
 
-  const apptsCount = liveAnalytics?.totalAppointments ?? liveAnalytics?.kpis?.totalAppointments ?? 1161;
+  const apptsCount = liveAnalytics?.totalAppointments ?? liveAnalytics?.kpis?.totalAppointments ?? 0;
+  const avgRating = liveAnalytics?.avgRating ?? liveAnalytics?.kpis?.avgDoctorRating;
+  const completionRate = liveAnalytics?.completionRate ?? liveAnalytics?.kpis?.completionRate;
 
   return (
     <div className="space-y-5">
@@ -495,9 +469,9 @@ function AnalyticsPage() {
       </div>
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Appointments This Week", value: Number(apptsCount).toLocaleString(), change: "+18%", up: true, icon: CalendarDays },
-          { label: "Avg Doctor Rating", value: "4.78 ★", change: "+0.06", up: true, icon: Star },
-          { label: "Completion Rate", value: "67.2%", change: "+2.1%", up: true, icon: CheckCircle2 },
+          { label: "Appointments This Week", value: Number(apptsCount).toLocaleString(), change: liveAnalytics?.appointmentsGrowth !== undefined ? `+${liveAnalytics.appointmentsGrowth}%` : "—", up: true, icon: CalendarDays },
+          { label: "Avg Doctor Rating", value: avgRating !== undefined ? `${avgRating} ★` : "— ★", change: "—", up: true, icon: Star },
+          { label: "Completion Rate", value: completionRate !== undefined ? `${completionRate}%` : "—%", change: "—", up: true, icon: CheckCircle2 },
         ].map(s => (
           <Card key={s.label} className="p-4">
             <div className="flex items-center justify-between mb-2">
@@ -514,25 +488,32 @@ function AnalyticsPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <Card>
-          <CardHeader title="Revenue by Clinic" sub="This month — top 6 clinics" />
+          <CardHeader title="Revenue by Clinic" sub="This month — top clinics" />
           <div className="p-5">
-            <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={revenueByClinicFallback} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }} barSize={12}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
-                <XAxis type="number" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} />
-                <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} width={70} />
-                <Tooltip formatter={(v: number) => [`$${v.toLocaleString()}`, "Revenue"]} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
-                <Bar dataKey="revenue" name="Revenue" fill="#0d9488" radius={[0, 2, 2, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {revenueByClinic.length > 0 ? (
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={revenueByClinic} layout="vertical" margin={{ top: 0, right: 10, left: 0, bottom: 0 }} barSize={12}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" horizontal={false} />
+                  <XAxis type="number" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} />
+                  <YAxis type="category" dataKey="name" tick={{ fontSize: 12, fill: "#64748b" }} axisLine={false} tickLine={false} width={70} />
+                  <Tooltip formatter={(v: number) => [`$${v.toLocaleString()}`, "Revenue"]} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
+                  <Bar dataKey="revenue" name="Revenue" fill="#0d9488" radius={[0, 2, 2, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-[220px] text-muted-foreground">
+                <BarChart2 size={28} className="mb-2 opacity-40" />
+                <span className="text-sm">No clinic revenue data available</span>
+              </div>
+            )}
           </div>
         </Card>
 
         <Card>
           <CardHeader title="Top Doctors by Appointments" sub="Current Period" />
           <div className="divide-y divide-border">
-            {topDoctorsFallback.map((d, i) => (
-              <div key={d.name} className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50/60 transition-colors">
+            {topDoctors.length > 0 ? topDoctors.map((d: any, i: number) => (
+              <div key={d.name + i} className="flex items-center gap-3 px-5 py-3.5 hover:bg-slate-50/60 transition-colors">
                 <span className="text-[13px] font-bold text-muted-foreground w-5 shrink-0">{i + 1}</span>
                 <Avatar name={d.name} />
                 <div className="flex-1 min-w-0">
@@ -544,7 +525,12 @@ function AnalyticsPage() {
                   <div className="text-[11px] text-amber-600">★ {d.rating}</div>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                <Stethoscope size={28} className="mb-2 opacity-40" />
+                <span className="text-sm">No doctor performance data yet</span>
+              </div>
+            )}
           </div>
         </Card>
       </div>
@@ -804,7 +790,7 @@ function PaymentsPage() {
           setTxnList([]);
         }
       } catch (err) {
-        console.warn("Using offline transactions fallback:", err);
+        console.warn("Transactions fetch error:", err);
         setTxnList([]);
       } finally {
         setLoading(false);
@@ -925,7 +911,7 @@ function UsersPage({ active, toast, confirm }: { active: PageId; toast: (m: stri
           })));
         }
       } catch (err) {
-        console.warn("Using offline user fallback:", err);
+        console.warn("User list fetch error:", err);
         setUsersList([]);
         setClinicsList([]);
       } finally {
@@ -1187,8 +1173,18 @@ function SecurityPage({ toast, confirm }: { toast: (m: string, t: ToastItem["typ
     failedLogins: 0,
     activeThreats: 0,
     blockedIps: 0,
-    activeSessions: 1,
+    activeSessions: 0,
   });
+
+  useEffect(() => {
+    superAdminApi.listAuditLogs({ limit: 200 } as any).then((res: any) => {
+      const logs = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
+      const failed = logs.filter((l: any) => /login_fail|failed_login|auth_fail/i.test(l.action || '')).length;
+      const threats = logs.filter((l: any) => /threat|block|suspicious|brute/i.test(l.action || '')).length;
+      const blocked = logs.filter((l: any) => /block_ip|ip_block/i.test(l.action || '')).length;
+      setStats({ failedLogins: failed, activeThreats: threats, blockedIps: blocked, activeSessions: 1 });
+    }).catch(() => {});
+  }, []);
 
   return (
     <div className="space-y-5">
@@ -1351,7 +1347,7 @@ function SystemPage() {
         const live: any = await superAdminApi.getSystemHealth();
         if (live) setTelemetry(live);
       } catch (err) {
-        console.warn("Using offline system health fallback:", err);
+        console.warn("System health fetch error:", err);
       }
     }
     loadHealth();
@@ -1438,7 +1434,7 @@ function ReviewsPage({ toast }: { toast: (m: string, t: ToastItem["type"]) => vo
         const items = Array.isArray(res?.data) ? res.data : Array.isArray(res) ? res : [];
         setReviews(items);
       } catch (err) {
-        console.warn("Using offline reviews fallback:", err);
+        console.warn("Reviews fetch error:", err);
         setReviews([]);
       } finally {
         setLoading(false);
@@ -1722,44 +1718,6 @@ function SettingsPage({ toast }: { toast: (m: string, t: ToastItem["type"]) => v
 }
 
 // ─── Navigation config ────────────────────────────────────────────────────────
-const navConfig = [
-  {
-    section: "Overview",
-    items: [
-      { id: "dashboard" as PageId, label: "Dashboard", icon: LayoutDashboard },
-      { id: "analytics" as PageId, label: "Analytics", icon: BarChart2 },
-    ],
-  },
-  {
-    section: "Users & Entities",
-    items: [
-      { id: "administrators" as PageId, label: "Administrators", icon: ShieldCheck },
-      { id: "doctors" as PageId, label: "Doctors", icon: Stethoscope },
-      { id: "patients" as PageId, label: "Patients", icon: UserCheck },
-      { id: "clinics" as PageId, label: "Clinics", icon: Building2 },
-    ],
-  },
-  {
-    section: "Operations",
-    items: [
-      { id: "roles" as PageId, label: "Roles & Permissions", icon: Lock },
-      { id: "verification" as PageId, label: "Doctor Verification", icon: CheckCircle2, badge: 6 },
-      { id: "appointments" as PageId, label: "Appointments", icon: CalendarDays },
-      { id: "payments" as PageId, label: "Payments & Revenue", icon: DollarSign },
-    ],
-  },
-  {
-    section: "Platform",
-    items: [
-      { id: "reviews" as PageId, label: "Reviews Moderation", icon: Star },
-      { id: "notifications" as PageId, label: "Broadcasts", icon: Bell },
-      { id: "audit" as PageId, label: "Audit Logs", icon: ClipboardList },
-      { id: "security" as PageId, label: "Security", icon: Shield },
-      { id: "system" as PageId, label: "System Health", icon: Cpu },
-      { id: "settings" as PageId, label: "Platform Settings", icon: Settings },
-    ],
-  },
-];
 
 // ─── Root App ─────────────────────────────────────────────────────────────────
 export default function App() {
@@ -1768,6 +1726,14 @@ export default function App() {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const [toastId, setToastId] = useState(0);
   const [confirm, setConfirm] = useState<ConfirmState>({ open: false, title: "", body: "", onConfirm: () => {} });
+  const [pendingVerifCount, setPendingVerifCount] = useState(0);
+
+  useEffect(() => {
+    superAdminApi.listPendingDoctors().then((items: any) => {
+      const arr = Array.isArray(items?.data) ? items.data : Array.isArray(items) ? items : [];
+      setPendingVerifCount(arr.length);
+    }).catch(() => {});
+  }, []);
 
   const addToast = (msg: string, type: ToastItem["type"] = "info") => {
     const id = toastId + 1;
@@ -1781,6 +1747,7 @@ export default function App() {
   const closeConfirm = () => setConfirm(c => ({ ...c, open: false }));
   const navTo = (id: PageId) => { setPage(id); };
 
+  
   const renderPage = () => {
     switch (page) {
       case "dashboard": return <DashboardPage />;

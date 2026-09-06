@@ -158,14 +158,14 @@ function DashboardView() {
   const completedTotal = summary?.completedAppointments ?? summary?.kpis?.completedAppointments;
 
   const kpis = [
-    { label: "Total Doctors", value: totalDocs !== undefined ? `${Number(totalDocs).toLocaleString()}` : "0", change: "+0%", up: true, icon: Users, bg: "bg-teal-50", ic: "text-teal-600" },
-    { label: "Total Patients", value: totalPts !== undefined ? `${Number(totalPts).toLocaleString()}` : "0", change: "+0%", up: true, icon: User, bg: "bg-indigo-50", ic: "text-indigo-600" },
-    { label: "Total Clinics", value: totalCln !== undefined ? `${Number(totalCln).toLocaleString()}` : "0", change: "+0%", up: true, icon: Building2, bg: "bg-violet-50", ic: "text-violet-600" },
-    { label: "Today's Appointments", value: todayAppts !== undefined ? `${Number(todayAppts).toLocaleString()}` : "0", change: "+0%", up: true, icon: Calendar, bg: "bg-emerald-50", ic: "text-emerald-600" },
-    { label: "Upcoming Appointments", value: upcomingAppts !== undefined ? `${Number(upcomingAppts).toLocaleString()}` : "0", change: "+0%", up: true, icon: Clock, bg: "bg-sky-50", ic: "text-sky-600" },
-    { label: "Completed Total", value: completedTotal !== undefined ? `${Number(completedTotal).toLocaleString()}` : "0", change: "+0%", up: true, icon: CheckCircle, bg: "bg-teal-50", ic: "text-teal-600" },
-    { label: "Pending Verifications", value: verifs !== undefined ? `${Number(verifs).toLocaleString()}` : "0", change: "+0%", up: true, icon: AlertCircle, bg: "bg-amber-50", ic: "text-amber-600" },
-    { label: "Total Revenue", value: rev !== undefined ? `$${Number(rev).toLocaleString()}` : "$0", change: "+$0", up: true, icon: DollarSign, bg: "bg-green-50", ic: "text-green-600" },
+    { label: "Total Doctors", value: totalDocs !== undefined ? `${Number(totalDocs).toLocaleString()}` : "0", change: "—", up: true, icon: Users, bg: "bg-teal-50", ic: "text-teal-600" },
+    { label: "Total Patients", value: totalPts !== undefined ? `${Number(totalPts).toLocaleString()}` : "0", change: "—", up: true, icon: User, bg: "bg-indigo-50", ic: "text-indigo-600" },
+    { label: "Total Clinics", value: totalCln !== undefined ? `${Number(totalCln).toLocaleString()}` : "0", change: "—", up: true, icon: Building2, bg: "bg-violet-50", ic: "text-violet-600" },
+    { label: "Today's Appointments", value: todayAppts !== undefined ? `${Number(todayAppts).toLocaleString()}` : "0", change: "—", up: true, icon: Calendar, bg: "bg-emerald-50", ic: "text-emerald-600" },
+    { label: "Upcoming Appointments", value: upcomingAppts !== undefined ? `${Number(upcomingAppts).toLocaleString()}` : "0", change: "—", up: true, icon: Clock, bg: "bg-sky-50", ic: "text-sky-600" },
+    { label: "Completed Total", value: completedTotal !== undefined ? `${Number(completedTotal).toLocaleString()}` : "0", change: "—", up: true, icon: CheckCircle, bg: "bg-teal-50", ic: "text-teal-600" },
+    { label: "Pending Verifications", value: verifs !== undefined ? `${Number(verifs).toLocaleString()}` : "0", change: "—", up: true, icon: AlertCircle, bg: "bg-amber-50", ic: "text-amber-600" },
+    { label: "Total Revenue", value: rev !== undefined ? `$${Number(rev).toLocaleString()}` : "$0", change: "—", up: true, icon: DollarSign, bg: "bg-green-50", ic: "text-green-600" },
   ];
 
   const dynamicApptTrends = summary?.appointmentTrends?.length ? summary.appointmentTrends : emptyApptTrends;
@@ -1009,23 +1009,22 @@ function AuditView() {
 }
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
-const navItems: { id: ViewId; label: string; icon: ElementType; badge?: number }[] = [
-  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "doctors", label: "Doctors", icon: Users },
-  { id: "verification", label: "Doctor Verification", icon: UserCheck, badge: 4 },
-  { id: "patients", label: "Patients", icon: User },
-  { id: "clinics", label: "Clinics", icon: Building2 },
-  { id: "appointments", label: "Appointments", icon: Calendar },
-  { id: "finance", label: "Payments & Refunds", icon: CreditCard },
-  { id: "reviews", label: "Reviews & Complaints", icon: Star },
-  { id: "notifications", label: "Notifications", icon: Bell },
-  { id: "activity", label: "Admin Activity", icon: Activity },
-  { id: "audit", label: "Audit Logs", icon: Shield },
-];
-
-function Sidebar({ active, onNav, collapsed, onToggle }: {
-  active: ViewId; onNav: (v: ViewId) => void; collapsed: boolean; onToggle: () => void;
+function Sidebar({ active, onNav, collapsed, onToggle, verificationBadge }: {
+  active: ViewId; onNav: (v: ViewId) => void; collapsed: boolean; onToggle: () => void; verificationBadge: number;
 }) {
+  const navItems: { id: ViewId; label: string; icon: ElementType; badge?: number }[] = [
+    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { id: "doctors", label: "Doctors", icon: Users },
+    { id: "verification", label: "Doctor Verification", icon: UserCheck, badge: verificationBadge || undefined },
+    { id: "patients", label: "Patients", icon: User },
+    { id: "clinics", label: "Clinics", icon: Building2 },
+    { id: "appointments", label: "Appointments", icon: Calendar },
+    { id: "finance", label: "Payments & Refunds", icon: CreditCard },
+    { id: "reviews", label: "Reviews & Complaints", icon: Star },
+    { id: "notifications", label: "Notifications", icon: Bell },
+    { id: "activity", label: "Admin Activity", icon: Activity },
+    { id: "audit", label: "Audit Logs", icon: Shield },
+  ];
   return (
     <aside className={`bg-[#0F172A] flex flex-col h-full flex-shrink-0 transition-all duration-200 overflow-hidden ${collapsed ? "w-16" : "w-64"}`}>
       <div className={`flex items-center h-14 border-b border-white/[0.08] flex-shrink-0 ${collapsed ? "justify-center px-2" : "px-4"}`}>
@@ -1093,6 +1092,14 @@ function Sidebar({ active, onNav, collapsed, onToggle }: {
 export default function App() {
   const [view, setView] = useState<ViewId>("dashboard");
   const [collapsed, setCollapsed] = useState(false);
+  const [verificationBadge, setVerificationBadge] = useState(0);
+
+  useEffect(() => {
+    adminApi.listVerificationQueue("PENDING").then((res: any) => {
+      const items = Array.isArray(res) ? res : (res?.data || []);
+      setVerificationBadge(items.length);
+    }).catch(() => {});
+  }, []);
 
   const viewMap: Record<ViewId, ReactNode> = {
     dashboard: <DashboardView />,
@@ -1111,7 +1118,7 @@ export default function App() {
   return (
     <div className="app-shell-height flex bg-slate-100 overflow-hidden font-sans">
       <Toaster position="top-right" richColors closeButton />
-      <Sidebar active={view} onNav={setView} collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
+      <Sidebar active={view} onNav={setView} collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} verificationBadge={verificationBadge} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <main className="dashboard-content flex-1 overflow-y-auto p-4 sm:p-6">
           {viewMap[view]}

@@ -1,7 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Search, MapPin, Clock, Filter, ChevronDown, Star, Video, Building2, SlidersHorizontal, RefreshCw } from 'lucide-react';
-import { specialties } from '../data/mockData';
 import type { Doctor } from '../data/mockData';
+
+const specialties = [
+  'All Specialties',
+  'Cardiologist',
+  'Dermatologist',
+  'General Physician',
+  'Neurologist',
+  'Orthopedic Surgeon',
+  'Pediatrician',
+  'Psychiatrist',
+  'Gynecologist',
+  'Ophthalmologist',
+  'ENT Specialist',
+];
 import { patientApi } from '../services/patient.api';
 import { Badge, Card, Stars, Button, Avatar } from './ui';
 
