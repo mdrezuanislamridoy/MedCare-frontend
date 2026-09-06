@@ -40,8 +40,8 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
           minRating: minRating > 0 ? minRating : undefined,
           maxFee: maxFee < 2000 ? maxFee : undefined,
         });
-        if (res && (res.items || Array.isArray(res))) {
-          const items = res.items || res;
+        if (res && (res.data || res.items || Array.isArray(res))) {
+          const items = res.data || res.items || res;
           if (items.length > 0) {
             setDoctorList(items.map((d: any) => ({
               id: d.id,

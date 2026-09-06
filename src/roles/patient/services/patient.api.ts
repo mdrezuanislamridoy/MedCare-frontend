@@ -52,22 +52,22 @@ export const patientApi = {
   async searchDoctors(query?: { specialty?: string; search?: string; minRating?: number; maxFee?: number; page?: number; limit?: number }) {
     const params = new URLSearchParams();
     if (query?.specialty) params.append('specialty', query.specialty);
-    if (query?.search) params.append('search', query.search);
+    if (query?.search) params.append('q', query.search);
     if (query?.minRating) params.append('minRating', String(query.minRating));
     if (query?.maxFee) params.append('maxFee', String(query.maxFee));
     if (query?.page) params.append('page', String(query.page));
     if (query?.limit) params.append('limit', String(query.limit));
 
     const qs = params.toString();
-    return apiClient(`/patient/doctors${qs ? `?${qs}` : ''}`);
+    return apiClient(`/public/doctors${qs ? `?${qs}` : ''}`);
   },
 
   async getDoctorDetails(id: string) {
-    return apiClient(`/patient/doctors/${id}`);
+    return apiClient(`/public/doctors/${id}`);
   },
 
   async getDoctorSlots(id: string, date: string) {
-    return apiClient(`/patient/doctors/${id}/slots?date=${date}`);
+    return apiClient(`/public/doctors/${id}/slots?date=${date}`);
   },
 
   // 4. Appointments
