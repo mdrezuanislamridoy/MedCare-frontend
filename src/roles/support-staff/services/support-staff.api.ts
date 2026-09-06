@@ -37,4 +37,12 @@ export const supportStaffApi = {
     const qs = params.toString();
     return apiClient(`/support-staff/complaints${qs ? `?${qs}` : ''}`);
   },
+
+  async getPatients(): Promise<any> {
+    return apiClient('/patients').catch(() => []);
+  },
+
+  async getAppointments(): Promise<any> {
+    return apiClient('/appointments').catch(() => []);
+  },
 };

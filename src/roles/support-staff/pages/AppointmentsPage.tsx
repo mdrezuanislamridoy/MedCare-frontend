@@ -1,17 +1,35 @@
-import { useState } from 'react';
-import { appointments as initialAppts, type Appointment } from '../data/mockData';
+import { useState, useEffect } from 'react';
+import type { Appointment } from '../data/mockData';
 import { Card, StatusBadge, Avatar, Button, Input, Select, Pagination, Modal, ConfirmDialog } from '../components/ui';
+import { supportStaffApi } from '../services/support-staff.api';
 
 const statusOptions = ['Scheduled', 'Confirmed', 'Pending Reschedule', 'Cancelled', 'Completed', 'No Show'];
 
 export default function AppointmentsPage({ showToast }: { showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
-  const [data] = useState<Appointment[]>(initialAppts);
+  const [data, setData] = useState<Appointment[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterIssue, setFilterIssue] = useState('All');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<Appointment | null>(null);
   const [confirm, setConfirm] = useState<{ appt: Appointment; action: string } | null>(null);
+
+  useEffect(() => {
+    async function loadAppointments() {
+      try {
+        const res: any = await supportStaffApi.getAppointments();
+        const items = Array.isArray(res) ? res : (res?.data || res?.items || []);
+        setData(items);
+      } catch (err) {
+        console.warn('Could not load appointments:', err);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadAppointments();
+  }, []);
 
   const PER_PAGE = 8;
 

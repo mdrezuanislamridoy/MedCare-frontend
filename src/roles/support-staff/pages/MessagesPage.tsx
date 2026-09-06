@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import { messages as initialMessages, type Message } from '../data/mockData';
-import { StatusBadge, PriorityBadge, Avatar, Button, ConfirmDialog } from '../components/ui';
+import type { Message } from '../data/mockData';
+import { StatusBadge, PriorityBadge, Avatar, Button, ConfirmDialog, EmptyState } from '../components/ui';
 
 export default function MessagesPage({ showToast }: { showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
-  const [data, setData] = useState<Message[]>(initialMessages);
-  const [active, setActive] = useState<Message>(initialMessages[0]);
+  const [data, setData] = useState<Message[]>([]);
+  const [active, setActive] = useState<Message | null>(null);
   const [replyText, setReplyText] = useState('');
   const [confirm, setConfirm] = useState<{ msg: Message; action: string } | null>(null);
 
-  const activeConv = data.find(m => m.id === active.id) || active;
+  const activeConv = active ? (data.find(m => m.id === active.id) || active) : (data[0] || null);
 
   const sendReply = () => {
     if (!replyText.trim()) return;
@@ -63,7 +63,7 @@ export default function MessagesPage({ showToast }: { showToast: (msg: string, t
               <button
                 key={m.id}
                 onClick={() => setActive(m)}
-                className={`w-full text-left px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors ${active.id === m.id ? 'bg-sky-50 border-l-2 border-l-[#0C7BB3]' : ''}`}
+                className={`w-full text-left px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-colors ${active?.id === m.id ? 'bg-sky-50 border-l-2 border-l-[#0C7BB3]' : ''}`}
               >
                 <div className="flex items-start gap-2.5">
                   <div className="relative flex-shrink-0 mt-0.5">
@@ -91,64 +91,72 @@ export default function MessagesPage({ showToast }: { showToast: (msg: string, t
 
         {/* Conversation view */}
         <div className="flex-1 flex flex-col min-w-0">
-          {/* Convo header */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50/50">
-            <div className="flex items-center gap-3">
-              <Avatar name={activeConv.patient} size="md" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-slate-900">{activeConv.patient}</span>
-                  <span className="font-mono text-xs text-slate-400">{activeConv.patientId}</span>
-                  <StatusBadge status={activeConv.status} />
-                </div>
-                <div className="text-xs text-slate-500">Assigned: {activeConv.assignedStaff} · <PriorityBadge priority={activeConv.priority} /></div>
-              </div>
+          {!activeConv ? (
+            <div className="flex-1 flex items-center justify-center p-8">
+              <EmptyState icon="💬" title="No conversation active" description="Select a patient message thread from the list or start a new support communication." />
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setConfirm({ msg: activeConv, action: 'Assign' })}>Assign</Button>
-              {activeConv.status !== 'Resolved' && (
-                <Button variant="secondary" size="sm" onClick={() => setConfirm({ msg: activeConv, action: 'Resolve' })}>Mark Resolved</Button>
-              )}
-              <Button variant="ghost" size="sm" onClick={() => setConfirm({ msg: activeConv, action: 'Escalate' })}>Escalate</Button>
-            </div>
-          </div>
-
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-4">
-            {activeConv.messages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.sender === 'staff' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[70%] flex items-end gap-2 ${msg.sender === 'staff' ? 'flex-row-reverse' : ''}`}>
-                  <Avatar name={msg.sender === 'staff' ? activeConv.assignedStaff : activeConv.patient} size="sm" />
-                  <div className={`rounded-2xl px-4 py-2.5 text-sm ${
-                    msg.sender === 'staff'
-                      ? 'bg-[#0C7BB3] text-white rounded-br-md'
-                      : 'bg-slate-100 text-slate-800 rounded-bl-md'
-                  }`}>
-                    <p className="leading-relaxed">{msg.text}</p>
-                    <p className={`text-[10px] mt-1 ${msg.sender === 'staff' ? 'text-sky-200' : 'text-slate-400'}`}>{msg.time}</p>
+          ) : (
+            <>
+              {/* Convo header */}
+              <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <Avatar name={activeConv.patient} size="md" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold text-slate-900">{activeConv.patient}</span>
+                      <span className="font-mono text-xs text-slate-400">{activeConv.patientId}</span>
+                      <StatusBadge status={activeConv.status} />
+                    </div>
+                    <div className="text-xs text-slate-500">Assigned: {activeConv.assignedStaff} · <PriorityBadge priority={activeConv.priority} /></div>
                   </div>
                 </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setConfirm({ msg: activeConv, action: 'Assign' })}>Assign</Button>
+                  {activeConv.status !== 'Resolved' && (
+                    <Button variant="secondary" size="sm" onClick={() => setConfirm({ msg: activeConv, action: 'Resolve' })}>Mark Resolved</Button>
+                  )}
+                  <Button variant="ghost" size="sm" onClick={() => setConfirm({ msg: activeConv, action: 'Escalate' })}>Escalate</Button>
+                </div>
               </div>
-            ))}
-          </div>
 
-          {/* Reply box */}
-          <div className="border-t border-slate-100 p-4">
-            <div className="flex gap-3 items-end">
-              <textarea
-                value={replyText}
-                onChange={e => setReplyText(e.target.value)}
-                placeholder="Type a reply to the patient…"
-                rows={2}
-                className="flex-1 px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0C7BB3]/30 focus:border-[#0C7BB3] resize-none"
-                onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendReply(); }}
-              />
-              <Button variant="primary" size="md" onClick={sendReply} disabled={!replyText.trim()}>
-                Send
-              </Button>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1.5 ml-1">Press ⌘Enter to send</p>
-          </div>
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                {activeConv.messages.map((msg, i) => (
+                  <div key={i} className={`flex ${msg.sender === 'staff' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[70%] flex items-end gap-2 ${msg.sender === 'staff' ? 'flex-row-reverse' : ''}`}>
+                      <Avatar name={msg.sender === 'staff' ? activeConv.assignedStaff : activeConv.patient} size="sm" />
+                      <div className={`rounded-2xl px-4 py-2.5 text-sm ${
+                        msg.sender === 'staff'
+                          ? 'bg-[#0C7BB3] text-white rounded-br-md'
+                          : 'bg-slate-100 text-slate-800 rounded-bl-md'
+                      }`}>
+                        <p className="leading-relaxed">{msg.text}</p>
+                        <p className={`text-[10px] mt-1 ${msg.sender === 'staff' ? 'text-sky-200' : 'text-slate-400'}`}>{msg.time}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Reply box */}
+              <div className="border-t border-slate-100 p-4">
+                <div className="flex gap-3 items-end">
+                  <textarea
+                    value={replyText}
+                    onChange={e => setReplyText(e.target.value)}
+                    placeholder="Type a reply to the patient…"
+                    rows={2}
+                    className="flex-1 px-3 py-2 text-sm bg-white border border-slate-200 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0C7BB3]/30 focus:border-[#0C7BB3] resize-none"
+                    onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendReply(); }}
+                  />
+                  <Button variant="primary" size="md" onClick={sendReply} disabled={!replyText.trim()}>
+                    Send
+                  </Button>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1.5 ml-1">Press ⌘Enter to send</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

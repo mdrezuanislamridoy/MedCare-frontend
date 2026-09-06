@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { complaints as initial, type Complaint } from '../data/mockData';
+import { useState, useEffect } from 'react';
+import type { Complaint } from '../data/mockData';
 import { Card, StatusBadge, PriorityBadge, Avatar, Button, Input, Select, Pagination, Modal, ConfirmDialog } from '../components/ui';
+import { supportStaffApi } from '../services/support-staff.api';
 
 type ComplaintStatus = Complaint['status'];
 
@@ -8,7 +9,8 @@ const statusOptions: ComplaintStatus[] = ['New', 'Under Investigation', 'Respond
 const categoryOptions = ['Doctor Conduct', 'Billing Error', 'Appointment Error', 'Staff Conduct', 'Wait Time', 'Other'];
 
 export default function ComplaintsPage({ showToast }: { showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
-  const [data, setData] = useState<Complaint[]>(initial);
+  const [data, setData] = useState<Complaint[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterPriority, setFilterPriority] = useState('All');
@@ -16,6 +18,22 @@ export default function ComplaintsPage({ showToast }: { showToast: (msg: string,
   const [selected, setSelected] = useState<Complaint | null>(null);
   const [confirm, setConfirm] = useState<{ complaint: Complaint; action: string } | null>(null);
   const [responseText, setResponseText] = useState('');
+
+  useEffect(() => {
+    async function loadComplaints() {
+      try {
+        const res: any = await supportStaffApi.listComplaints();
+        const items = Array.isArray(res) ? res : (res?.data || res?.items || []);
+        setData(items);
+      } catch (err) {
+        console.warn('Could not load complaints:', err);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadComplaints();
+  }, []);
 
   const PER_PAGE = 8;
 

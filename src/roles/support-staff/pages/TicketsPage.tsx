@@ -1,6 +1,7 @@
-import { useState } from 'react';
-import { tickets as initialTickets, type Ticket, type TicketStatus, type TicketPriority, type TicketCategory } from '../data/mockData';
+import { useState, useEffect } from 'react';
+import type { Ticket, TicketStatus, TicketPriority, TicketCategory } from '../data/mockData';
 import { Card, StatusBadge, PriorityBadge, Avatar, Button, Input, Select, Pagination, Modal, ConfirmDialog } from '../components/ui';
+import { supportStaffApi } from '../services/support-staff.api';
 
 const categories: TicketCategory[] = ['Appointment', 'Payment', 'Account', 'Doctor', 'Technical', 'General'];
 const priorities: TicketPriority[] = ['Low', 'Medium', 'High', 'Urgent'];
@@ -8,7 +9,8 @@ const statuses: TicketStatus[] = ['Open', 'In Progress', 'Waiting for User', 'Re
 const staffList = ['Alex Chen', 'Sara Kim', 'Mark Davis', 'Unassigned'];
 
 export default function TicketsPage({ showToast }: { showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
-  const [data, setData] = useState<Ticket[]>(initialTickets);
+  const [data, setData] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
   const [filterPriority, setFilterPriority] = useState('All');
@@ -17,6 +19,22 @@ export default function TicketsPage({ showToast }: { showToast: (msg: string, ty
   const [selected, setSelected] = useState<Ticket | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ ticket: Ticket; action: string } | null>(null);
   const [replyText, setReplyText] = useState('');
+
+  useEffect(() => {
+    async function loadTickets() {
+      try {
+        const res: any = await supportStaffApi.listTickets();
+        const items = Array.isArray(res) ? res : (res?.data || res?.items || []);
+        setData(items);
+      } catch (err) {
+        console.warn('Could not load tickets:', err);
+        setData([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadTickets();
+  }, []);
 
   const PER_PAGE = 8;
 

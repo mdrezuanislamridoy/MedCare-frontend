@@ -1,15 +1,38 @@
-import { useState } from 'react';
-import { patients, type Patient } from '../data/mockData';
+import { useState, useEffect } from 'react';
+import type { Patient } from '../data/mockData';
 import { Card, StatusBadge, Avatar, Button, Input, Modal, EmptyState } from '../components/ui';
+import { supportStaffApi } from '../services/support-staff.api';
 
 export default function PatientsPage({ showToast }: { showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
+  const [patientList, setPatientList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState<Patient | null>(null);
+  const [selected, setSelected] = useState<any | null>(null);
 
-  const filtered = patients.filter(p => {
+  useEffect(() => {
+    async function loadPatients() {
+      try {
+        const res: any = await supportStaffApi.getPatients();
+        const items = Array.isArray(res) ? res : (res?.data || res?.items || []);
+        setPatientList(items);
+      } catch (err) {
+        console.warn('Could not load patients:', err);
+        setPatientList([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadPatients();
+  }, []);
+
+  const filtered = patientList.filter(p => {
     const q = search.toLowerCase();
-    return !q || p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q)
-      || p.phone.includes(q) || p.id.toLowerCase().includes(q);
+    const name = p.name || p.user?.name || '';
+    const email = p.email || p.user?.email || '';
+    const phone = p.phone || p.user?.phoneNumber || '';
+    const id = p.id || p._id || '';
+    return !q || name.toLowerCase().includes(q) || email.toLowerCase().includes(q)
+      || phone.includes(q) || id.toLowerCase().includes(q);
   });
 
   const handleResend = (type: string) => {
@@ -50,29 +73,35 @@ export default function PatientsPage({ showToast }: { showToast: (msg: string, t
       ) : (
         <Card>
           <div className="divide-y divide-slate-50">
-            {filtered.map(p => (
-              <div key={p.id} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors">
-                <Avatar name={p.name} size="lg" />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-slate-900 text-sm">{p.name}</span>
-                    <StatusBadge status={p.accountStatus} />
-                  </div>
-                  <div className="text-xs text-slate-500 space-y-0.5">
-                    <div className="flex items-center gap-3">
-                      <span className="font-mono">{p.id}</span>
-                      <span>{p.email}</span>
-                      <span>{p.phone}</span>
+            {filtered.map(p => {
+              const name = p.name || p.user?.name || 'Patient';
+              const email = p.email || p.user?.email || '—';
+              const phone = p.phone || p.user?.phoneNumber || '—';
+              const id = p.id || p._id || 'PT-';
+              return (
+                <div key={id} className="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors">
+                  <Avatar name={name} size="lg" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-semibold text-slate-900 text-sm">{name}</span>
+                      <StatusBadge status={p.accountStatus || 'Active'} />
                     </div>
-                    <div>Last active: {p.lastActivity} · Member since: {p.registeredDate}</div>
+                    <div className="text-xs text-slate-500 space-y-0.5">
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono">{id}</span>
+                        <span>{email}</span>
+                        <span>{phone}</span>
+                      </div>
+                      <div>Last active: {p.lastActivity || 'Recent'} · Member since: {p.registeredDate || '2026'}</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-400">{p.supportHistory?.length || 0} ticket(s)</span>
+                    <Button variant="secondary" size="sm" onClick={() => setSelected(p)}>View Details</Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-400">{p.supportHistory.length} ticket(s)</span>
-                  <Button variant="secondary" size="sm" onClick={() => setSelected(p)}>View Details</Button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Card>
       )}
@@ -118,34 +147,38 @@ export default function PatientsPage({ showToast }: { showToast: (msg: string, t
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Recent Appointments</p>
               <div className="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden">
-                {selected.recentAppointments.map((a, i) => (
-                  <div key={i} className="flex items-center justify-between px-4 py-3 text-sm bg-white">
-                    <div>
-                      <span className="font-medium text-slate-800">{a.doctor}</span>
-                      <span className="text-slate-400 ml-2 text-xs">{a.date}</span>
+                {(!selected.recentAppointments || selected.recentAppointments.length === 0) ? (
+                  <p className="text-xs text-slate-400 p-4 italic">No recent appointments on record.</p>
+                ) : (
+                  selected.recentAppointments.map((a: any, i: number) => (
+                    <div key={i} className="flex items-center justify-between px-4 py-3 text-sm bg-white">
+                      <div>
+                        <span className="font-medium text-slate-800">{a.doctor || a.doctorName || 'Doctor'}</span>
+                        <span className="text-slate-400 ml-2 text-xs">{a.date}</span>
+                      </div>
+                      <StatusBadge status={a.status || 'Scheduled'} />
                     </div>
-                    <StatusBadge status={a.status} />
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
             {/* Support History */}
             <div>
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">Support History</p>
-              {selected.supportHistory.length === 0 ? (
+              {(!selected.supportHistory || selected.supportHistory.length === 0) ? (
                 <p className="text-sm text-slate-400 italic">No previous support tickets.</p>
               ) : (
                 <div className="divide-y divide-slate-100 border border-slate-100 rounded-xl overflow-hidden">
-                  {selected.supportHistory.map(h => (
-                    <div key={h.ticketId} className="flex items-center justify-between px-4 py-3 text-sm bg-white">
+                  {selected.supportHistory.map((h: any) => (
+                    <div key={h.ticketId || h.id} className="flex items-center justify-between px-4 py-3 text-sm bg-white">
                       <div>
-                        <span className="font-mono text-xs text-slate-400 mr-2">{h.ticketId}</span>
+                        <span className="font-mono text-xs text-slate-400 mr-2">{h.ticketId || h.id}</span>
                         <span className="text-slate-700">{h.subject}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-slate-400">{h.date}</span>
-                        <StatusBadge status={h.status} />
+                        <StatusBadge status={h.status || 'Open'} />
                       </div>
                     </div>
                   ))}

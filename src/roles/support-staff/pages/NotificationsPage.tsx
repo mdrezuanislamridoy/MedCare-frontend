@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { notifications as initial, type Notification } from '../data/mockData';
+import type { Notification } from '../data/mockData';
 import { Button } from '../components/ui';
 
 const typeConfig: Record<Notification['type'], { icon: string; color: string }> = {
@@ -12,7 +12,7 @@ const typeConfig: Record<Notification['type'], { icon: string; color: string }> 
 };
 
 export default function NotificationsPage({ showToast }: { showToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void }) {
-  const [data, setData] = useState<Notification[]>(initial);
+  const [data, setData] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
   const markAllRead = () => {
