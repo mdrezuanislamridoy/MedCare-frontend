@@ -64,6 +64,17 @@ export default function Dashboard() {
     { label: "Avg. Rating", value: String(rating), sub: `From ${totalReviews} reviews`, icon: Star, color: "bg-orange-500", light: "bg-orange-50 dark:bg-orange-950/40", text: "text-orange-600 dark:text-orange-400" },
   ];
 
+  const rawQueue = liveData?.todayQueue?.length ? liveData.todayQueue : (liveData?.upcomingAppointments?.length ? liveData.upcomingAppointments : null);
+  const displayAppointments = rawQueue ? rawQueue.map((apt: any, idx: number) => ({
+    id: apt.id || `apt-${idx}`,
+    time: apt.time || (apt.startTime ? new Date(apt.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '09:00 AM'),
+    patient: apt.patient?.name || (apt.patient?.user ? `${apt.patient.user.firstName} ${apt.patient.user.lastName}` : apt.patientName || 'Scheduled Patient'),
+    avatar: apt.patient?.avatar || apt.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
+    reason: apt.reason || apt.notes || 'General Checkup',
+    type: apt.type === 'online' || apt.type === 'Online' ? 'Online' : 'In-Person',
+    status: apt.status || 'confirmed',
+  })) : todayAppointments;
+
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -110,7 +121,7 @@ export default function Dashboard() {
             <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Real-Time Patient Queue</span>
           </div>
           <div className="divide-y divide-slate-50 dark:divide-slate-800/60">
-            {todayAppointments.map((apt) => (
+            {displayAppointments.map((apt) => (
               <div key={apt.id} className="px-5 py-3.5 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group">
                 <div className="text-center min-w-[60px]">
                   <div className="text-sm font-semibold text-slate-900 dark:text-white">{apt.time.split(" ")[0]}</div>

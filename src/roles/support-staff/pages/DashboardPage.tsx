@@ -1,33 +1,58 @@
+import { useState, useEffect } from 'react';
 import { tickets, appointments, messages, notifications } from '../data/mockData';
 import { Card, StatusBadge, PriorityBadge, Avatar } from '../components/ui';
-
-const resolved = tickets.filter(t => t.status === 'Resolved').length;
-const open = tickets.filter(t => t.status === 'Open').length;
-const pending = tickets.filter(t => t.status === 'In Progress' || t.status === 'Waiting for User').length;
-const urgent = tickets.filter(t => t.priority === 'Urgent').length;
-const apptIssues = appointments.filter(a => a.issueFlag).length;
-const unread = messages.reduce((s, m) => s + m.unreadCount, 0);
-
-const statCards = [
-  { label: 'Open Tickets', value: open, icon: '📬', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
-  { label: 'Pending Tickets', value: pending, icon: '⏳', color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
-  { label: 'Resolved Today', value: resolved, icon: '✓', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
-  { label: 'Urgent Issues', value: urgent, icon: '🚨', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
-  { label: 'Appointment Issues', value: apptIssues, icon: '📅', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-  { label: 'Unread Messages', value: unread, icon: '💬', color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100' },
-];
-
-const priorityTickets = tickets.filter(t => t.priority === 'Urgent' || t.priority === 'High').slice(0, 4);
-const upcomingWithSupport = appointments.filter(a => a.issueFlag).slice(0, 3);
-
-const resolutionStats = [
-  { label: 'Avg. Resolution Time', value: '3.2h' },
-  { label: 'First Contact Resolution', value: '68%' },
-  { label: 'Customer Satisfaction', value: '4.6/5' },
-  { label: 'Escalation Rate', value: '12%' },
-];
+import { supportStaffApi, SupportStaffKpis } from '../services/support-staff.api';
 
 export default function DashboardPage({ onNavigate }: { onNavigate: (page: string) => void }) {
+  const [liveKpis, setLiveKpis] = useState<SupportStaffKpis | null>(null);
+  const [liveTickets, setLiveTickets] = useState<any[] | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [kpis, tData] = await Promise.all([
+          supportStaffApi.getKpis().catch(() => null),
+          supportStaffApi.listTickets().catch(() => null),
+        ]);
+        if (kpis) setLiveKpis(kpis);
+        if (tData?.data?.length) setLiveTickets(tData.data);
+      } catch (err) {
+        console.warn('Using offline mock data for support staff:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const resolved = liveKpis?.resolvedToday ?? tickets.filter(t => t.status === 'Resolved').length;
+  const open = liveKpis?.openTickets ?? tickets.filter(t => t.status === 'Open').length;
+  const pending = tickets.filter(t => t.status === 'In Progress' || t.status === 'Waiting for User').length;
+  const urgent = liveKpis?.escalatedTickets ?? tickets.filter(t => t.priority === 'Urgent').length;
+  const apptIssues = appointments.filter(a => a.issueFlag).length;
+  const unread = messages.reduce((s, m) => s + m.unreadCount, 0);
+
+  const statCards = [
+    { label: 'Open Tickets', value: open, icon: '📬', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+    { label: 'Pending Tickets', value: pending, icon: '⏳', color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-100' },
+    { label: 'Resolved Today', value: resolved, icon: '✓', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
+    { label: 'Urgent Issues', value: urgent, icon: '🚨', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
+    { label: 'Appointment Issues', value: apptIssues, icon: '📅', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
+    { label: 'Unread Messages', value: unread, icon: '💬', color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-100' },
+  ];
+
+  const displayTickets = liveTickets?.length ? liveTickets : tickets;
+  const priorityTickets = displayTickets.filter(t => t.priority === 'Urgent' || t.priority === 'High').slice(0, 4);
+  const upcomingWithSupport = appointments.filter(a => a.issueFlag).slice(0, 3);
+
+  const resolutionStats = [
+    { label: 'Avg. Resolution Time', value: '3.2h' },
+    { label: 'First Contact Resolution', value: '68%' },
+    { label: 'Customer Satisfaction', value: '4.6/5' },
+    { label: 'Escalation Rate', value: '12%' },
+  ];
+
   return (
     <div className="animate-fade-in space-y-6">
       <div>
@@ -56,7 +81,7 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (page: strin
             <button onClick={() => onNavigate('tickets')} className="text-xs text-[#0C7BB3] hover:underline">View all →</button>
           </div>
           <div className="divide-y divide-slate-50">
-            {tickets.slice(0, 6).map(t => (
+            {displayTickets.slice(0, 6).map(t => (
               <div key={t.id} className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50 transition-colors">
                 <Avatar name={t.patient} size="sm" />
                 <div className="flex-1 min-w-0">

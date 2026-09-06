@@ -1,8 +1,26 @@
 import { useState, useEffect } from "react";
 import { DOCTORS, STAFF, APPOINTMENTS, PATIENTS, QUEUE, ROOMS, NOTIFICATIONS, ACTIVITY, PAYMENTS, type DoctorStatus, type StaffStatus } from "../data/mockData";
 import { Avatar, Card, ConfirmDialog, Icons, PageHeader, SearchBar, StatCard, StatusBadge } from "../components/ui";
+import { clinicManagerApi, ClinicManagerStats } from "../services/clinic-manager.api";
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<ClinicManagerStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const data = await clinicManagerApi.getStats();
+        setStats(data);
+      } catch (err) {
+        console.warn("Using offline mock stats for clinic manager:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStats();
+  }, []);
+
   const timeline = [
     { time: "09:00", patient: "Robert Chen", doctor: "Mitchell", status: "Completed", w: 60 },
     { time: "09:30", patient: "Linda Park", doctor: "Okafor", status: "Completed", w: 60 },
@@ -11,29 +29,29 @@ export default function DashboardPage() {
     { time: "11:00", patient: "Tom Bradley", doctor: "Mitchell", status: "Confirmed", w: 60 },
     { time: "11:30", patient: "Nadia Coleman", doctor: "Okafor", status: "Pending", w: 60 },
     { time: "12:00", patient: "Eric Walsh", doctor: "Nair", status: "Pending", w: 60 },
-  ]
+  ];
 
   const barColors: Record<string, string> = {
     "Completed": "#059669", "In Progress": "#7C3AED", "Checked In": "#4F46E5",
     "Confirmed": "#2563EB", "Pending": "#D97706", "Cancelled": "#DC2626",
-  }
+  };
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Dashboard" subtitle="Thursday, August 13, 2026 — Green Pine Medical Clinic" />
+      <PageHeader title="Dashboard" subtitle="MedCare Clinic Operations & Resource Matrix" />
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Today's Appointments" value={8} sub="↑ 2 vs yesterday" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>} color="#2563EB" />
-        <StatCard label="Waiting Patients" value={3} sub="In queue now" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg>} color="#D97706" />
-        <StatCard label="Available Doctors" value={4} sub="1 on leave" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v6M9 14h6"/></svg>} color="#059669" />
-        <StatCard label="Active Staff" value={3} sub="1 inactive" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>} color="#7C3AED" />
+        <StatCard label="Today's Appointments" value={stats?.activeAppointmentsToday ?? 8} sub="Live consultations" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/></svg>} color="#2563EB" />
+        <StatCard label="Room Occupancy" value={`${stats?.occupancyRate ?? 75}%`} sub={`${stats?.totalRooms ?? 12} total rooms`} icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><circle cx="12" cy="7" r="4"/><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg>} color="#D97706" />
+        <StatCard label="Available Doctors" value={stats?.totalDoctors ?? 4} sub="Rostered today" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M12 11v6M9 14h6"/></svg>} color="#059669" />
+        <StatCard label="Active Staff" value={stats?.staffOnDuty ?? 3} sub="On shift now" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>} color="#7C3AED" />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Completed" value={2} sub="Today so far" icon={Icons.check} color="#059669" />
         <StatCard label="Cancelled" value={1} sub="1 refund issued" icon={Icons.x} color="#DC2626" />
-        <StatCard label="Today's Revenue" value="$325" sub="4 payments collected" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>} color="#0891B2" />
+        <StatCard label="Month Revenue" value={`$${(stats?.revenueThisMonth ?? 14250).toLocaleString()}`} sub="Clinic earnings" icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>} color="#0891B2" />
         <StatCard label="No Shows" value={0} sub="Tracking live" icon={Icons.clock} color="#64748B" />
       </div>
 

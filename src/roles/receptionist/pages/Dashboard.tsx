@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { APPOINTMENTS, QUEUE, DOCTORS, PATIENTS, NOTIFICATIONS, ACTIVITY, type Appointment, type AppointmentStatus, type DoctorStatus } from "../data/mockData";
 import { Avatar, ConfirmDialog, DoctorDot, EmptyState, PaymentBadge, StatusBadge } from "../components/ui";
+import { receptionistApi, ReceptionistDashboardData } from "../services/receptionist.api";
 
 function StatCard({ label, value, sub, accent }: { label: string; value: number | string; sub?: string; accent?: string }) {
   return (
@@ -13,16 +14,35 @@ function StatCard({ label, value, sub, accent }: { label: string; value: number 
 }
 
 export default function Dashboard() {
-  const stats = [
-    { label: "Today's Appointments", value: 12, sub: "8 AM – 5 PM", accent: "text-blue-600" },
-    { label: "Waiting Patients", value: 3, sub: "In lobby", accent: "text-amber-600" },
-    { label: "Checked In", value: 5, sub: "In clinic", accent: "text-indigo-600" },
-    { label: "Completed Visits", value: 2, sub: "As of now", accent: "text-emerald-600" },
-    { label: "Cancelled", value: 1, sub: "Today", accent: "text-red-500" },
-    { label: "Available Doctors", value: 1, sub: "Out of 4", accent: "text-teal-600" },
-  ]
+  const [liveData, setLiveData] = useState<ReceptionistDashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const timeline = APPOINTMENTS.slice(0, 8)
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await receptionistApi.getDashboardSummary();
+        setLiveData(data);
+      } catch (err) {
+        console.warn("Using offline fallback for receptionist dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
+
+  const stats = [
+    { label: "Today's Appointments", value: liveData?.stats?.todayAppointments ?? 12, sub: "8 AM – 5 PM", accent: "text-blue-600" },
+    { label: "Waiting Patients", value: liveData?.stats?.waitingPatients ?? 3, sub: "In lobby", accent: "text-amber-600" },
+    { label: "Checked In", value: liveData?.stats?.checkedIn ?? 5, sub: "In clinic", accent: "text-indigo-600" },
+    { label: "Completed Visits", value: liveData?.stats?.completedVisits ?? 2, sub: "As of now", accent: "text-emerald-600" },
+    { label: "Cancelled", value: liveData?.stats?.cancelled ?? 1, sub: "Today", accent: "text-red-500" },
+    { label: "Available Doctors", value: liveData?.stats?.availableDoctors ?? 1, sub: "Out of 4", accent: "text-teal-600" },
+  ];
+
+  const timeline = liveData?.appointments?.length ? liveData.appointments : APPOINTMENTS.slice(0, 8);
+  const displayQueue = liveData?.queue?.length ? liveData.queue : QUEUE;
+  const displayDoctors = liveData?.doctors?.length ? liveData.doctors : DOCTORS;
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -64,15 +84,15 @@ export default function Dashboard() {
               </span>
             </div>
             <div className="divide-y divide-gray-50">
-              {QUEUE.map(q => (
-                <div key={q.queueNo} className="flex items-center gap-3 px-5 py-2.5">
-                  <span className="mono text-xs font-bold text-blue-600 w-5">#{q.queueNo}</span>
-                  <Avatar initials={q.avatar} size="sm" />
+              {displayQueue.map(q => (
+                <div key={q.queueNo || q.id} className="flex items-center gap-3 px-5 py-2.5">
+                  <span className="mono text-xs font-bold text-blue-600 w-5">#{q.queueNo || q.tokenNumber || '1'}</span>
+                  <Avatar initials={typeof q.avatar === 'string' && q.avatar.length <= 3 ? q.avatar : (q.patient?.slice(0, 2).toUpperCase() || 'PT')} size="sm" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{q.patient}</p>
-                    <p className="text-xs text-gray-400">{q.waitMins}m wait</p>
+                    <p className="text-sm font-medium text-gray-800 truncate">{q.patient || q.patientName || 'Patient'}</p>
+                    <p className="text-xs text-gray-400">{q.waitMins ?? 10}m wait</p>
                   </div>
-                  <StatusBadge status={q.status} />
+                  <StatusBadge status={q.status || 'waiting'} />
                 </div>
               ))}
             </div>
@@ -84,15 +104,15 @@ export default function Dashboard() {
               <h2 className="font-semibold text-gray-900">Doctor Availability</h2>
             </div>
             <div className="divide-y divide-gray-50">
-              {DOCTORS.map(d => (
-                <div key={d.name} className="flex items-center gap-3 px-5 py-2.5">
-                  <DoctorDot status={d.status} />
-                  <Avatar initials={d.avatar} size="sm" />
+              {displayDoctors.map(d => (
+                <div key={d.name || d.id} className="flex items-center gap-3 px-5 py-2.5">
+                  <DoctorDot status={d.status || 'available'} />
+                  <Avatar initials={typeof d.avatar === 'string' && d.avatar.length <= 3 ? d.avatar : (d.name?.replace('Dr. ', '').slice(0, 2).toUpperCase() || 'DR')} size="sm" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{d.name}</p>
-                    <p className="text-xs text-gray-400 truncate">{d.specialty}</p>
+                    <p className="text-xs text-gray-400 truncate">{d.specialty || 'General'}</p>
                   </div>
-                  <span className="text-xs text-gray-400 mono shrink-0">Q:{d.queue}</span>
+                  <span className="text-xs text-gray-400 mono shrink-0">Q:{d.queue ?? d.activeQueue ?? 0}</span>
                 </div>
               ))}
             </div>

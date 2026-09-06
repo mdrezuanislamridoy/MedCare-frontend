@@ -38,10 +38,12 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
     loadDashboard();
   }, []);
 
-  const upcomingAppts = appointments.filter(a => ['confirmed', 'payment_pending'].includes(a.status))
-    .sort((a, b) => a.date.localeCompare(b.date));
+  const rawUpcoming = (liveData?.upcomingAppointments && liveData.upcomingAppointments.length > 0)
+    ? liveData.upcomingAppointments
+    : appointments.filter(a => ['confirmed', 'payment_pending'].includes(a.status));
+  const upcomingAppts = [...rawUpcoming].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
   const nextAppt = upcomingAppts[0];
-  const todayAppt = appointments.find(a => a.date === '2026-08-10' && a.status === 'in_progress');
+  const todayAppt = liveData?.activeConsultation || appointments.find(a => a.date === '2026-08-10' && a.status === 'in_progress');
   const completedVisits = liveData?.stats?.completedAppointments ?? appointments.filter(a => a.status === 'completed').length;
   const pendingPayments = liveData?.stats?.pendingPayments ?? appointments.filter(a => a.paymentStatus === 'pending').length;
   const upcomingCount = liveData?.stats?.upcomingAppointments ?? upcomingAppts.length;
@@ -49,7 +51,22 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
   const displayName = user?.name || patient.name;
   const firstName = displayName.split(' ')[0] || 'Patient';
 
-  const getDr = (id: string) => doctors.find(d => d.id === id) || doctors[0];
+  const getDr = (idOrObj: any) => {
+    if (typeof idOrObj === 'object' && idOrObj !== null) {
+      return {
+        name: idOrObj.name || (idOrObj.user?.firstName ? `Dr. ${idOrObj.user.firstName} ${idOrObj.user.lastName}` : 'Doctor'),
+        specialty: idOrObj.specialty || idOrObj.specialization || 'General Practitioner',
+        clinicName: idOrObj.clinic?.name || idOrObj.clinicName || 'MedCare Medical Center',
+        photo: idOrObj.photo || idOrObj.user?.avatar || doctors[0].photo,
+      };
+    }
+    const found = doctors.find(d => d.id === idOrObj);
+    return found || doctors[0];
+  };
+
+  const displayPrescriptions = (liveData?.recentPrescriptions && liveData.recentPrescriptions.length > 0)
+    ? liveData.recentPrescriptions
+    : prescriptions;
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -198,18 +215,19 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
         <div className="space-y-4">
           <SectionHeader title="Active Prescriptions" action={() => onNavigate('prescriptions')} />
           <Card className="p-4 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 space-y-3">
-            {prescriptions.slice(0, 3).map((p) => {
-              const doc = getDr(p.doctorId);
+            {displayPrescriptions.slice(0, 3).map((p) => {
+              const doc = getDr(p.doctorId || p.doctor);
+              const medCount = p.medicines?.length || p.items?.length || 0;
               return (
                 <div key={p.id} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
                   <div className="flex items-center justify-between">
                     <span className="font-semibold text-xs text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                      <Pill className="w-3.5 h-3.5 text-teal-600" /> {p.diagnosis}
+                      <Pill className="w-3.5 h-3.5 text-teal-600" /> {p.diagnosis || 'General Prescription'}
                     </span>
-                    <span className="text-[10px] text-slate-400">{p.date}</span>
+                    <span className="text-[10px] text-slate-400">{p.date || 'Recent'}</span>
                   </div>
                   <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                    Dr. {doc.name.split('Dr. ')[1] || doc.name} · {p.medicines.length} medications prescribed
+                    Dr. {doc.name.split('Dr. ')[1] || doc.name} · {medCount} medications prescribed
                   </p>
                 </div>
               );
