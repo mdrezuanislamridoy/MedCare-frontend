@@ -12,7 +12,7 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [statsData, apptData, docData, queueData] = await Promise.all([
+        const [statsData, apptData, docData, queueData]: any = await Promise.all([
           clinicManagerApi.getStats().catch(() => null),
           clinicManagerApi.getAppointments().catch(() => []),
           clinicManagerApi.getDoctors().catch(() => []),

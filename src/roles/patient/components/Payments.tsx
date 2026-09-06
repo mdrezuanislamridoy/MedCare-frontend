@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { CreditCard, CheckCircle, Clock, RotateCcw, TrendingUp, Receipt, Download } from 'lucide-react';
-import { payments as mockPayments, doctors, appointments } from '../data/mockData';
 import { patientApi } from '../services/patient.api';
 import { Card, Badge, StatCard, Button } from './ui';
 
@@ -15,14 +14,16 @@ export default function Payments() {
     async function loadPayments() {
       try {
         const data: any = await patientApi.listPayments();
-        if (data && Array.isArray(data) && data.length > 0) {
+        if (data && Array.isArray(data)) {
           setPaymentList(data);
+        } else if (data?.data && Array.isArray(data.data)) {
+          setPaymentList(data.data);
         } else {
-          setPaymentList(mockPayments);
+          setPaymentList([]);
         }
       } catch (err) {
-        console.warn('Using offline payments fallback:', err);
-        setPaymentList(mockPayments);
+        console.warn('Payments load error:', err);
+        setPaymentList([]);
       } finally {
         setLoading(false);
       }
@@ -83,37 +84,45 @@ export default function Payments() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-              {filtered.map(p => {
-                const drName = p.doctor?.user?.name || p.doctorName || 'Dr. Sarah Mitchell';
-                const status = (p.status || 'completed').toLowerCase();
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-slate-400 dark:text-slate-500">
+                    No transactions found.
+                  </td>
+                </tr>
+              ) : (
+                filtered.map(p => {
+                  const drName = p.doctor?.user?.name || p.doctorName || 'Doctor';
+                  const status = (p.status || 'completed').toLowerCase();
 
-                return (
-                  <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
-                    <td className="px-4 py-3.5 font-mono font-bold text-slate-700 dark:text-slate-300">{p.id}</td>
-                    <td className="px-4 py-3.5 font-semibold text-slate-800 dark:text-white">{drName}</td>
-                    <td className="px-4 py-3.5 text-slate-500 dark:text-slate-400">{p.reason || 'General Consultation'}</td>
-                    <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">${p.amount}</td>
-                    <td className="px-4 py-3.5">
-                      <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
-                        <span>{METHOD_ICONS[p.method || 'card'] || '💳'}</span>
-                        <span className="capitalize">{p.method || 'Card'}</span>
-                      </span>
-                    </td>
-                    <td className="px-4 py-3.5">
-                      <Badge variant={status === 'completed' || status === 'success' ? 'paid' : status} />
-                    </td>
-                    <td className="px-4 py-3.5 text-slate-400 whitespace-nowrap">{p.date || '2026-08-10'}</td>
-                    <td className="px-4 py-3.5">
-                      <button
-                        onClick={() => alert(`Downloading tax invoice for ${p.id}...`)}
-                        className="inline-flex items-center gap-1 text-teal-600 dark:text-teal-400 hover:underline font-semibold"
-                      >
-                        <Download className="w-3.5 h-3.5" /> PDF
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+                  return (
+                    <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                      <td className="px-4 py-3.5 font-mono font-bold text-slate-700 dark:text-slate-300">{p.id}</td>
+                      <td className="px-4 py-3.5 font-semibold text-slate-800 dark:text-white">{drName}</td>
+                      <td className="px-4 py-3.5 text-slate-500 dark:text-slate-400">{p.reason || 'General Consultation'}</td>
+                      <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">${p.amount}</td>
+                      <td className="px-4 py-3.5">
+                        <span className="inline-flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-300">
+                          <span>{METHOD_ICONS[p.method || 'card'] || '💳'}</span>
+                          <span className="capitalize">{p.method || 'Card'}</span>
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <Badge variant={status === 'completed' || status === 'success' ? 'paid' : status} />
+                      </td>
+                      <td className="px-4 py-3.5 text-slate-400 whitespace-nowrap">{p.date || '—'}</td>
+                      <td className="px-4 py-3.5">
+                        <button
+                          onClick={() => alert(`Downloading tax invoice for ${p.id}...`)}
+                          className="inline-flex items-center gap-1 text-teal-600 dark:text-teal-400 hover:underline font-semibold"
+                        >
+                          <Download className="w-3.5 h-3.5" /> PDF
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
             </tbody>
           </table>
         </div>

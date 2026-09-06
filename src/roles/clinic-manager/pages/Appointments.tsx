@@ -15,7 +15,7 @@ export default function AppointmentsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [appts, docs] = await Promise.all([
+        const [appts, docs]: any = await Promise.all([
           clinicManagerApi.getAppointments().catch(() => []),
           clinicManagerApi.getDoctors().catch(() => []),
         ]);

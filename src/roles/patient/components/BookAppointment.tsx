@@ -1,22 +1,30 @@
 import { useEffect, useState } from 'react';
 import { Check, ChevronRight, Calendar, Clock, Video, Building2, CreditCard, User, MapPin, RefreshCw } from 'lucide-react';
-import { doctors, patient } from '../data/mockData';
 import { Avatar, Button, Badge, Card } from './ui';
 import { patientApi } from '../services/patient.api';
+import { useAuthStore } from '../../../common/stores/auth.store';
 
 const STEPS = ['Doctor', 'Date & Slot', 'Type', 'Details', 'Payment', 'Confirmation'];
 
 const fallbackSlots: Record<string, string[]> = {
-  '2026-08-12': ['9:00 AM', '10:00 AM', '11:30 AM', '2:00 PM', '3:00 PM', '5:00 PM'],
-  '2026-08-13': ['9:30 AM', '11:00 AM', '2:30 PM', '4:00 PM'],
-  '2026-08-14': ['10:00 AM', '10:30 AM', '3:30 PM', '5:30 PM'],
-  '2026-08-15': ['9:00 AM', '11:00 AM', '2:00 PM'],
+  default: ['9:00 AM', '10:00 AM', '11:30 AM', '2:00 PM', '3:00 PM', '5:00 PM'],
 };
 
 export default function BookAppointment({ doctorId, onDone }: { doctorId: string; onDone: () => void }) {
-  const doctor = doctors.find(d => d.id === doctorId) ?? doctors[0];
+  const { user } = useAuthStore();
+  const [doctor, setDoctor] = useState<any>({
+    id: doctorId,
+    name: 'Doctor',
+    specialty: 'Medical Specialist',
+    photo: '',
+    experience: 5,
+    fee: 50,
+    clinicName: 'Care Center',
+    address: 'Medical Suite',
+  });
   const [step, setStep] = useState(1);
-  const [selectedDate, setSelectedDate] = useState('2026-08-12');
+  const today = new Date().toISOString().split('T')[0];
+  const [selectedDate, setSelectedDate] = useState(today);
   const [selectedSlot, setSelectedSlot] = useState('');
   const [consultType, setConsultType] = useState<'clinic' | 'online'>('clinic');
   const [symptoms, setSymptoms] = useState('');
@@ -26,7 +34,37 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
   const [dynamicSlots, setDynamicSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
 
-  const dates = ['2026-08-12', '2026-08-13', '2026-08-14', '2026-08-15'];
+  useEffect(() => {
+    async function loadDoctor() {
+      try {
+        const doc: any = await patientApi.getDoctorDetails(doctorId);
+        if (doc) {
+          setDoctor({
+            id: doc.id || doctorId,
+            name: doc.name || doc.user?.name || 'Doctor',
+            specialty: doc.specialty || 'Medical Specialist',
+            photo: doc.photo || doc.avatar || doc.user?.avatarUrl || '',
+            experience: doc.experience || 5,
+            fee: doc.consultationFee || doc.fee || 50,
+            clinicName: doc.clinicName || doc.clinic?.name || 'Care Center',
+            address: doc.address || doc.clinic?.address || 'Medical Suite',
+          });
+        }
+      } catch (e) {
+        console.warn('Could not load doctor details:', e);
+      }
+    }
+    if (doctorId) loadDoctor();
+  }, [doctorId]);
+
+  // Generate 4 consecutive days starting today
+  const dates = Array.from({ length: 4 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() + i);
+    return d.toISOString().split('T')[0];
+  });
+
+  const standardSlots = ['09:00 AM', '10:00 AM', '11:30 AM', '02:00 PM', '03:30 PM', '05:00 PM'];
 
   useEffect(() => {
     async function loadDoctorLiveSlots() {
@@ -37,10 +75,10 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
         if (res && Array.isArray(res) && res.length > 0) {
           setDynamicSlots(res.map((s: any) => s.time || s));
         } else {
-          setDynamicSlots(fallbackSlots[selectedDate] || fallbackSlots['2026-08-12']);
+          setDynamicSlots(standardSlots);
         }
       } catch (err) {
-        setDynamicSlots(fallbackSlots[selectedDate] || fallbackSlots['2026-08-12']);
+        setDynamicSlots(standardSlots);
       } finally {
         setLoadingSlots(false);
       }
@@ -48,8 +86,8 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
     loadDoctorLiveSlots();
   }, [selectedDate, doctorId, doctor.id]);
 
-  const slots = dynamicSlots.length > 0 ? dynamicSlots : (fallbackSlots[selectedDate] ?? []);
-  const booked = selectedDate === '2026-08-12' ? ['10:00 AM', '3:00 PM'] : [];
+  const slots = dynamicSlots.length > 0 ? dynamicSlots : standardSlots;
+  const booked: string[] = [];
 
   const handlePayment = async () => {
     setProcessing(true);
@@ -231,8 +269,8 @@ export default function BookAppointment({ doctorId, onDone }: { doctorId: string
             <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 mb-4 flex items-center gap-3">
               <User className="w-5 h-5 text-slate-400" />
               <div>
-                <p className="text-sm font-medium text-slate-800">{patient.name}</p>
-                <p className="text-xs text-slate-500">{patient.email} · {patient.phone}</p>
+                <p className="text-sm font-medium text-slate-800">{user?.name || 'Patient'}</p>
+                <p className="text-xs text-slate-500">{user?.email || 'patient@example.com'} · {user?.phone || user?.phoneNumber || '+1 555-0100'}</p>
               </div>
             </div>
             <div>

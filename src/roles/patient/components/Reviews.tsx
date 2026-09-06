@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Star, Edit3, CheckCircle, RefreshCw } from 'lucide-react';
-import { reviews as mockReviews, appointments, doctors } from '../data/mockData';
 import { patientApi } from '../services/patient.api';
 import { Card, Avatar, Stars, Button, Modal } from './ui';
 
 export default function Reviews() {
   const [userReviews, setUserReviews] = useState<any[]>([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newReviewApptId, setNewReviewApptId] = useState<string | null>(null);
   const [rating, setRating] = useState(5);
@@ -13,25 +14,44 @@ export default function Reviews() {
   const [text, setText] = useState('');
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadReviews() {
+    async function loadData() {
       try {
-        const data: any = await patientApi.listReviews();
-        if (data && (Array.isArray(data) && data.length > 0)) {
-          setUserReviews(data);
-        } else {
-          setUserReviews(mockReviews);
-        }
+        const [revData, docsData, apptsData]: any = await Promise.all([
+          patientApi.listReviews().catch(() => []),
+          patientApi.searchDoctors().catch(() => []),
+          patientApi.listAppointments().catch(() => []),
+        ]);
+        if (Array.isArray(revData)) setUserReviews(revData);
+        else if (revData?.data && Array.isArray(revData.data)) setUserReviews(revData.data);
+        else setUserReviews([]);
+
+        const docs = Array.isArray(docsData) ? docsData : (docsData?.items || docsData?.data || []);
+        setDoctors(docs);
+
+        const appts = Array.isArray(apptsData) ? apptsData : (apptsData?.items || apptsData?.data || []);
+        setAppointments(appts);
       } catch (err) {
-        console.warn('Using offline reviews fallback:', err);
-        setUserReviews(mockReviews);
+        console.warn('Reviews load error:', err);
+        setUserReviews([]);
+      } finally {
+        setLoading(false);
       }
     }
-    loadReviews();
+    loadData();
   }, []);
 
-  const getDr = (id: string) => doctors.find(d => d.id === id) || doctors[0];
+  const getDr = (id?: string) => {
+    const found = doctors.find(d => d.id === id || d._id === id);
+    return {
+      name: found?.name || found?.user?.name || 'Doctor',
+      photo: found?.photo || found?.avatar || '',
+      specialty: found?.specialty || 'General Practitioner',
+      clinicName: found?.clinicName || 'Clinic',
+    };
+  };
 
   const pendingReview = appointments.filter(a =>
     a.status === 'completed' && !userReviews.some(r => r.appointmentId === a.id)
@@ -47,19 +67,20 @@ export default function Reviews() {
   const saveReview = async () => {
     setSaving(true);
     try {
-      const appt = appointments.find(a => a.id === newReviewApptId) || appointments[0];
+      const appt = appointments.find(a => a.id === newReviewApptId);
+      const doctorId = appt?.doctorId || appt?.doctor?.id || '';
       await patientApi.submitReview({
-        doctorId: appt.doctorId,
+        doctorId,
         rating,
         comment: text,
         appointmentId: newReviewApptId || undefined,
       });
-      const newR = { id: `rv${Date.now()}`, doctorId: appt.doctorId, appointmentId: newReviewApptId, rating, text, date: '2026-08-10' };
+      const newR = { id: `rv${Date.now()}`, doctorId, appointmentId: newReviewApptId, rating, text, date: new Date().toISOString().split('T')[0] };
       setUserReviews(prev => [...prev, newR]);
       setSaved(true);
       setTimeout(() => { setNewReviewApptId(null); setSaved(false); }, 1200);
     } catch (err) {
-      console.warn('Review saved offline');
+      console.warn('Review submission error:', err);
       setSaved(true);
       setTimeout(() => { setNewReviewApptId(null); setSaved(false); }, 1200);
     } finally {
@@ -71,8 +92,8 @@ export default function Reviews() {
 
   const modalOpen = editingId !== null || newReviewApptId !== null;
   const modalApptId = editingId ? userReviews.find(r => r.id === editingId)?.appointmentId ?? '' : newReviewApptId ?? '';
-  const modalAppt = appointments.find(a => a.id === modalApptId) || appointments[0];
-  const modalDr = modalAppt ? getDr(modalAppt.doctorId) : doctors[0];
+  const modalAppt = appointments.find(a => a.id === modalApptId);
+  const modalDr = modalAppt ? getDr(modalAppt.doctorId) : getDr();
 
   return (
     <div className="animate-fade-in">
@@ -110,29 +131,37 @@ export default function Reviews() {
       {/* Submitted reviews */}
       <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Your Published Reviews</h2>
       <div className="space-y-4">
-        {userReviews.map(r => {
-          const dr = getDr(r.doctorId);
-          return (
-            <Card key={r.id} className="p-5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-4">
-                  <Avatar src={dr.photo} name={dr.name} size="md" />
-                  <div>
-                    <h3 className="font-bold text-slate-800 dark:text-white text-sm">{dr.name}</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">{dr.specialty} · {dr.clinicName}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Stars rating={r.rating} />
-                      <span className="text-xs text-slate-400">· {r.date}</span>
+        {userReviews.length === 0 ? (
+          <Card className="p-12 text-center bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+            <Star className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <h3 className="font-semibold text-slate-700 dark:text-slate-200">No reviews published yet</h3>
+            <p className="text-slate-400 text-xs mt-1">Your submitted doctor ratings and consultation feedback will appear here.</p>
+          </Card>
+        ) : (
+          userReviews.map(r => {
+            const dr = getDr(r.doctorId);
+            return (
+              <Card key={r.id} className="p-5 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <Avatar src={dr.photo} name={dr.name} size="md" />
+                    <div>
+                      <h3 className="font-bold text-slate-800 dark:text-white text-sm">{dr.name}</h3>
+                      <p className="text-xs text-slate-500 mt-0.5">{dr.specialty} · {dr.clinicName}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Stars rating={r.rating} />
+                        <span className="text-xs text-slate-400">· {r.date}</span>
+                      </div>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl">
+                        &ldquo;{r.text || r.comment || 'Excellent care and very thorough diagnostic explanation.'}&rdquo;
+                      </p>
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-2.5 leading-relaxed bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl">
-                      &ldquo;{r.text || r.comment || 'Excellent care and very thorough diagnostic explanation.'}&rdquo;
-                    </p>
                   </div>
                 </div>
-              </div>
-            </Card>
-          );
-        })}
+              </Card>
+            );
+          })
+        )}
       </div>
 
       {/* Modal */}

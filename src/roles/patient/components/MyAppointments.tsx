@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Calendar, List, Video, MapPin, Clock, FileText, RotateCcw, X, CreditCard, Eye, RefreshCw } from 'lucide-react';
-import { appointments as mockAppointments, doctors } from '../data/mockData';
-import type { Appointment } from '../data/mockData';
 import { patientApi } from '../services/patient.api';
 import { Badge, Card, Avatar, Button, Modal } from './ui';
 
@@ -14,6 +12,8 @@ function getStatusGroup(status: string) {
   if (['cancelled', 'no_show'].includes(s)) return 'Cancelled';
   return 'Upcoming';
 }
+
+const getDr = (_id?: string) => ({ name: 'Specialist Doctor', photo: '', specialty: 'Medical Specialist' });
 
 export default function MyAppointments({ onBook }: { onBook: () => void }) {
   const [view, setView] = useState<'list' | 'calendar'>('list');
@@ -31,7 +31,7 @@ export default function MyAppointments({ onBook }: { onBook: () => void }) {
         setLiveAppointments(res.items || res);
       }
     } catch (err) {
-      console.warn('Using offline appointments fallback:', err);
+      console.warn('Appointments API unavailable:', err);
     } finally {
       setLoading(false);
     }
@@ -41,24 +41,21 @@ export default function MyAppointments({ onBook }: { onBook: () => void }) {
     loadAppointments();
   }, []);
 
-  const getDr = (id: string) => doctors.find(d => d.id === id) || doctors[0];
-
-  const apptList = (liveAppointments.length > 0 ? liveAppointments : mockAppointments).map(a => {
-    const dr = getDr(a.doctorId);
+  const apptList = liveAppointments.map(a => {
     return {
       id: a.id,
       doctorId: a.doctorId,
-      doctorName: a.doctor?.user?.name || a.doctor?.name || dr?.name || 'Doctor',
-      doctorSpecialty: a.doctor?.specialty || dr?.specialty || 'Specialist',
-      doctorAvatar: a.doctor?.photo || dr?.photo || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&auto=format',
-      date: a.date ? String(a.date).split('T')[0] : '2026-08-12',
-      time: a.timeSlot || a.time || '10:00 AM',
+      doctorName: a.doctor?.user?.name || a.doctor?.name || a.doctorName || 'Doctor',
+      doctorSpecialty: a.doctor?.specialty || a.specialty || 'Specialist',
+      doctorAvatar: a.doctor?.photo || a.doctorAvatar,
+      date: a.date ? String(a.date).split('T')[0] : 'Today',
+      time: a.timeSlot || a.time || a.slot || '10:00 AM',
       type: a.type === 'VIDEO' || a.type === 'online' ? 'online' : 'clinic',
       status: (cancelledIds.includes(a.id) ? 'cancelled' : a.status || 'confirmed').toLowerCase(),
       paymentStatus: a.paymentStatus || 'paid',
       reason: a.reason || 'General Consultation',
-      clinicName: a.clinic?.name || dr?.clinicName || 'MedCare Central Clinic',
-      roomNumber: a.doctor?.roomNumber || '302',
+      clinicName: a.clinic?.name || a.clinicName || 'MedCare Clinic',
+      roomNumber: a.roomNumber || a.doctor?.roomNumber || '302',
     };
   });
 

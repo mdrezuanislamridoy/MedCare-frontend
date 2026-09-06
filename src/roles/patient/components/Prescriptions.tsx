@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Pill, Download, Eye, Calendar, ChevronDown, ChevronUp, RefreshCw, FileText } from 'lucide-react';
-import { prescriptions as mockPrescriptions, doctors } from '../data/mockData';
 import { patientApi } from '../services/patient.api';
 import { Card, Avatar, Button } from './ui';
 
@@ -13,25 +12,21 @@ export default function Prescriptions() {
     async function loadPrescriptions() {
       try {
         const data: any = await patientApi.listPrescriptions();
-        if (data && Array.isArray(data) && data.length > 0) {
+        if (data && Array.isArray(data)) {
           setPrescriptionsList(data);
-          setExpanded(data[0].id);
+          if (data.length > 0) setExpanded(data[0].id);
         } else {
-          setPrescriptionsList(mockPrescriptions);
-          setExpanded(mockPrescriptions[0]?.id || '');
+          setPrescriptionsList([]);
         }
       } catch (err) {
-        console.warn('Using offline prescriptions fallback:', err);
-        setPrescriptionsList(mockPrescriptions);
-        setExpanded(mockPrescriptions[0]?.id || '');
+        console.warn('Could not load prescriptions:', err);
+        setPrescriptionsList([]);
       } finally {
         setLoading(false);
       }
     }
     loadPrescriptions();
   }, []);
-
-  const getDr = (id: string) => doctors.find(d => d.id === id) || doctors[0];
 
   return (
     <div className="animate-fade-in">
@@ -49,10 +44,9 @@ export default function Prescriptions() {
       ) : (
         <div className="space-y-4">
           {prescriptionsList.map(rx => {
-            const dr = rx.doctor || getDr(rx.doctorId);
-            const drName = rx.doctor?.user?.name || dr.name || 'Doctor';
-            const drSpecialty = rx.doctor?.specialty || dr.specialty || 'Specialist';
-            const drPhoto = dr.photo || 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=120&h=120&fit=crop&auto=format';
+            const drName = rx.doctor?.user?.name || rx.doctor?.name || rx.doctorName || 'Doctor';
+            const drSpecialty = rx.doctor?.specialty || rx.specialty || 'Specialist';
+            const drPhoto = rx.doctor?.photo || rx.doctorAvatar;
             const isOpen = expanded === rx.id;
             const meds = rx.medicines || [];
 

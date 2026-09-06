@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Search, MapPin, Clock, Filter, ChevronDown, Star, Video, Building2, SlidersHorizontal, RefreshCw } from 'lucide-react';
-import { doctors as mockDoctors, specialties } from '../data/mockData';
+import { specialties } from '../data/mockData';
 import type { Doctor } from '../data/mockData';
 import { patientApi } from '../services/patient.api';
 import { Badge, Card, Stars, Button, Avatar } from './ui';
@@ -14,7 +14,7 @@ export default function FindDoctors({ onBookDoctor }: { onBookDoctor: (doctorId:
   const [maxFee, setMaxFee] = useState(2000);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
-  const [doctorList, setDoctorList] = useState<Doctor[]>(mockDoctors);
+  const [doctorList, setDoctorList] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {

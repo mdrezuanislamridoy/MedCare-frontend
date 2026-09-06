@@ -4,6 +4,11 @@ export interface UserProfile {
   id: string;
   email: string;
   name?: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
+  phoneNumber?: string | null;
+  phone?: string | null;
+  avatar?: string | null;
   role: 'SUPER_ADMIN' | 'ADMIN' | 'PATIENT' | 'DOCTOR' | 'CLINIC_MANAGER' | 'RECEPTIONIST' | 'SUPPORT_STAFF';
   isEmailVerified?: boolean;
   emailVerifiedAt?: string | null;

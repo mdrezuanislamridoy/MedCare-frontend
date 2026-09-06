@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { User, Mail, Phone, Calendar, MapPin, Shield, Bell, Lock, Camera, CheckCircle, RefreshCw } from 'lucide-react';
 import { useAuthStore } from '../../../common/stores/auth.store';
 import { patientApi } from '../services/patient.api';
-import { patient } from '../data/mockData';
 import { Card, Button, Input, Avatar, Toast } from './ui';
 
 const tabs = ['Personal Info', 'Emergency Contact', 'Security', 'Notifications', 'Privacy'];
@@ -20,19 +19,19 @@ export default function ProfileSettings() {
   };
 
   const [form, setForm] = useState({
-    name: user?.name || patient.name,
-    email: user?.email || patient.email,
-    phone: patient.phone,
-    dob: patient.dob,
-    gender: patient.gender,
-    bloodGroup: patient.bloodGroup,
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || user?.phoneNumber || '',
+    dob: '',
+    gender: 'Other',
+    bloodGroup: 'O+',
     height: 175,
     weight: 70,
-    allergies: 'Penicillin, Dust mites',
-    address: patient.address,
-    emergencyName: 'Emily Harrington',
-    emergencyRelationship: 'Spouse',
-    emergencyPhone: '+1 (555) 987-6543',
+    allergies: '',
+    address: '',
+    emergencyName: '',
+    emergencyRelationship: '',
+    emergencyPhone: '',
   });
 
   const [notifPrefs, setNotifPrefs] = useState({
@@ -108,7 +107,7 @@ export default function ProfileSettings() {
         <div className="lg:col-span-1 space-y-4">
           <Card className="p-5 text-center bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
             <div className="relative inline-block mb-4">
-              <Avatar src={patient.photo} name={form.name} size="xl" />
+              <Avatar src={user?.avatar || user?.avatarUrl || undefined} name={form.name} size="xl" />
               <button className="absolute bottom-0 right-0 w-7 h-7 bg-teal-600 rounded-full flex items-center justify-center shadow-md hover:bg-teal-700 transition-colors">
                 <Camera className="w-3.5 h-3.5 text-white" />
               </button>

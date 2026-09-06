@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import {
   LayoutDashboard, Search, Calendar, FileText, Pill, CreditCard,
-  Star, Bell, User, LogOut, Menu, X, ChevronDown, Video, Activity,
+  Star, Bell, User, LogOut, Menu, X, Activity,
 } from 'lucide-react';
 import { Avatar } from './ui';
-import { patient, notifications } from '../data/mockData';
 import { useAuthStore } from '../../../common/stores/auth.store';
 
 export type Page =
@@ -30,27 +29,27 @@ export default function Layout({ current, onChange, children }: {
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const { user } = useAuthStore();
 
-  const unread = notifications.filter(n => !n.read).length;
+  const patientName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.name || user.email : "Patient";
+  const patientEmail = user?.email || "";
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-slate-900 text-white">
       {/* Logo */}
-      <div className="px-5 py-5 flex items-center gap-2.5 border-b border-slate-100">
-        <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center flex-shrink-0">
+      <div className="px-5 py-5 flex items-center gap-2.5 border-b border-white/10">
+        <div className="w-8 h-8 bg-teal-500 rounded-lg flex items-center justify-center flex-shrink-0">
           <Activity className="w-4 h-4 text-white" />
         </div>
         <div>
-          <p className="font-patient font-semibold text-slate-800 text-sm leading-tight">MedCare</p>
-          <p className="text-xs text-slate-400">Patient Portal</p>
+          <p className="font-patient font-bold text-white text-sm leading-tight">MedCare</p>
+          <p className="text-xs text-slate-400">Patient Health Portal</p>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 overflow-y-auto">
-        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-3 mb-2">Menu</p>
+        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">Navigation</p>
         <ul className="space-y-0.5">
           {navItems.map(({ id, label, icon: Icon }) => {
             const active = current === id;
@@ -58,19 +57,14 @@ export default function Layout({ current, onChange, children }: {
               <li key={id}>
                 <button
                   onClick={() => { onChange(id); setSidebarOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors relative ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors relative ${
                     active
                       ? 'bg-teal-600 text-white shadow-sm'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-800'
+                      : 'text-slate-200 hover:bg-white/10 hover:text-white'
                   }`}
                 >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${active ? 'text-teal-200' : 'text-slate-300'}`} />
                   <span>{label}</span>
-                  {id === 'notifications' && unread > 0 && (
-                    <span className={`ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${active ? 'bg-white/25 text-white' : 'bg-teal-100 text-teal-700'}`}>
-                      {unread}
-                    </span>
-                  )}
                 </button>
               </li>
             );
@@ -79,15 +73,15 @@ export default function Layout({ current, onChange, children }: {
       </nav>
 
       {/* Patient info at bottom */}
-      <div className="px-3 py-3 border-t border-slate-100 space-y-1">
+      <div className="px-3 py-3 border-t border-white/10 space-y-1">
         <button
           onClick={() => onChange('profile')}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 transition-colors"
         >
-          <Avatar src={patient.photo} name={patient.name} size="sm" />
+          <Avatar name={patientName} size="sm" />
           <div className="flex-1 min-w-0 text-left">
-            <p className="text-sm font-medium text-slate-700 truncate">{patient.name}</p>
-            <p className="text-xs text-slate-400 truncate">{patient.email}</p>
+            <p className="text-sm font-semibold text-white truncate">{patientName}</p>
+            <p className="text-xs text-slate-400 truncate">{patientEmail}</p>
           </div>
         </button>
         <button
@@ -95,9 +89,10 @@ export default function Layout({ current, onChange, children }: {
             useAuthStore.getState().logout();
             window.location.href = '/login';
           }}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:text-red-600 hover:bg-red-50 transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-bold text-white hover:text-red-300 hover:bg-red-500/20 transition-colors"
+          title="Sign Out"
         >
-          <LogOut className="w-4 h-4 text-slate-400" />
+          <LogOut className="w-4 h-4 text-white" />
           <span>Sign Out</span>
         </button>
       </div>
@@ -107,7 +102,7 @@ export default function Layout({ current, onChange, children }: {
   return (
     <div className="app-shell-height flex overflow-hidden bg-slate-50">
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex flex-col w-60 bg-white border-r border-slate-200 flex-shrink-0">
+      <aside className="hidden lg:flex flex-col w-60 bg-slate-900 border-r border-slate-800 flex-shrink-0">
         <SidebarContent />
       </aside>
 
@@ -115,10 +110,10 @@ export default function Layout({ current, onChange, children }: {
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 flex lg:hidden">
           <div className="absolute inset-0 bg-slate-900/50" onClick={() => setSidebarOpen(false)} />
-          <aside className="relative z-10 flex flex-col w-64 bg-white shadow-xl animate-slide-in">
+          <aside className="relative z-10 flex flex-col w-64 bg-slate-900 shadow-xl animate-slide-in">
             <button
               onClick={() => setSidebarOpen(false)}
-              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-slate-100 text-slate-400"
+              className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-white/10 text-white"
             >
               <X className="w-4 h-4" />
             </button>
@@ -127,80 +122,21 @@ export default function Layout({ current, onChange, children }: {
         </div>
       )}
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
-        <header className="bg-white border-b border-slate-200 px-3 py-3 sm:px-4 lg:px-6 lg:py-3.5 flex items-center gap-2 sm:gap-4 flex-shrink-0">
+      {/* Main content without top header */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        {/* Mobile menu open trigger */}
+        {!sidebarOpen && (
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 text-slate-500"
+            className="lg:hidden fixed top-3 left-3 z-30 p-2 bg-slate-900 text-white rounded-lg shadow-md"
+            aria-label="Open navigation menu"
           >
             <Menu className="w-5 h-5" />
           </button>
-
-          {/* Search */}
-          <div className="relative min-w-0 flex-1 sm:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && onChange('find-doctors')}
-              className="w-full pl-9 pr-3 sm:pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 focus:bg-white transition placeholder:text-slate-400"
-            />
-          </div>
-
-          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
-            {/* Upcoming indicator */}
-            <button
-              onClick={() => onChange('my-appointments')}
-              className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-teal-50 text-teal-700 rounded-lg text-xs font-medium hover:bg-teal-100 transition-colors border border-teal-200"
-            >
-              <Video className="w-3.5 h-3.5" />
-              <span>Consultation Today</span>
-            </button>
-
-            {/* Notifications */}
-            <button
-              onClick={() => onChange('notifications')}
-              className="relative p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
-            >
-              <Bell className="w-5 h-5" />
-              {unread > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
-              )}
-            </button>
-
-            {/* Profile menu */}
-            <div className="relative">
-              <button
-                onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-slate-100 transition-colors"
-              >
-                <Avatar src={patient.photo} name={patient.name} size="sm" />
-                <span className="hidden sm:block text-sm font-medium text-slate-700">{patient.name.split(' ')[0]}</span>
-                <ChevronDown className="w-4 h-4 text-slate-400" />
-              </button>
-
-              {profileMenuOpen && (
-                <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-slate-200 rounded-xl shadow-lg py-1 z-30 animate-fade-in">
-                  <button onClick={() => { onChange('profile'); setProfileMenuOpen(false); }}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors">
-                    <User className="w-4 h-4" /> My Profile
-                  </button>
-                  <div className="border-t border-slate-100 my-1" />
-                  <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors">
-                    <LogOut className="w-4 h-4" /> Sign Out
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
+        )}
 
         {/* Page content */}
-        <main className="dashboard-content flex-1 overflow-y-auto">
+        <main className="dashboard-content flex-1 overflow-y-auto p-4 sm:p-6">
           {children}
         </main>
       </div>

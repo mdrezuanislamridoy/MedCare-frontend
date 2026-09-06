@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { FileText, FlaskConical, Stethoscope, FolderOpen, FileSearch, Download, Eye, Search, Trash2, RefreshCw } from 'lucide-react';
-import { medicalRecords as mockRecords, doctors } from '../data/mockData';
 import { patientApi } from '../services/patient.api';
 import { Card, Badge, Button } from './ui';
 
@@ -32,23 +31,23 @@ export default function MedicalRecords() {
     async function loadRecords() {
       try {
         const data: any = await patientApi.listMedicalRecords();
-        if (data && Array.isArray(data) && data.length > 0) {
+        if (data && Array.isArray(data)) {
           setRecords(data.map((r: any) => ({
             id: r.id,
             title: r.title,
             type: (r.category || 'document').toLowerCase(),
-            date: r.date ? String(r.date).split('T')[0] : '2026-08-10',
+            date: r.date ? String(r.date).split('T')[0] : 'Recent',
             doctor: r.doctor?.user?.name || 'Dr. Attending',
             facility: 'MedCare Central Diagnostic Centre',
-            description: r.description || r.notes || 'Clinical lab diagnosis chart',
+            description: r.description || r.notes || 'Clinical diagnostic chart',
             fileUrl: r.fileUrl,
           })));
         } else {
-          setRecords(mockRecords);
+          setRecords([]);
         }
       } catch (err) {
-        console.warn('Using offline medical records fallback:', err);
-        setRecords(mockRecords);
+        console.warn('Could not load medical records:', err);
+        setRecords([]);
       } finally {
         setLoading(false);
       }

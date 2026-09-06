@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Bell, Calendar, Clock, X, CreditCard, Pill, MessageSquare, RotateCcw, CheckCheck, RefreshCw } from 'lucide-react';
-import { notifications as initialNotifications } from '../data/mockData';
-import type { Notification } from '../data/mockData';
 import { patientApi } from '../services/patient.api';
 import { Card, Button } from './ui';
 
@@ -34,14 +32,16 @@ export default function Notifications() {
     async function loadNotifications() {
       try {
         const data: any = await patientApi.listNotifications();
-        if (data && (Array.isArray(data) && data.length > 0)) {
+        if (data && Array.isArray(data)) {
           setNotifs(data);
+        } else if (data?.data && Array.isArray(data.data)) {
+          setNotifs(data.data);
         } else {
-          setNotifs(initialNotifications);
+          setNotifs([]);
         }
       } catch (err) {
-        console.warn('Using offline notifications fallback:', err);
-        setNotifs(initialNotifications);
+        console.warn('Notifications load error:', err);
+        setNotifs([]);
       } finally {
         setLoading(false);
       }
