@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import {
   useAuth,
+  useAuthStore,
   Role,
   normalizeBackendRole,
   toBackendRole,
@@ -200,9 +201,18 @@ function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTarget = searchParams?.get("redirect");
-  const { login } = useAuth();
+  const login = useAuthStore((s) => s.login);
 
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [selectedRole, setSelectedRole] = useState<Role | null>(() => {
+    if (typeof window !== "undefined") {
+      const urlRole = new URLSearchParams(window.location.search).get("role") as Role;
+      if (urlRole && roles.some((r) => r.id === urlRole)) return urlRole;
+      const saved = localStorage.getItem("medcare.selected_role") as Role;
+      if (saved && roles.some((r) => r.id === saved)) return saved;
+    }
+    return null;
+  });
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -211,6 +221,16 @@ function LoginPageContent() {
   const handleRoleSelect = (roleId: Role) => {
     setSelectedRole(roleId);
     setErrorMessage(null);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("medcare.selected_role", roleId);
+        const url = new URL(window.location.href);
+        url.searchParams.set("role", roleId);
+        window.history.replaceState({}, "", url.toString());
+      } catch {
+        // Safe fallback
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -321,13 +341,23 @@ function LoginPageContent() {
         {/* Right Side: Login Card (Disabled until role selected) */}
         <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-7">
           <div className="mb-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <h2 className="text-xl font-bold text-slate-900">Sign In</h2>
-              {selectedRole && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-bold text-teal-700 border border-teal-200">
-                  {roleLabel(selectedRole)}
-                </span>
-              )}
+              <div className="flex items-center gap-1.5">
+                <select
+                  value={selectedRole || ""}
+                  onChange={(e) => handleRoleSelect(e.target.value as Role)}
+                  aria-label="Select Role"
+                  className="rounded-lg border border-teal-300 bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-900 outline-none transition focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-xs"
+                >
+                  <option value="" disabled>-- Select Role --</option>
+                  {roles.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <p className="mt-1 text-xs text-slate-500">
               {selectedRole
@@ -465,8 +495,18 @@ export function LoginPage() {
 
 function SignupPageContent() {
   const router = useRouter();
-  const { register } = useAuth();
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const register = useAuthStore((s) => s.register);
+
+  const [selectedRole, setSelectedRole] = useState<Role | null>(() => {
+    if (typeof window !== "undefined") {
+      const urlRole = new URLSearchParams(window.location.search).get("role") as Role;
+      if (urlRole && roles.some((r) => r.id === urlRole)) return urlRole;
+      const saved = localStorage.getItem("medcare.selected_role") as Role;
+      if (saved && roles.some((r) => r.id === saved)) return saved;
+    }
+    return null;
+  });
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -477,6 +517,16 @@ function SignupPageContent() {
   const handleRoleSelect = (roleId: Role) => {
     setSelectedRole(roleId);
     setErrorMessage(null);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("medcare.selected_role", roleId);
+        const url = new URL(window.location.href);
+        url.searchParams.set("role", roleId);
+        window.history.replaceState({}, "", url.toString());
+      } catch {
+        // Safe fallback
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -594,13 +644,23 @@ function SignupPageContent() {
         {/* Right Side: Signup Form Card (Disabled until role selected) */}
         <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-7">
           <div className="mb-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <h2 className="text-xl font-bold text-slate-900">Register Account</h2>
-              {selectedRole && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-bold text-teal-700 border border-teal-200">
-                  {roleLabel(selectedRole)}
-                </span>
-              )}
+              <div className="flex items-center gap-1.5">
+                <select
+                  value={selectedRole || ""}
+                  onChange={(e) => handleRoleSelect(e.target.value as Role)}
+                  aria-label="Select Role"
+                  className="rounded-lg border border-teal-300 bg-teal-50 px-2.5 py-1 text-xs font-bold text-teal-900 outline-none transition focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-xs"
+                >
+                  <option value="" disabled>-- Select Role --</option>
+                  {roles.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <p className="mt-1 text-xs text-slate-500">
               {selectedRole

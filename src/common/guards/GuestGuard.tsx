@@ -12,7 +12,11 @@ interface GuestGuardProps {
 
 export function GuestGuard({ children }: GuestGuardProps) {
   const router = useRouter();
-  const { user, role, isAuthenticated, isLoading, logout } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const role = useAuthStore((s) => s.role);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isLoading = useAuthStore((s) => s.isLoading);
+  const logout = useAuthStore((s) => s.logout);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
