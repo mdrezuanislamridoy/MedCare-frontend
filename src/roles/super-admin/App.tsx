@@ -1717,8 +1717,6 @@ function SettingsPage({ toast }: { toast: (m: string, t: ToastItem["type"]) => v
   );
 }
 
-// ─── Navigation config ────────────────────────────────────────────────────────
-
 // ─── Root App ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [page, setPage] = useState<PageId>("dashboard");
@@ -1734,6 +1732,45 @@ export default function App() {
       setPendingVerifCount(arr.length);
     }).catch(() => {});
   }, []);
+
+  const navConfig: Array<{ section: string; items: Array<{ id: PageId; label: string; icon: React.ElementType; badge?: number }> }> = [
+    {
+      section: "Core",
+      items: [
+        { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { id: "analytics", label: "Analytics", icon: BarChart2 },
+      ],
+    },
+    {
+      section: "Management",
+      items: [
+        { id: "administrators", label: "Administrators", icon: ShieldCheck },
+        { id: "doctors", label: "Doctors", icon: Stethoscope },
+        { id: "patients", label: "Patients", icon: UserCheck },
+        { id: "clinics", label: "Clinics", icon: Building2 },
+      ],
+    },
+    {
+      section: "Operations",
+      items: [
+        { id: "appointments", label: "Appointments", icon: CalendarDays },
+        { id: "payments", label: "Payments", icon: CreditCard },
+        { id: "verification", label: "Verification", icon: CheckCircle2, badge: pendingVerifCount },
+        { id: "reviews", label: "Reviews", icon: Star },
+      ],
+    },
+    {
+      section: "Administration",
+      items: [
+        { id: "roles", label: "Roles & Permissions", icon: Lock },
+        { id: "security", label: "Security", icon: Shield },
+        { id: "audit", label: "Audit Logs", icon: ClipboardList },
+        { id: "system", label: "System Health", icon: Activity },
+        { id: "notifications", label: "Broadcasts", icon: Bell },
+        { id: "settings", label: "Settings", icon: Settings },
+      ],
+    },
+  ];
 
   const addToast = (msg: string, type: ToastItem["type"] = "info") => {
     const id = toastId + 1;
