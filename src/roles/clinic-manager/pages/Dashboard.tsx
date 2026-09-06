@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Avatar, Card, Icons, PageHeader, StatCard, StatusBadge, LoadingSpinner } from "../components/ui";
+import { Avatar, Card, Icons, PageHeader, StatCard, StatusBadge } from "../components/ui";
 import { clinicManagerApi, ClinicManagerStats } from "../services/clinic-manager.api";
 
 export default function DashboardPage() {
@@ -50,8 +50,10 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" />
-        <span className="ml-3 text-slate-600">Loading dashboard data...</span>
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="mt-3 text-slate-600">Loading dashboard data...</p>
+        </div>
       </div>
     );
   }
