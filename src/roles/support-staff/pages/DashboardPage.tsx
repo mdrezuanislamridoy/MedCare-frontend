@@ -14,17 +14,15 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (page: strin
     async function loadData() {
       try {
         const [kpis, tData, aData]: any = await Promise.all([
-          supportStaffApi.getKpis().catch(() => null),
-          supportStaffApi.listTickets().catch(() => null),
-          supportStaffApi.getAppointments().catch(() => []),
+          supportStaffApi.getKpis(),
+          supportStaffApi.listTickets(),
+          supportStaffApi.getAppointments(),
         ]);
         if (kpis) setLiveKpis(kpis);
-        const tickets = Array.isArray(tData) ? tData : (tData?.data || tData?.items || []);
-        setLiveTickets(tickets);
-        const appts = Array.isArray(aData) ? aData : (aData?.data || aData?.items || []);
-        setAppointments(appts);
-      } catch (err) {
-        console.warn('Dashboard load error:', err);
+        setLiveTickets(Array.isArray(tData) ? tData : (tData?.data || tData?.items || []));
+        setAppointments(Array.isArray(aData) ? aData : (aData?.data || aData?.items || []));
+      } catch (err: any) {
+        console.error('Support staff dashboard load error:', err);
       } finally {
         setLoading(false);
       }
@@ -45,16 +43,16 @@ export default function DashboardPage({ onNavigate }: { onNavigate: (page: strin
     { label: 'Resolved Today', value: resolved, icon: '✓', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-100' },
     { label: 'Urgent Issues', value: urgent, icon: '🚨', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-100' },
     { label: 'Appointment Issues', value: apptIssues, icon: '📅', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-100' },
-    { label: 'Satisfaction Rate', value: liveKpis?.satisfactionRate ? `${liveKpis.satisfactionRate}%` : '98%', icon: '⭐', color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
+    { label: 'Satisfaction Rate', value: liveKpis?.satisfactionRate ? `${liveKpis.satisfactionRate}%` : '—', icon: '⭐', color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
   ];
 
   const priorityTickets = liveTickets.filter(t => ['urgent', 'high'].includes((t.priority || '').toLowerCase())).slice(0, 4);
   const upcomingWithSupport = appointments.filter(a => a.issueFlag || a.status === 'CANCELLED').slice(0, 4);
 
   const resolutionStats = [
-    { label: 'Avg. Resolution Time', value: liveKpis?.avgResponseTimeHours ? `${liveKpis.avgResponseTimeHours}h` : '2.4h' },
-    { label: 'First Contact Resolution', value: '72%' },
-    { label: 'Customer Satisfaction', value: liveKpis?.satisfactionRate ? `${liveKpis.satisfactionRate}%` : '98%' },
+    { label: 'Avg. Resolution Time', value: liveKpis?.avgResponseTimeHours ? `${liveKpis.avgResponseTimeHours}h` : '—' },
+    { label: 'First Contact Resolution', value: liveKpis?.firstContactResolution ? `${liveKpis.firstContactResolution}%` : '—' },
+    { label: 'Customer Satisfaction', value: liveKpis?.satisfactionRate ? `${liveKpis.satisfactionRate}%` : '—' },
     { label: 'Active Disputes', value: liveKpis?.activeDisputes ?? 0 },
   ];
 

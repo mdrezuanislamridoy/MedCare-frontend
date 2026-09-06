@@ -1,5 +1,5 @@
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  process.env.NEXT_PUBLIC_API_URL || 'https://medcare-backend.onrender.com';
 
 export class ApiError extends Error {
   statusCode: number;
@@ -33,6 +33,11 @@ export async function apiClient<T = any>(
 
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${cleanEndpoint}`;
+
+  // Debug logging in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`API Request: ${url}`, { headers, options });
+  }
 
   try {
     const response = await fetch(url, {
@@ -75,8 +80,16 @@ export async function apiClient<T = any>(
     if (error instanceof ApiError) {
       throw error;
     }
+    // Enhanced error logging
+    console.error('API Client Error:', {
+      url,
+      error: error?.message,
+      apiBaseUrl: API_BASE_URL,
+      endpoint: cleanEndpoint,
+    });
+    
     throw new ApiError(
-      error?.message || 'Network error: Failed to connect to server',
+      error?.message || `Network error: Failed to connect to server at ${API_BASE_URL}`,
       0,
     );
   }

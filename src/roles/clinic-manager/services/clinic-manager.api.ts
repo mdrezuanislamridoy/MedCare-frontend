@@ -7,6 +7,9 @@ export interface ClinicManagerStats {
   occupancyRate: number;
   revenueThisMonth: number;
   staffOnDuty: number;
+  completedToday: number;
+  cancelledToday: number;
+  pendingVisits: number;
 }
 
 export const clinicManagerApi = {

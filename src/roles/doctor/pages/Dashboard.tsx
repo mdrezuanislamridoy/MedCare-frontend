@@ -17,20 +17,11 @@ import StatusBadge from "../components/StatusBadge";
 import { useAuthStore } from "../../../common/stores/auth.store";
 import { doctorApi, DoctorDashboardData } from "../services/doctor.api";
 
-const emptyEarningsChart = [
-  { day: "Mon", earnings: 0 },
-  { day: "Tue", earnings: 0 },
-  { day: "Wed", earnings: 0 },
-  { day: "Thu", earnings: 0 },
-  { day: "Fri", earnings: 0 },
-  { day: "Sat", earnings: 0 },
-  { day: "Sun", earnings: 0 },
-];
-
 export default function Dashboard() {
   const { user } = useAuthStore();
   const [liveData, setLiveData] = useState<DoctorDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const now = new Date();
   const currentHour = now.getHours();
@@ -41,8 +32,9 @@ export default function Dashboard() {
       try {
         const data = await doctorApi.getDashboardSummary();
         setLiveData(data);
-      } catch (err) {
-        console.warn("Using offline mock summary for doctor dashboard:", err);
+      } catch (err: any) {
+        console.error("Doctor dashboard load error:", err);
+        setError(err?.message || "Failed to load dashboard.");
       } finally {
         setLoading(false);
       }
@@ -50,9 +42,9 @@ export default function Dashboard() {
     loadDashboard();
   }, []);
 
-  const doctorName = liveData?.profile?.name || user?.name || "Doctor";
-  const clinicName = liveData?.profile?.clinicName || "MedCare Health Center";
-  const roomNumber = liveData?.profile?.roomNumber || "Consultation Room";
+  const doctorName = liveData?.profile?.name || user?.name || "";
+  const clinicName = liveData?.profile?.clinicName || "";
+  const roomNumber = liveData?.profile?.roomNumber || "";
 
   const todayCount = liveData?.stats?.todayAppointments ?? 0;
   const completedCount = liveData?.stats?.completedToday ?? 0;
@@ -64,42 +56,62 @@ export default function Dashboard() {
   const totalReviews = liveData?.profile?.reviewCount ?? liveData?.stats?.totalReviews ?? 0;
 
   const kpiCards = [
-    { label: "Today's Consults", value: String(todayCount), sub: `${pendingToday} pending`, icon: Calendar, color: "bg-teal-500", light: "bg-teal-50 dark:bg-teal-950/40", text: "text-teal-600 dark:text-teal-400" },
-    { label: "Completed Today", value: String(completedCount), sub: "Recorded in EHR", icon: CheckCircle, color: "bg-green-500", light: "bg-green-50 dark:bg-green-950/40", text: "text-green-600 dark:text-green-400" },
-    { label: "Pending in Queue", value: String(pendingToday), sub: "Needs chart", icon: AlertCircle, color: "bg-amber-500", light: "bg-amber-50 dark:bg-amber-950/40", text: "text-amber-600 dark:text-amber-400" },
-    { label: "Today's Revenue", value: `$${todayEarnings.toLocaleString()}`, sub: "Consultation fees", icon: DollarSign, color: "bg-emerald-500", light: "bg-emerald-50 dark:bg-emerald-950/40", text: "text-emerald-600 dark:text-emerald-400" },
-    { label: "Total Patients", value: String(totalPatients), sub: "Patient records", icon: Users, color: "bg-indigo-500", light: "bg-indigo-50 dark:bg-indigo-950/40", text: "text-indigo-600 dark:text-indigo-400" },
-    { label: "Total Revenue", value: `$${totalEarnings.toLocaleString()}`, sub: "Settled payouts", icon: DollarSign, color: "bg-purple-500", light: "bg-purple-50 dark:bg-purple-950/40", text: "text-purple-600 dark:text-purple-400" },
-    { label: "Avg. Rating", value: String(rating), sub: `From ${totalReviews} reviews`, icon: Star, color: "bg-orange-500", light: "bg-orange-50 dark:bg-orange-950/40", text: "text-orange-600 dark:text-orange-400" },
+    { label: "Today's Consults", value: String(todayCount), sub: `${pendingToday} pending`, icon: Calendar, light: "bg-teal-50 dark:bg-teal-950/40", text: "text-teal-600 dark:text-teal-400" },
+    { label: "Completed Today", value: String(completedCount), sub: "Recorded in EHR", icon: CheckCircle, light: "bg-green-50 dark:bg-green-950/40", text: "text-green-600 dark:text-green-400" },
+    { label: "Pending in Queue", value: String(pendingToday), sub: "Needs chart", icon: AlertCircle, light: "bg-amber-50 dark:bg-amber-950/40", text: "text-amber-600 dark:text-amber-400" },
+    { label: "Today's Revenue", value: `$${todayEarnings.toLocaleString()}`, sub: "Consultation fees", icon: DollarSign, light: "bg-emerald-50 dark:bg-emerald-950/40", text: "text-emerald-600 dark:text-emerald-400" },
+    { label: "Total Patients", value: String(totalPatients), sub: "Patient records", icon: Users, light: "bg-indigo-50 dark:bg-indigo-950/40", text: "text-indigo-600 dark:text-indigo-400" },
+    { label: "Total Revenue", value: `$${totalEarnings.toLocaleString()}`, sub: "Settled payouts", icon: DollarSign, light: "bg-purple-50 dark:bg-purple-950/40", text: "text-purple-600 dark:text-purple-400" },
+    { label: "Avg. Rating", value: String(rating), sub: `From ${totalReviews} reviews`, icon: Star, light: "bg-orange-50 dark:bg-orange-950/40", text: "text-orange-600 dark:text-orange-400" },
   ];
 
-  const rawQueue = liveData?.todayQueue?.length ? liveData.todayQueue : (liveData?.upcomingAppointments?.length ? liveData.upcomingAppointments : []);
+  const rawQueue = liveData?.todayQueue?.length ? liveData.todayQueue : (liveData?.upcomingAppointments ?? []);
   const displayAppointments = rawQueue.map((apt: any, idx: number) => ({
     id: apt.id || `apt-${idx}`,
-    time: apt.time || (apt.startTime ? new Date(apt.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'),
-    patient: apt.patient?.name || (apt.patient?.user ? `${apt.patient.user.firstName} ${apt.patient.user.lastName}` : apt.patientName || 'Patient'),
-    avatar: apt.patient?.avatar || apt.avatar || '',
-    reason: apt.reason || apt.notes || 'General Consultation',
-    type: apt.type === 'online' || apt.type === 'Online' ? 'Online' : 'In-Person',
-    status: apt.status || 'confirmed',
+    time: apt.time || (apt.startTime ? new Date(apt.startTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "—"),
+    patient: apt.patient?.name || (apt.patient?.user ? `${apt.patient.user.firstName} ${apt.patient.user.lastName}` : apt.patientName || ""),
+    reason: apt.reason || apt.notes || "",
+    type: apt.type === "online" || apt.type === "Online" ? "Online" : "In-Person",
+    status: apt.status || "confirmed",
   }));
 
-  const dynamicEarningsChart = (liveData as any)?.earningsTrends?.length ? (liveData as any).earningsTrends : emptyEarningsChart;
+  const earningsChart = (liveData as any)?.earningsTrends?.length ? (liveData as any).earningsTrends : [];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-teal-600 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="mt-3 text-slate-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="animate-fade-in p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+          <p className="font-medium">Error loading dashboard</p>
+          <p className="text-sm mt-1">{error}</p>
+          <button onClick={() => window.location.reload()} className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm">Retry</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            Good {greeting}, {doctorName.startsWith("Dr.") ? doctorName : `Dr. ${doctorName}`}
+            Good {greeting}, {doctorName ? (doctorName.startsWith("Dr.") ? doctorName : `Dr. ${doctorName}`) : "Doctor"}
             <span className="inline-block animate-bounce">👋</span>
           </h1>
-          <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 mt-1 text-xs sm:text-sm">
+          <div className="flex items-center gap-3 text-slate-500 dark:text-slate-400 mt-1 text-xs sm:text-sm flex-wrap">
             <span>{now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}</span>
-            <span>·</span>
-            <span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5 text-teal-600" /> {clinicName}</span>
-            <span>·</span>
-            <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-400" /> {roomNumber}</span>
+            {clinicName && <><span>·</span><span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5 text-teal-600" /> {clinicName}</span></>}
+            {roomNumber && <><span>·</span><span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-400" /> {roomNumber}</span></>}
           </div>
         </div>
         <button className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md shadow-teal-600/20 transition-all">
@@ -147,7 +159,7 @@ export default function Dashboard() {
                   </div>
                   <div className="w-px h-10 bg-slate-200 dark:bg-slate-800" />
                   <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center text-xs font-bold text-teal-700 dark:text-teal-300 flex-shrink-0">
-                    {apt.patient.split(" ")[0]?.[0] || "P"}
+                    {apt.patient ? apt.patient.split(" ")[0]?.[0] || "P" : "P"}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-slate-900 dark:text-white text-sm truncate">{apt.patient}</div>
@@ -173,35 +185,31 @@ export default function Dashboard() {
           <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <h2 className="font-bold text-slate-900 dark:text-white">Earnings Ledger</h2>
             <span className="text-xs bg-green-50 dark:bg-green-950/40 text-green-600 dark:text-green-400 px-2 py-1 rounded-full font-medium flex items-center gap-1">
-              <ArrowUp className="w-3 h-3" /> 8.2%
+              <ArrowUp className="w-3 h-3" /> {(liveData as any)?.stats?.earningsGrowth ? `${(liveData as any).stats.earningsGrowth}%` : "—"}
             </span>
           </div>
           <div className="px-5 pt-4 pb-2">
             <div className="text-3xl font-bold text-slate-900 dark:text-white">${totalEarnings.toLocaleString()}</div>
             <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total processed consultation earnings</div>
             <div className="mt-4 h-36">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={dynamicEarningsChart} margin={{ top: 2, right: 4, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="earningsGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0d9488" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#0f172a",
-                      borderColor: "#334155",
-                      borderRadius: "12px",
-                      color: "#fff",
-                      fontSize: "12px",
-                    }}
-                  />
-                  <Area type="monotone" dataKey="amount" stroke="#0d9488" strokeWidth={2} fill="url(#earningsGrad)" />
-                </AreaChart>
-              </ResponsiveContainer>
+              {earningsChart.length === 0 ? (
+                <div className="h-full flex items-center justify-center text-xs text-slate-400">No earnings data yet</div>
+              ) : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={earningsChart} margin={{ top: 2, right: 4, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="earningsGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#0d9488" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
+                    <Tooltip contentStyle={{ backgroundColor: "#0f172a", borderColor: "#334155", borderRadius: "12px", color: "#fff", fontSize: "12px" }} />
+                    <Area type="monotone" dataKey="amount" stroke="#0d9488" strokeWidth={2} fill="url(#earningsGrad)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </div>
         </div>

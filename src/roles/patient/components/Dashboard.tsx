@@ -24,8 +24,8 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
       try {
         const data = await patientApi.getDashboardSummary();
         setLiveData(data);
-      } catch (err) {
-        console.warn('Patient dashboard API unavailable:', err);
+      } catch (err: any) {
+        console.error('Patient dashboard load error:', err);
       } finally {
         setLoading(false);
       }
@@ -40,8 +40,8 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
   const upcomingCount = liveData?.stats?.upcomingAppointments ?? upcomingAppts.length;
   const displayPrescriptions = liveData?.recentPrescriptions ?? [];
 
-  const displayName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.name || user.email : "Patient";
-  const firstName = displayName.split(' ')[0] || 'Patient';
+  const displayName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.name || user.email : "";
+  const firstName = displayName.split(' ')[0] || '';
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -49,7 +49,7 @@ export default function Dashboard({ onNavigate }: { onNavigate: (p: Page, extra?
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="font-patient text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-            Welcome back, {firstName} <span className="inline-block animate-bounce">👋</span>
+            Welcome back{firstName ? `, ${firstName}` : ''} <span className="inline-block animate-bounce">👋</span>
           </h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
             Your unified MedCare patient health portal.
