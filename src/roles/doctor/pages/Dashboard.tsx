@@ -75,6 +75,8 @@ export default function Dashboard() {
     status: apt.status || 'confirmed',
   })) : todayAppointments;
 
+  const dynamicEarningsChart = (liveData as any)?.earningsTrends?.length ? (liveData as any).earningsTrends : earningsData.chartData;
+
   return (
     <div className="animate-fade-in space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -160,7 +162,7 @@ export default function Dashboard() {
             <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Total processed consultation earnings</div>
             <div className="mt-4 h-36">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={earningsData.chartData} margin={{ top: 2, right: 4, left: -20, bottom: 0 }}>
+                <AreaChart data={dynamicEarningsChart} margin={{ top: 2, right: 4, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="earningsGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#0d9488" stopOpacity={0.25} />

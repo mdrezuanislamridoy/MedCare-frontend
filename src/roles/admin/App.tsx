@@ -205,16 +205,27 @@ function DashboardView() {
     loadStats();
   }, []);
 
+  const totalDocs = summary?.totalDoctors ?? summary?.kpis?.totalDoctors;
+  const totalPts = summary?.totalPatients ?? summary?.kpis?.totalPatients;
+  const totalCln = summary?.totalClinics ?? summary?.activeClinics ?? summary?.kpis?.totalClinics;
+  const todayAppts = summary?.todayAppointments ?? summary?.kpis?.todayAppointments;
+  const upcomingAppts = summary?.upcomingAppointments ?? summary?.kpis?.upcomingAppointments;
+  const verifs = summary?.pendingVerifications ?? summary?.kpis?.pendingVerifications;
+  const rev = summary?.totalRevenue ?? summary?.kpis?.totalRevenue;
+
   const kpis = [
-    { label: "Total Doctors", value: summary?.totalDoctors ? `${summary.totalDoctors}` : "284", change: "+12", up: true, icon: Users, bg: "bg-teal-50", ic: "text-teal-600" },
-    { label: "Total Patients", value: summary?.totalPatients ? `${summary.totalPatients.toLocaleString()}` : "12,847", change: "+234", up: true, icon: User, bg: "bg-indigo-50", ic: "text-indigo-600" },
-    { label: "Total Clinics", value: summary?.activeClinics ? `${summary.activeClinics}` : "47", change: "+2", up: true, icon: Building2, bg: "bg-violet-50", ic: "text-violet-600" },
-    { label: "Today's Appointments", value: summary?.totalAppointments ? `${summary.totalAppointments}` : "183", change: "+18", up: true, icon: Calendar, bg: "bg-emerald-50", ic: "text-emerald-600" },
-    { label: "Upcoming Appointments", value: "412", change: "-8", up: false, icon: Clock, bg: "bg-sky-50", ic: "text-sky-600" },
+    { label: "Total Doctors", value: totalDocs !== undefined ? `${Number(totalDocs).toLocaleString()}` : "284", change: "+12", up: true, icon: Users, bg: "bg-teal-50", ic: "text-teal-600" },
+    { label: "Total Patients", value: totalPts !== undefined ? `${Number(totalPts).toLocaleString()}` : "12,847", change: "+234", up: true, icon: User, bg: "bg-indigo-50", ic: "text-indigo-600" },
+    { label: "Total Clinics", value: totalCln !== undefined ? `${Number(totalCln).toLocaleString()}` : "47", change: "+2", up: true, icon: Building2, bg: "bg-violet-50", ic: "text-violet-600" },
+    { label: "Today's Appointments", value: todayAppts !== undefined ? `${Number(todayAppts).toLocaleString()}` : "183", change: "+18", up: true, icon: Calendar, bg: "bg-emerald-50", ic: "text-emerald-600" },
+    { label: "Upcoming Appointments", value: upcomingAppts !== undefined ? `${Number(upcomingAppts).toLocaleString()}` : "412", change: "-8", up: false, icon: Clock, bg: "bg-sky-50", ic: "text-sky-600" },
     { label: "Completed Total", value: "8,934", change: "+156", up: true, icon: CheckCircle, bg: "bg-teal-50", ic: "text-teal-600" },
-    { label: "Pending Verifications", value: summary?.pendingVerifications ? `${summary.pendingVerifications}` : "4", change: "+1", up: false, icon: AlertCircle, bg: "bg-amber-50", ic: "text-amber-600" },
-    { label: "Total Revenue", value: summary?.totalRevenue ? `$${summary.totalRevenue.toLocaleString()}` : "$24,680", change: "+$3,210", up: true, icon: DollarSign, bg: "bg-green-50", ic: "text-green-600" },
+    { label: "Pending Verifications", value: verifs !== undefined ? `${Number(verifs).toLocaleString()}` : "4", change: "+1", up: false, icon: AlertCircle, bg: "bg-amber-50", ic: "text-amber-600" },
+    { label: "Total Revenue", value: rev !== undefined ? `$${Number(rev).toLocaleString()}` : "$24,680", change: "+$3,210", up: true, icon: DollarSign, bg: "bg-green-50", ic: "text-green-600" },
   ];
+
+  const dynamicApptTrends = summary?.appointmentTrends?.length ? summary.appointmentTrends : appointmentTrends;
+  const dynamicRevTrends = summary?.revenueTrends?.length ? summary.revenueTrends : revenueTrends;
 
   return (
     <div className="space-y-5">
@@ -256,7 +267,7 @@ function DashboardView() {
             </div>
           </div>
           <ResponsiveContainer width="100%" height={190}>
-            <AreaChart data={appointmentTrends}>
+            <AreaChart data={dynamicApptTrends}>
               <defs>
                 <linearGradient id="gCompleted" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.12} />
@@ -282,7 +293,7 @@ function DashboardView() {
             </div>
           </div>
           <ResponsiveContainer width="100%" height={190}>
-            <BarChart data={revenueTrends} barSize={16} barGap={3}>
+            <BarChart data={dynamicRevTrends} barSize={16} barGap={3}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 11, fill: "#94a3b8" }} axisLine={false} tickLine={false} tickFormatter={(v) => `$${v / 1000}k`} width={36} />

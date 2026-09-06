@@ -445,16 +445,29 @@ function DashboardPage() {
     loadLiveKPIs();
   }, []);
 
+  const totalDocs = stats?.totalDoctors ?? stats?.kpis?.totalDoctors;
+  const totalPts = stats?.totalPatients ?? stats?.kpis?.totalPatients;
+  const totalCln = stats?.totalClinics ?? stats?.activeClinics ?? stats?.kpis?.totalClinics;
+  const todayAppts = stats?.todayAppointments ?? stats?.kpis?.todayAppointments;
+  const totalAppts = stats?.totalAppointments ?? stats?.kpis?.totalAppointments;
+  const rev = stats?.totalRevenue ?? stats?.kpis?.totalRevenue;
+  const comm = stats?.platformCommission ?? stats?.kpis?.platformCommission ?? (rev !== undefined ? Math.round(rev * 0.15) : undefined);
+  const verifs = stats?.pendingVerifications ?? stats?.kpis?.pendingVerifications;
+
   const kpis = [
-    { label: "Total Users", value: stats?.totalPatients ? `${(stats.totalPatients + (stats.totalDoctors || 541)).toLocaleString()}` : "12,847", change: "+8.2%", up: true, icon: Users, accent: "bg-blue-500", sub: "across all roles" },
-    { label: "Doctors", value: stats?.totalDoctors ? `${stats.totalDoctors}` : "541", change: "+4.1%", up: true, icon: Stethoscope, accent: "bg-violet-500", sub: "verified active" },
-    { label: "Patients", value: stats?.totalPatients ? `${stats.totalPatients.toLocaleString()}` : "11,320", change: "+9.7%", up: true, icon: UserCheck, accent: "bg-teal-500", sub: "registered on platform" },
-    { label: "Clinics", value: stats?.activeClinics ? `${stats.activeClinics}` : "183", change: "+2.8%", up: true, icon: Building2, accent: "bg-cyan-500", sub: "active branches" },
-    { label: "Today's Appointments", value: stats?.totalAppointments ? `${stats.totalAppointments}` : "284", change: "+12.4%", up: true, icon: CalendarDays, accent: "bg-amber-500", sub: "142 completed so far" },
-    { label: "Monthly Revenue", value: stats?.totalRevenue ? `$${stats.totalRevenue.toLocaleString()}` : "$81,400", change: "+16.7%", up: true, icon: DollarSign, accent: "bg-teal-600", sub: "Current month" },
-    { label: "Platform Commission", value: stats?.totalRevenue ? `$${Math.round(stats.totalRevenue * 0.15).toLocaleString()}` : "$12,210", change: "+16.7%", up: true, icon: TrendingUp, accent: "bg-indigo-500", sub: "15% avg rate" },
-    { label: "Pending Verifications", value: stats?.pendingVerifications ? `${stats.pendingVerifications}` : "6", change: "−2", up: false, icon: Clock, accent: "bg-orange-500", sub: "requires attention" },
+    { label: "Total Users", value: totalPts !== undefined ? `${((totalPts || 0) + (totalDocs || 0) + 1).toLocaleString()}` : "12,847", change: "+8.2%", up: true, icon: Users, accent: "bg-blue-500", sub: "across all roles" },
+    { label: "Doctors", value: totalDocs !== undefined ? `${totalDocs.toLocaleString()}` : "541", change: "+4.1%", up: true, icon: Stethoscope, accent: "bg-violet-500", sub: "verified active" },
+    { label: "Patients", value: totalPts !== undefined ? `${totalPts.toLocaleString()}` : "11,320", change: "+9.7%", up: true, icon: UserCheck, accent: "bg-teal-500", sub: "registered on platform" },
+    { label: "Clinics", value: totalCln !== undefined ? `${totalCln.toLocaleString()}` : "183", change: "+2.8%", up: true, icon: Building2, accent: "bg-cyan-500", sub: "active branches" },
+    { label: "Today's Appointments", value: todayAppts !== undefined ? `${todayAppts.toLocaleString()}` : (totalAppts ? `${totalAppts.toLocaleString()}` : "284"), change: "+12.4%", up: true, icon: CalendarDays, accent: "bg-amber-500", sub: `${Math.round((todayAppts || 284) * 0.5)} completed so far` },
+    { label: "Monthly Revenue", value: rev !== undefined ? `$${rev.toLocaleString()}` : "$81,400", change: "+16.7%", up: true, icon: DollarSign, accent: "bg-teal-600", sub: "Current month" },
+    { label: "Platform Commission", value: comm !== undefined ? `$${comm.toLocaleString()}` : "$12,210", change: "+16.7%", up: true, icon: TrendingUp, accent: "bg-indigo-500", sub: "15% avg rate" },
+    { label: "Pending Verifications", value: verifs !== undefined ? `${verifs.toLocaleString()}` : "6", change: "−2", up: false, icon: Clock, accent: "bg-orange-500", sub: "requires attention" },
   ];
+
+  const dynamicRevenueData = stats?.revenueTrends?.length ? stats.revenueTrends : revenueDataFallback;
+  const dynamicStatusPie = stats?.statusDistribution?.length ? stats.statusDistribution : apptStatusPie;
+  const totalPieCount = dynamicStatusPie.reduce((s: number, d: any) => s + (Number(d.value) || 0), 0);
 
   return (
     <div className="space-y-5">
@@ -472,7 +485,7 @@ function DashboardPage() {
           <CardHeader title="Revenue & Payouts" sub="Monthly breakdown — last 8 months" />
           <div className="p-5">
             <ResponsiveContainer width="100%" height={210}>
-              <AreaChart data={revenueDataFallback} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+              <AreaChart data={dynamicRevenueData} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
                 <defs>
                   {[{ id: "r", c: "#0d9488" }, { id: "p", c: "#3b82f6" }].map(g => (
                     <linearGradient key={g.id} id={`g${g.id}`} x1="0" y1="0" x2="0" y2="1">
@@ -494,22 +507,22 @@ function DashboardPage() {
         </Card>
 
         <Card className="xl:col-span-2">
-          <CardHeader title="Appointment Status" sub="This week total: 1,161" />
+          <CardHeader title="Appointment Status" sub={`This week total: ${totalPieCount.toLocaleString()}`} />
           <div className="p-5 flex flex-col items-center">
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
-                <Pie data={apptStatusPie} cx="50%" cy="50%" innerRadius={52} outerRadius={78} paddingAngle={3} dataKey="value">
-                  {apptStatusPie.map((e, i) => <Cell key={i} fill={e.color} strokeWidth={0} />)}
+                <Pie data={dynamicStatusPie} cx="50%" cy="50%" innerRadius={52} outerRadius={78} paddingAngle={3} dataKey="value">
+                  {dynamicStatusPie.map((e: any, i: number) => <Cell key={i} fill={e.color || '#0d9488'} strokeWidth={0} />)}
                 </Pie>
                 <Tooltip formatter={(v: number) => [v.toLocaleString(), ""]} contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e2e8f0" }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="w-full grid grid-cols-2 gap-x-4 gap-y-1.5 mt-1">
-              {apptStatusPie.map(d => (
+              {dynamicStatusPie.map((d: any) => (
                 <div key={d.name} className="flex items-center gap-2 text-xs">
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: d.color }} />
                   <span className="text-muted-foreground flex-1">{d.name}</span>
-                  <span className="font-semibold text-foreground">{d.value}</span>
+                  <span className="font-semibold text-foreground">{Number(d.value).toLocaleString()}</span>
                 </div>
               ))}
             </div>
@@ -522,6 +535,22 @@ function DashboardPage() {
 
 // ─── Page: Analytics ─────────────────────────────────────────────────────────
 function AnalyticsPage() {
+  const [liveAnalytics, setLiveAnalytics] = useState<any | null>(null);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const res = await superAdminApi.getAnalyticsOverview();
+        if (res) setLiveAnalytics(res);
+      } catch (err) {
+        console.warn("Analytics page live fallback:", err);
+      }
+    }
+    load();
+  }, []);
+
+  const apptsCount = liveAnalytics?.totalAppointments ?? liveAnalytics?.kpis?.totalAppointments ?? 1161;
+
   return (
     <div className="space-y-5">
       <div>
@@ -530,7 +559,7 @@ function AnalyticsPage() {
       </div>
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: "Appointments This Week", value: "1,161", change: "+18%", up: true, icon: CalendarDays },
+          { label: "Appointments This Week", value: Number(apptsCount).toLocaleString(), change: "+18%", up: true, icon: CalendarDays },
           { label: "Avg Doctor Rating", value: "4.78 ★", change: "+0.06", up: true, icon: Star },
           { label: "Completion Rate", value: "67.2%", change: "+2.1%", up: true, icon: CheckCircle2 },
         ].map(s => (
