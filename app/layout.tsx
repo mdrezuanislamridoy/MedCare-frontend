@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ThemeProvider from "../src/ThemeProvider";
 import { AuthProvider } from "../src/common/context/AuthContext";
+import { ToastProvider } from "../src/common/context/ToastContext";
 import "../src/styles.css";
 
 export const metadata: Metadata = {
@@ -16,11 +17,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="light" style={{ colorScheme: "light" }} suppressHydrationWarning>
       <body className="bg-slate-50 text-slate-900 antialiased font-sans">
-        <AuthProvider>
-          <ThemeProvider>
-            {children}
-          </ThemeProvider>
-        </AuthProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <ThemeProvider>
+              {children}
+            </ThemeProvider>
+          </AuthProvider>
+        </ToastProvider>
       </body>
     </html>
   );

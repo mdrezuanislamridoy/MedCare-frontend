@@ -29,6 +29,7 @@ import {
   toBackendRole,
   getRoleRoute,
 } from "./common/context/AuthContext";
+import { useToast } from "./common/context/ToastContext";
 import SuperAdminApp from "./roles/super-admin/App";
 import AdminApp from "./roles/admin/App";
 import ClinicManagerApp from "./roles/clinic-manager/App";
@@ -233,10 +234,14 @@ function LoginPageContent() {
     }
   };
 
+  const toast = useToast();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRole) {
-      setErrorMessage("Please select a role on the left before signing in.");
+      const msg = "Please select a role on the left before signing in.";
+      setErrorMessage(msg);
+      toast.warning(msg, "Role Required");
       return;
     }
     setErrorMessage(null);
@@ -244,14 +249,16 @@ function LoginPageContent() {
 
     try {
       const user = await login({ email: email.trim(), password });
+      toast.success(`Signed in successfully as ${user.name || user.email}`, "Welcome Back");
       const target =
         redirectTarget || getRoleRoute(normalizeBackendRole(user.role));
       router.push(target);
     } catch (err: any) {
-      setErrorMessage(
+      const msg =
         err?.message ||
-          "Invalid credentials. Please verify your email and password.",
-      );
+        "Invalid credentials. Please verify your email and password.";
+      setErrorMessage(msg);
+      toast.error(msg, "Sign In Failed");
     } finally {
       setLoading(false);
     }
@@ -529,10 +536,14 @@ function SignupPageContent() {
     }
   };
 
+  const toast = useToast();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedRole) {
-      setErrorMessage("Please select a role on the left before registering.");
+      const msg = "Please select a role on the left before registering.";
+      setErrorMessage(msg);
+      toast.warning(msg, "Role Required");
       return;
     }
     setErrorMessage(null);
@@ -547,14 +558,19 @@ function SignupPageContent() {
       });
 
       setSuccess(true);
+      toast.success(
+        `Account created successfully for ${roleLabel(selectedRole)}! Redirecting to workspace...`,
+        "Registration Successful",
+      );
       setTimeout(() => {
         const target = getRoleRoute(normalizeBackendRole(user.role));
         router.push(target);
       }, 1200);
     } catch (err: any) {
-      setErrorMessage(
-        err?.message || "Registration failed. Please verify your details.",
-      );
+      const msg =
+        err?.message || "Registration failed. Please verify your details.";
+      setErrorMessage(msg);
+      toast.error(msg, "Registration Failed");
     } finally {
       setLoading(false);
     }
@@ -802,6 +818,7 @@ function ForgotPasswordPageContent() {
   const defaultEmail = searchParams?.get("email") || "";
 
   const { forgotPassword } = useAuth();
+  const toast = useToast();
   const [email, setEmail] = useState(defaultEmail);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -815,13 +832,13 @@ function ForgotPasswordPageContent() {
 
     try {
       const res = await forgotPassword(email.trim());
-      setSuccessMessage(
-        res?.message || "Password reset code issued. Please check your email inbox for your 6-digit code.",
-      );
+      const msg = res?.message || "Password reset code issued. Please check your email inbox for your 6-digit code.";
+      setSuccessMessage(msg);
+      toast.success(msg, "Reset Code Sent");
     } catch (err: any) {
-      setErrorMessage(
-        err?.message || "Failed to issue password reset code. Please check the email address.",
-      );
+      const msg = err?.message || "Failed to issue password reset code. Please check the email address.";
+      setErrorMessage(msg);
+      toast.error(msg, "Reset Error");
     } finally {
       setLoading(false);
     }
@@ -854,17 +871,14 @@ function ForgotPasswordPageContent() {
 
           {successMessage ? (
             <div className="space-y-4">
-              <div className="flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-800">
-                <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600 mt-0.5" />
-                <div>
-                  <div className="font-semibold text-slate-900">Verification Code Sent</div>
-                  <div className="mt-1 leading-relaxed">{successMessage}</div>
-                </div>
+              <div className="flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-800">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
+                <span>{successMessage}</span>
               </div>
 
               <Link
                 href={`/reset-password?email=${encodeURIComponent(email.trim())}`}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-xs sm:text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700"
               >
                 Enter 6-Digit Code <ArrowRight className="h-4 w-4" />
               </Link>
@@ -872,7 +886,7 @@ function ForgotPasswordPageContent() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address</label>
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Account Email</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
@@ -881,7 +895,7 @@ function ForgotPasswordPageContent() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                   />
                 </div>
               </div>
@@ -889,7 +903,7 @@ function ForgotPasswordPageContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-xs sm:text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:opacity-50"
               >
                 {loading ? (
                   <>
@@ -935,6 +949,7 @@ function ResetPasswordPageContent() {
   const defaultEmail = searchParams?.get("email") || "";
 
   const { resetPassword } = useAuth();
+  const toast = useToast();
   const [email, setEmail] = useState(defaultEmail);
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
@@ -948,12 +963,16 @@ function ResetPasswordPageContent() {
     setErrorMessage(null);
 
     if (password.length < 8) {
-      setErrorMessage("Password must be at least 8 characters long.");
+      const msg = "Password must be at least 8 characters long.";
+      setErrorMessage(msg);
+      toast.warning(msg, "Password Policy");
       return;
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match. Please re-enter.");
+      const msg = "Passwords do not match. Please re-enter.";
+      setErrorMessage(msg);
+      toast.warning(msg, "Mismatch");
       return;
     }
 
@@ -967,13 +986,14 @@ function ResetPasswordPageContent() {
       });
 
       setSuccess(true);
+      toast.success("Password reset successfully! Redirecting to login...", "Success");
       setTimeout(() => {
         router.push("/login");
       }, 1500);
     } catch (err: any) {
-      setErrorMessage(
-        err?.message || "Password reset failed. Please verify the code and try again.",
-      );
+      const msg = err?.message || "Password reset failed. Please verify the code and try again.";
+      setErrorMessage(msg);
+      toast.error(msg, "Reset Failed");
     } finally {
       setLoading(false);
     }
