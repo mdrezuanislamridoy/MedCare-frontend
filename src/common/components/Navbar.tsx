@@ -12,7 +12,7 @@ import {
   ChevronDownIcon,
   ShieldIcon,
 } from 'lucide-react';
-import { useAuthStore } from '../stores/auth.store';
+import { useAuthStore, getRoleRoute } from '../stores/auth.store';
 
 const links = [
   { label: 'Find Doctors', href: '#doctors' },
@@ -32,25 +32,7 @@ export function Navbar() {
     initialize();
   }, [initialize]);
 
-  const getDashboardPath = () => {
-    switch (role) {
-      case 'doctor':
-        return '/doctor';
-      case 'admin':
-        return '/admin';
-      case 'super-admin':
-        return '/super-admin';
-      case 'clinic-manager':
-        return '/clinic-manager';
-      case 'receptionist':
-        return '/receptionist';
-      case 'support-staff':
-        return '/support-staff';
-      case 'patient':
-      default:
-        return '/patient';
-    }
-  };
+  const getDashboardPath = () => getRoleRoute(role);
 
   const getRoleDisplayName = () => {
     switch (role) {

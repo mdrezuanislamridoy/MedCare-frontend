@@ -31,9 +31,8 @@ export async function apiClient<T = any>(
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const url = endpoint.startsWith('http')
-    ? endpoint
-    : `${API_BASE_URL}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${cleanEndpoint}`;
 
   try {
     const response = await fetch(url, {
@@ -45,6 +44,22 @@ export async function apiClient<T = any>(
     const data = isJson ? await response.json() : await response.text();
 
     if (!response.ok) {
+      // Handle 401 Unauthorized: token expired or invalid
+      if (
+        response.status === 401 &&
+        typeof window !== 'undefined' &&
+        !cleanEndpoint.includes('/auth/login') &&
+        !cleanEndpoint.includes('/auth/register') &&
+        !cleanEndpoint.includes('/auth/google') &&
+        !cleanEndpoint.includes('/auth/forgot-password') &&
+        !cleanEndpoint.includes('/auth/reset-password')
+      ) {
+        localStorage.removeItem('medcare.accessToken');
+        localStorage.removeItem('medcare.user');
+        localStorage.removeItem('medcare-auth-storage');
+        window.dispatchEvent(new CustomEvent('medcare:unauthorized'));
+      }
+
       const errorMessage =
         typeof data === 'object' && data !== null && (data.message || data.error)
           ? Array.isArray(data.message)

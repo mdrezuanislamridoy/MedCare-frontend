@@ -2,7 +2,13 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { authService, UserProfile, LoginPayload, RegisterPayload } from '../services/auth.service';
+import {
+  authService,
+  UserProfile,
+  LoginPayload,
+  RegisterPayload,
+  ResetPasswordPayload,
+} from '../services/auth.service';
 
 export type Role =
   | 'patient'
@@ -12,6 +18,20 @@ export type Role =
   | 'receptionist'
   | 'clinic-manager'
   | 'support-staff';
+
+export const ROLE_ROUTES: Record<Role, string> = {
+  patient: '/patient',
+  doctor: '/doctor',
+  receptionist: '/receptionist',
+  'support-staff': '/support-staff',
+  'clinic-manager': '/clinic-manager',
+  admin: '/admin',
+  'super-admin': '/super-admin',
+};
+
+export function getRoleRoute(role: Role): string {
+  return ROLE_ROUTES[role] || '/dashboard';
+}
 
 export function normalizeBackendRole(backendRole?: string): Role {
   if (!backendRole) return 'patient';
@@ -65,7 +85,11 @@ export interface AuthState {
 
   // Actions
   login: (payload: LoginPayload) => Promise<UserProfile>;
+  googleAuth: (idToken: string) => Promise<UserProfile>;
   register: (payload: RegisterPayload) => Promise<UserProfile>;
+  forgotPassword: (email: string) => Promise<{ message?: string; expiresInSeconds?: number }>;
+  resetPassword: (payload: ResetPasswordPayload) => Promise<{ success: boolean; message?: string }>;
+  verifySession: () => Promise<boolean>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
   switchDemoRole: (targetRole: Role) => void;
@@ -104,6 +128,27 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
+      googleAuth: async (idToken: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const data = await authService.googleAuth(idToken);
+          const role = normalizeBackendRole(data.user?.role);
+          set({
+            user: data.user,
+            token: data.accessToken,
+            role,
+            isAuthenticated: true,
+            isLoading: false,
+            error: null,
+          });
+          return data.user;
+        } catch (err: any) {
+          const msg = err?.message || 'Google authentication failed.';
+          set({ error: msg, isLoading: false });
+          throw err;
+        }
+      },
+
       register: async (payload: RegisterPayload) => {
         set({ isLoading: true, error: null });
         try {
@@ -122,6 +167,41 @@ export const useAuthStore = create<AuthState>()(
           const msg = err?.message || 'Registration failed. Please try again.';
           set({ error: msg, isLoading: false });
           throw err;
+        }
+      },
+
+      forgotPassword: async (email: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          const res = await authService.forgotPassword(email);
+          set({ isLoading: false, error: null });
+          return res;
+        } catch (err: any) {
+          const msg = err?.message || 'Failed to request password reset code.';
+          set({ error: msg, isLoading: false });
+          throw err;
+        }
+      },
+
+      resetPassword: async (payload: ResetPasswordPayload) => {
+        set({ isLoading: true, error: null });
+        try {
+          const res = await authService.resetPassword(payload);
+          set({ isLoading: false, error: null });
+          return res;
+        } catch (err: any) {
+          const msg = err?.message || 'Failed to reset password.';
+          set({ error: msg, isLoading: false });
+          throw err;
+        }
+      },
+
+      verifySession: async () => {
+        try {
+          const res = await authService.verifySession();
+          return Boolean(res?.valid);
+        } catch {
+          return false;
         }
       },
 
@@ -152,6 +232,7 @@ export const useAuthStore = create<AuthState>()(
           email: `${targetRole}@medcare.com`,
           name: `${targetRole.replace('-', ' ').toUpperCase()} User`,
           role: toBackendRole(targetRole) as any,
+          isEmailVerified: true,
         };
         const demoToken = 'demo-mode-token';
         if (typeof window !== 'undefined') {
@@ -177,13 +258,21 @@ export const useAuthStore = create<AuthState>()(
           const role = normalizeBackendRole(user.role);
           set({ token, user, role, isAuthenticated: true });
 
-          // Silent background verification
+          // If in demo mode, skip server verification
+          if (token === 'demo-mode-token') {
+            return;
+          }
+
+          // Silent background verification against backend
           try {
             const profile = await authService.getCurrentUser();
             const verifiedRole = normalizeBackendRole(profile.role);
             set({ user: profile, role: verifiedRole, isAuthenticated: true });
-          } catch {
-            // Keep local cached user if offline or network error
+          } catch (err: any) {
+            // If 401 Unauthorized, token has expired
+            if (err?.statusCode === 401) {
+              get().logout();
+            }
           }
         }
       },

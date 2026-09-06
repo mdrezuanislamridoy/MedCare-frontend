@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   ShieldAlert,
   ArrowRight,
@@ -15,7 +15,7 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react";
-import { useAuthStore, Role } from "../stores/auth.store";
+import { useAuthStore, Role, getRoleRoute } from "../stores/auth.store";
 
 interface RoleGuardProps {
   children: React.ReactNode;
@@ -94,6 +94,7 @@ export function RoleGuard({
   fallback,
 }: RoleGuardProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, role, isAuthenticated, isLoading, switchDemoRole, logout } =
     useAuthStore();
   const [mounted, setMounted] = useState(false);
@@ -119,6 +120,8 @@ export function RoleGuard({
 
   // Not authenticated
   if (!isAuthenticated || !user) {
+    const loginHref = pathname ? `/login?redirect=${encodeURIComponent(pathname)}` : "/login";
+
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-white">
         <div className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900/80 p-8 text-center shadow-2xl backdrop-blur-xl">
@@ -131,7 +134,7 @@ export function RoleGuard({
           </p>
           <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:justify-center">
             <Link
-              href="/login"
+              href={loginHref}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-teal-500/25 transition hover:bg-teal-600"
             >
               Sign In <ArrowRight className="h-4 w-4" />
@@ -157,7 +160,7 @@ export function RoleGuard({
 
     const currentMeta = roleMeta[role] || roleMeta.patient;
     const targetMeta = roleMeta[allowedRoles[0]] || roleMeta.patient;
-    const myDashboardRoute = roleRoutes[role] || "/dashboard";
+    const myDashboardRoute = getRoleRoute(role);
 
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-white">
