@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { StarIcon, MapPinIcon, UsersIcon, ClockIcon, ArrowRightIcon } from 'lucide-react';
 import { Clinic, clinics as defaultClinics } from '../data/clinics';
 import { SectionHeading } from './SectionHeading';
@@ -27,9 +28,9 @@ export function ClinicsSection({
     <section id="clinics" className="bg-canvas py-20 lg:py-24 scroll-mt-12">
       <div className="mx-auto max-w-[1536px] px-6 lg:px-12">
         <SectionHeading
-          eyebrow="Clinics"
-          title="Accredited clinics and hospitals near you"
-          description="Every partner facility is inspected for accreditation, equipment standards and patient safety records."
+          eyebrow="Hospitals & Clinics"
+          title="Top-Rated Hospitals & Medical Centers Near You"
+          description="Every partner hospital and medical center is certified for clinical accreditation, advanced diagnostic facilities, and verified safety records."
         />
 
         <div className="mt-12 grid gap-6 lg:grid-cols-3">
@@ -99,6 +100,16 @@ export function ClinicsSection({
               </div>
             </article>
           ))}
+        </div>
+
+        <div className="mt-12 flex justify-center">
+          <Link
+            href="/clinics"
+            className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white px-7 py-3 text-sm font-bold text-teal-700 shadow-xs transition hover:bg-teal-50"
+          >
+            Explore All Top-Rated Hospitals & Clinics
+            <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
+          </Link>
         </div>
       </div>
 

@@ -15,12 +15,12 @@ import {
 import { useAuthStore, getRoleRoute } from '../stores/auth.store';
 
 const links = [
-  { label: 'Find Doctors', href: '#doctors' },
-  { label: 'Specialties', href: '#specialties' },
-  { label: 'Clinics', href: '#clinics' },
-  { label: 'How It Works', href: '#how-it-works' },
-  { label: 'About Us', href: '#about' },
-  { label: 'FAQ', href: '#faq' },
+  { label: 'Find Doctors', href: '/doctors' },
+  { label: 'Hospitals & Clinics', href: '/clinics' },
+  { label: 'Specialties', href: '/#specialties' },
+  { label: 'How It Works', href: '/#how-it-works' },
+  { label: 'About Us', href: '/#about' },
+  { label: 'FAQ', href: '/faq' },
 ];
 
 export function Navbar() {
@@ -61,13 +61,13 @@ export function Navbar() {
 
         <nav aria-label="Main" className="hidden items-center gap-7 xl:flex">
           {links.map((link) => (
-            <a
+            <Link
               key={link.label}
               href={link.href}
               className="text-sm font-semibold text-ink-soft transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </nav>
 
@@ -189,14 +189,14 @@ export function Navbar() {
 
           <nav aria-label="Mobile" className="flex flex-col space-y-1">
             {links.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-teal-50 hover:text-teal-700"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 

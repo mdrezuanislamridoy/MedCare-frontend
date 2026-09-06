@@ -29,7 +29,7 @@ const benefits = [
   {
     icon: BuildingIcon,
     title: 'Trusted Providers',
-    description: 'Accredited clinics and hospitals reviewed by thousands of real patients.',
+    description: 'Top-rated hospitals and accredited clinics reviewed by thousands of real patients.',
   },
   {
     icon: HeadphonesIcon,
