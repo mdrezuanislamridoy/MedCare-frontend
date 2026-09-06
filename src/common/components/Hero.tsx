@@ -66,35 +66,35 @@ export function Hero({ onSearch, onSpecialtySelect, stats = defaultStats }: Hero
           className="lg:col-span-7 flex flex-col justify-center"
         >
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-teal-50 px-4 py-2 text-sm font-bold text-teal-800 ring-1 ring-teal-200 shadow-xs">
-              <ShieldCheckIcon className="h-4.5 w-4.5 text-teal-600" aria-hidden="true" />
+            <span className="inline-flex items-center gap-2 rounded-full bg-teal-50 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-teal-800 ring-1 ring-teal-200 shadow-2xs">
+              <ShieldCheckIcon className="h-4 w-4 text-teal-600" aria-hidden="true" />
               Every doctor licence-verified
             </span>
           </div>
 
-          <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-[3.8rem] xl:text-[4.4rem]">
+          <h1 className="mt-5 font-display text-3xl font-extrabold leading-[1.12] tracking-tight text-ink sm:text-4xl lg:text-[3.2rem]">
             Find the Right Doctor. Book Your Appointment.
           </h1>
 
-          <p className="mt-6 max-w-2xl text-lg sm:text-xl lg:text-2xl leading-relaxed text-ink-soft">
+          <p className="mt-4 max-w-2xl text-base sm:text-lg leading-relaxed text-ink-soft">
             Discover verified doctors near you, compare specialists by experience, rating and fee,
             check real-time availability, and book your visit online in a couple of minutes — in
             clinic or by video.
           </p>
 
           <form
-            className="mt-10 rounded-3xl border border-teal-200/90 bg-white p-4 shadow-lift"
+            className="mt-8 rounded-2xl border border-teal-200/90 bg-white p-3.5 shadow-lift"
             onSubmit={handleSubmit}
             aria-label="Search for a doctor"
           >
-            <div className="grid gap-3 lg:grid-cols-3">
-              <div className="px-4 py-2.5">
-                <label htmlFor="search-doctor" className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-ink-muted">
+            <div className="grid gap-2.5 lg:grid-cols-3">
+              <div className="px-3.5 py-2">
+                <label htmlFor="search-doctor" className="block text-xs font-semibold uppercase tracking-wider text-ink-muted">
                   Doctor
                 </label>
-                <div className="mt-1.5 flex items-center gap-2.5">
+                <div className="mt-1 flex items-center gap-2">
                   <span className="text-teal-600">
-                    <SearchIcon className="h-5 w-5" aria-hidden="true" />
+                    <SearchIcon className="h-4.5 w-4.5" aria-hidden="true" />
                   </span>
                   <input
                     id="search-doctor"
@@ -102,24 +102,24 @@ export function Hero({ onSearch, onSpecialtySelect, stats = defaultStats }: Hero
                     value={doctorQuery}
                     onChange={(e) => setDoctorQuery(e.target.value)}
                     placeholder="Doctor name"
-                    className="w-full border-0 bg-transparent p-0 text-base font-semibold text-ink placeholder:text-ink-muted focus:outline-none focus:ring-0"
+                    className="w-full border-0 bg-transparent p-0 text-sm sm:text-base font-medium text-ink placeholder:text-ink-muted focus:outline-none focus:ring-0"
                   />
                 </div>
               </div>
 
-              <div className="px-4 py-2.5 lg:border-l lg:border-teal-100">
-                <label htmlFor="search-specialty" className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-ink-muted">
+              <div className="px-3.5 py-2 lg:border-l lg:border-teal-100">
+                <label htmlFor="search-specialty" className="block text-xs font-semibold uppercase tracking-wider text-ink-muted">
                   Specialty
                 </label>
-                <div className="mt-1.5 flex items-center gap-2.5">
+                <div className="mt-1 flex items-center gap-2">
                   <span className="text-teal-600">
-                    <StethoscopeIcon className="h-5 w-5" aria-hidden="true" />
+                    <StethoscopeIcon className="h-4.5 w-4.5" aria-hidden="true" />
                   </span>
                   <select
                     id="search-specialty"
                     value={selectedSpecialty}
                     onChange={(e) => setSelectedSpecialty(e.target.value)}
-                    className="w-full border-0 bg-transparent p-0 text-base font-semibold text-ink focus:outline-none focus:ring-0 cursor-pointer"
+                    className="w-full border-0 bg-transparent p-0 text-sm sm:text-base font-medium text-ink focus:outline-none focus:ring-0 cursor-pointer"
                   >
                     <option value="">All Specialties</option>
                     {specialties.map((s) => (
@@ -131,13 +131,13 @@ export function Hero({ onSearch, onSpecialtySelect, stats = defaultStats }: Hero
                 </div>
               </div>
 
-              <div className="px-4 py-2.5 lg:border-l lg:border-teal-100">
-                <label htmlFor="search-location" className="block text-xs sm:text-sm font-bold uppercase tracking-wider text-ink-muted">
+              <div className="px-3.5 py-2 lg:border-l lg:border-teal-100">
+                <label htmlFor="search-location" className="block text-xs font-semibold uppercase tracking-wider text-ink-muted">
                   Location
                 </label>
-                <div className="mt-1.5 flex items-center gap-2.5">
+                <div className="mt-1 flex items-center gap-2">
                   <span className="text-teal-600">
-                    <MapPinIcon className="h-5 w-5" aria-hidden="true" />
+                    <MapPinIcon className="h-4.5 w-4.5" aria-hidden="true" />
                   </span>
                   <input
                     id="search-location"
@@ -145,7 +145,7 @@ export function Hero({ onSearch, onSpecialtySelect, stats = defaultStats }: Hero
                     value={locationQuery}
                     onChange={(e) => setLocationQuery(e.target.value)}
                     placeholder="City or Boston"
-                    className="w-full border-0 bg-transparent p-0 text-base font-semibold text-ink placeholder:text-ink-muted focus:outline-none focus:ring-0"
+                    className="w-full border-0 bg-transparent p-0 text-sm sm:text-base font-medium text-ink placeholder:text-ink-muted focus:outline-none focus:ring-0"
                   />
                 </div>
               </div>
@@ -153,21 +153,21 @@ export function Hero({ onSearch, onSpecialtySelect, stats = defaultStats }: Hero
 
             <button
               type="submit"
-              className="mt-3.5 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-teal-600 px-8 py-4 text-base sm:text-lg font-bold text-white shadow-md shadow-teal-600/20 transition-colors hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+              className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 px-6 py-3.5 text-sm sm:text-base font-bold text-white shadow-md shadow-teal-600/20 transition-colors hover:bg-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
             >
-              <SearchIcon className="h-5 w-5" />
+              <SearchIcon className="h-4.5 w-4.5" />
               Find Doctors
             </button>
           </form>
 
-          <div className="mt-6 flex flex-wrap items-center gap-2 text-sm text-ink-muted">
-            <span className="text-xs sm:text-sm font-bold uppercase tracking-wide">Popular:</span>
+          <div className="mt-5 flex flex-wrap items-center gap-2 text-sm text-ink-muted">
+            <span className="text-xs font-bold uppercase tracking-wide">Popular:</span>
             {['Cardiology', 'Dentistry', 'Pediatrics', 'Dermatology', 'Neurology'].map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => handlePopularClick(item)}
-                className="inline-flex items-center rounded-full bg-teal-50/90 px-3.5 py-1 text-sm font-semibold text-teal-800 hover:bg-teal-100 transition-colors shadow-2xs"
+                className="inline-flex items-center rounded-full bg-teal-50/90 px-3 py-1 text-xs sm:text-sm font-medium text-teal-800 hover:bg-teal-100 transition-colors shadow-2xs"
               >
                 {item}
               </button>

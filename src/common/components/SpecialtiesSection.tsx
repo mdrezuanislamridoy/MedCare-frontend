@@ -57,7 +57,7 @@ export function SpecialtiesSection({ onSelectSpecialty }: SpecialtiesSectionProp
           description="Browse the specialties patients search for most, or explore the full directory of over forty medical fields."
         />
 
-        <div className="mt-14 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {displayedSpecialties.map((specialty) => {
             const Icon = iconMap[specialty.icon] ?? StethoscopeIcon;
             return (
@@ -65,24 +65,24 @@ export function SpecialtiesSection({ onSelectSpecialty }: SpecialtiesSectionProp
                 key={specialty.name}
                 type="button"
                 onClick={() => handleCardClick(specialty.name)}
-                className="group flex flex-col text-left rounded-3xl border border-teal-100/90 bg-canvas p-7 transition-all hover:-translate-y-1 hover:border-teal-300 hover:bg-white hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
+                className="group flex flex-col text-left rounded-2xl border border-teal-100/90 bg-canvas p-5.5 transition-all hover:-translate-y-1 hover:border-teal-300 hover:bg-white hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500"
               >
-                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-teal-600 ring-1 ring-teal-100 transition-colors group-hover:bg-teal-600 group-hover:text-white shadow-xs">
-                  <Icon className="h-6 w-6" aria-hidden="true" />
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-teal-600 ring-1 ring-teal-100 transition-colors group-hover:bg-teal-600 group-hover:text-white shadow-xs">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
                 </span>
-                <h3 className="mt-5 font-display text-lg sm:text-xl font-bold text-ink group-hover:text-teal-700 transition-colors">
+                <h3 className="mt-4 font-display text-base font-bold text-ink group-hover:text-teal-700 transition-colors">
                   {specialty.name}
                 </h3>
-                <p className="mt-1.5 text-sm sm:text-base text-ink-muted">{specialty.doctors}</p>
-                <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-teal-600 group-hover:translate-x-1 transition-transform">
-                  Find Specialists <ArrowRightIcon className="h-3.5 w-3.5" />
+                <p className="mt-1 text-xs text-ink-muted">{specialty.doctors}</p>
+                <span className="mt-3 inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-teal-600 group-hover:translate-x-1 transition-transform">
+                  Find Specialists <ArrowRightIcon className="h-3 w-3" />
                 </span>
               </button>
             );
           })}
         </div>
 
-        <div className="mt-12 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <button
             type="button"
             onClick={() => {
@@ -90,7 +90,7 @@ export function SpecialtiesSection({ onSelectSpecialty }: SpecialtiesSectionProp
               const doctorsElem = document.getElementById("doctors");
               if (doctorsElem) doctorsElem.scrollIntoView({ behavior: "smooth" });
             }}
-            className="inline-flex items-center gap-2.5 rounded-full border border-teal-200 bg-white px-8 py-3.5 text-base font-bold text-teal-700 shadow-xs transition-colors hover:bg-teal-50"
+            className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-white px-6 py-3 text-sm font-bold text-teal-700 shadow-xs transition-colors hover:bg-teal-50"
           >
             Browse All Doctor Specialists
             <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
