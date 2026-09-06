@@ -1,21 +1,35 @@
-import { useState } from "react";
-import { APPOINTMENTS, QUEUE, DOCTORS, PATIENTS, NOTIFICATIONS, ACTIVITY, type Appointment, type AppointmentStatus, type DoctorStatus } from "../data/mockData";
-import { Avatar, ConfirmDialog, DoctorDot, EmptyState, PaymentBadge, StatusBadge } from "../components/ui";
+import { useState, useEffect } from "react";
+import type { AppointmentStatus } from "../data/mockData";
+import { Avatar, ConfirmDialog, EmptyState, PaymentBadge, StatusBadge } from "../components/ui";
+import { receptionistApi } from "../services/receptionist.api";
 
 export default function AppointmentsView({ showToast }: { showToast: (m: string) => void }) {
-  const [filter, setFilter] = useState<AppointmentStatus | "All">("All")
-  const [search, setSearch] = useState("")
-  const [confirm, setConfirm] = useState<{ msg: string; cb: () => void } | null>(null)
-  const [page, setPage] = useState(1)
-  const PER_PAGE = 8
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<AppointmentStatus | "All">("All");
+  const [search, setSearch] = useState("");
+  const [confirm, setConfirm] = useState<{ msg: string; cb: () => void } | null>(null);
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 8;
 
-  const statuses: (AppointmentStatus | "All")[] = ["All", "Confirmed", "Checked In", "In Progress", "Completed", "Cancelled", "No Show"]
-  const filtered = APPOINTMENTS.filter(a =>
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await receptionistApi.getDashboardSummary();
+        setAppointments(data?.appointments ?? []);
+      } catch { setAppointments([]); }
+      finally { setLoading(false); }
+    }
+    load();
+  }, []);
+
+  const statuses: (AppointmentStatus | "All")[] = ["All", "Confirmed", "Checked In", "In Progress", "Completed", "Cancelled", "No Show"];
+  const filtered = appointments.filter((a: any) =>
     (filter === "All" || a.status === filter) &&
-    (a.patient.toLowerCase().includes(search.toLowerCase()) || a.doctor.toLowerCase().includes(search.toLowerCase()) || a.id.toLowerCase().includes(search.toLowerCase()))
-  )
-  const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE)
-  const totalPages = Math.ceil(filtered.length / PER_PAGE)
+    ((a.patient || '').toLowerCase().includes(search.toLowerCase()) || (a.doctor || '').toLowerCase().includes(search.toLowerCase()) || (a.id || '').toLowerCase().includes(search.toLowerCase()))
+  );
+  const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const totalPages = Math.ceil(filtered.length / PER_PAGE);
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -49,37 +63,27 @@ export default function AppointmentsView({ showToast }: { showToast: (m: string)
             </thead>
             <tbody className="divide-y divide-gray-50">
               {paged.length === 0 ? (
-                <tr><td colSpan={9}><EmptyState icon="📅" title="No appointments found" sub="Try adjusting your filters" /></td></tr>
-              ) : paged.map(a => (
+                <tr><td colSpan={9}><EmptyState icon="📅" title="No appointments found" sub={loading ? "Loading..." : "Try adjusting your filters or check back later"} /></td></tr>
+              ) : paged.map((a: any) => (
                 <tr key={a.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-4 py-3"><span className="mono text-xs text-blue-600">{a.id}</span></td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <Avatar initials={a.avatar} size="sm" />
+                      <Avatar initials={a.avatar || a.patient?.slice(0,2).toUpperCase() || 'PT'} size="sm" />
                       <span className="text-sm font-medium text-gray-800 whitespace-nowrap">{a.patient}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600 whitespace-nowrap">{a.doctor}</td>
                   <td className="px-4 py-3"><span className="mono text-xs text-gray-700">{a.time}</span></td>
                   <td className="px-4 py-3 text-sm text-gray-600">{a.type}</td>
-                  <td className="px-4 py-3"><span className="mono text-xs text-gray-500">{a.room}</span></td>
-                  <td className="px-4 py-3"><PaymentBadge status={a.payment} /></td>
+                  <td className="px-4 py-3"><span className="mono text-xs text-gray-500">{a.room || '—'}</span></td>
+                  <td className="px-4 py-3">{a.payment && <PaymentBadge status={a.payment} />}</td>
                   <td className="px-4 py-3"><StatusBadge status={a.status} /></td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <button className="text-xs px-2 py-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">View</button>
                       {a.status === "Confirmed" && (
                         <button onClick={() => showToast(`${a.patient} checked in`)} className="text-xs px-2 py-1 rounded border border-indigo-200 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors">Check In</button>
-                      )}
-                      {(a.status === "Confirmed" || a.status === "Checked In") && (
-                        <>
-                          <button onClick={() => showToast("Reschedule dialog opened")} className="text-xs px-2 py-1 rounded border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors">Reschedule</button>
-                          <button onClick={() => setConfirm({ msg: `Cancel appointment ${a.id} for ${a.patient}?`, cb: () => showToast(`${a.id} cancelled`) })}
-                            className="text-xs px-2 py-1 rounded border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-colors">Cancel</button>
-                        </>
-                      )}
-                      {a.room === "—" && a.status !== "Cancelled" && a.status !== "No Show" && (
-                        <button onClick={() => showToast(`Room assigned to ${a.patient}`)} className="text-xs px-2 py-1 rounded border border-teal-200 text-teal-700 bg-teal-50 hover:bg-teal-100 transition-colors">Room</button>
                       )}
                     </div>
                   </td>

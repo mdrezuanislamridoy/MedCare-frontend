@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Search, Filter, Calendar, Eye, Check, X, Clock, RefreshCw, Play } from "lucide-react";
 import StatusBadge from "../components/StatusBadge";
-import { allAppointments } from "../data/mockData";
 import { doctorApi } from "../services/doctor.api";
 
 const statusFilters = ["All", "Pending", "Confirmed", "In Progress", "Completed", "Cancelled", "No Show"];
@@ -10,31 +9,28 @@ export default function Appointments({ onToast }: { onToast: (msg: string) => vo
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [selected, setSelected] = useState<string | null>(null);
-  const [appointments, setAppointments] = useState<any[]>(allAppointments);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadAppointments() {
       try {
         const res: any = await doctorApi.listAppointments();
-        if (res && (res.items || Array.isArray(res))) {
-          const list = res.items || res;
-          if (list.length > 0) {
-            setAppointments(list.map((a: any) => ({
-              id: a.id,
-              patient: a.patient?.name || a.patientName || "Patient",
-              avatar: a.patient?.photo || "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=48&h=48&fit=crop&auto=format",
-              time: a.timeSlot || "10:00 AM",
-              type: a.type === "VIDEO" ? "Online" : "In-Person",
-              status: (a.status || "confirmed").toLowerCase(),
-              reason: a.reason || "General Consultation",
-              date: a.date ? String(a.date).split("T")[0] : "2026-08-10",
-              paymentStatus: (a.paymentStatus || "paid").toLowerCase(),
-            })));
-          }
-        }
+        const list = res?.items || (Array.isArray(res) ? res : (res?.data || []));
+        setAppointments(list.map((a: any) => ({
+          id: a.id || a.appointmentNumber,
+          patient: a.patient?.name || a.patientName || "Patient",
+          avatar: a.patient?.photo || "",
+          time: a.timeSlot || a.time || "—",
+          type: a.type === "VIDEO" ? "Online" : "In-Person",
+          status: (a.status || "confirmed").toLowerCase(),
+          reason: a.reason || "General Consultation",
+          date: a.date ? String(a.date).split("T")[0] : "Recent",
+          paymentStatus: (a.paymentStatus || "paid").toLowerCase(),
+        })));
       } catch (err) {
-        console.warn("Using offline doctor appointments fallback:", err);
+        console.warn("Error loading appointments:", err);
+        setAppointments([]);
       } finally {
         setLoading(false);
       }
@@ -134,7 +130,16 @@ export default function Appointments({ onToast }: { onToast: (msg: string) => vo
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-              {filtered.map((apt) => (
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-5 py-12 text-center text-slate-400 dark:text-slate-500">
+                    <Calendar className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No appointments found</p>
+                    <p className="text-xs text-slate-400 mt-1">There are currently no appointments matching your filter.</p>
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((apt) => (
                 <tr key={apt.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
                   <td className="px-5 py-4 font-mono font-bold text-slate-700 dark:text-slate-300">{apt.id}</td>
                   <td className="px-5 py-4">
@@ -198,7 +203,8 @@ export default function Appointments({ onToast }: { onToast: (msg: string) => vo
                     </div>
                   </td>
                 </tr>
-              ))}
+              ))
+              )}
             </tbody>
           </table>
         </div>

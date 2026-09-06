@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Lock, Save, RefreshCw, Clock, DollarSign, Calendar, CheckCircle2 } from "lucide-react";
-import { weeklySchedule as initialSchedule } from "../data/mockData";
+import { Save, RefreshCw, Clock, DollarSign, Calendar, CheckCircle2 } from "lucide-react";
 import { doctorApi } from "../services/doctor.api";
 
 type DaySchedule = { enabled: boolean; start: string; end: string; breakStart: string; breakEnd: string };
@@ -9,25 +8,23 @@ type Schedule = Record<string, DaySchedule>;
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 const hours = Array.from({ length: 24 }, (_, i) => `${String(i).padStart(2, "0")}:00`);
 
-const calendarSlots = [
-  { time: "09:00", label: "James Harrington", type: "booked", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800" },
-  { time: "10:00", label: "Maria Santos", type: "booked", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800" },
-  { time: "11:00", label: "Available", type: "available", color: "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-800" },
-  { time: "11:30", label: "Robert Chen", type: "booked", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800" },
-  { time: "12:00", label: "Available", type: "available", color: "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-800" },
-  { time: "13:00", label: "Lunch Break", type: "blocked", color: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800" },
-  { time: "14:00", label: "Emily Watson", type: "booked", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800" },
-  { time: "15:00", label: "Available", type: "available", color: "bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 border-teal-200 dark:border-teal-800" },
-  { time: "15:30", label: "David Kim", type: "booked", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800" },
-  { time: "16:30", label: "Linda Foster", type: "booked", color: "bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800" },
-];
+const defaultSchedule: Schedule = {
+  Monday: { enabled: true, start: "09:00", end: "17:00", breakStart: "13:00", breakEnd: "14:00" },
+  Tuesday: { enabled: true, start: "09:00", end: "17:00", breakStart: "13:00", breakEnd: "14:00" },
+  Wednesday: { enabled: true, start: "09:00", end: "17:00", breakStart: "13:00", breakEnd: "14:00" },
+  Thursday: { enabled: true, start: "09:00", end: "17:00", breakStart: "13:00", breakEnd: "14:00" },
+  Friday: { enabled: true, start: "09:00", end: "17:00", breakStart: "13:00", breakEnd: "14:00" },
+  Saturday: { enabled: false, start: "09:00", end: "13:00", breakStart: "12:00", breakEnd: "12:30" },
+  Sunday: { enabled: false, start: "09:00", end: "13:00", breakStart: "12:00", breakEnd: "12:30" },
+};
 
 export default function Schedule({ onToast }: { onToast: (msg: string) => void }) {
-  const [schedule, setSchedule] = useState<Schedule>(initialSchedule);
+  const [schedule, setSchedule] = useState<Schedule>(defaultSchedule);
   const [duration, setDuration] = useState("30");
   const [fee, setFee] = useState("150");
   const [isAvailableToday, setIsAvailableToday] = useState(true);
   const [mode, setMode] = useState<"weekly" | "calendar">("weekly");
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -36,9 +33,10 @@ export default function Schedule({ onToast }: { onToast: (msg: string) => void }
     let isMounted = true;
     async function loadDoctorSchedule() {
       try {
-        const [schedData, profileData]: any = await Promise.all([
-          doctorApi.getSchedule(),
-          doctorApi.getProfile(),
+        const [schedData, profileData, apptsData]: any = await Promise.all([
+          doctorApi.getSchedule().catch(() => null),
+          doctorApi.getProfile().catch(() => null),
+          doctorApi.listAppointments().catch(() => []),
         ]);
 
         if (isMounted) {
@@ -51,7 +49,7 @@ export default function Schedule({ onToast }: { onToast: (msg: string) => void }
 
           if (schedData?.schedules && Array.isArray(schedData.schedules) && schedData.schedules.length > 0) {
             const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-            const updatedSchedule: Schedule = { ...initialSchedule };
+            const updatedSchedule: Schedule = { ...defaultSchedule };
             schedData.schedules.forEach((s: any) => {
               const dayName = typeof s.dayOfWeek === "number" ? dayNames[s.dayOfWeek] : s.dayOfWeek;
               if (dayName && updatedSchedule[dayName]) {
@@ -65,9 +63,12 @@ export default function Schedule({ onToast }: { onToast: (msg: string) => void }
             });
             setSchedule(updatedSchedule);
           }
+
+          const apptList = Array.isArray(apptsData) ? apptsData : (apptsData?.data || []);
+          setAppointments(apptList);
         }
       } catch (err) {
-        console.warn("Using offline fallback schedule:", err);
+        console.warn("Using default schedule configuration:", err);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -235,18 +236,29 @@ export default function Schedule({ onToast }: { onToast: (msg: string) => void }
         </div>
       ) : (
         <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-4">Today&apos;s Time Slot Timeline</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-            {calendarSlots.map((slot, i) => (
-              <div key={i} className={`p-3.5 rounded-xl border text-xs ${slot.color}`}>
-                <div className="flex items-center justify-between font-bold">
-                  <span>{slot.time}</span>
-                  <span className="capitalize text-[10px] font-semibold">{slot.type}</span>
+          <h3 className="font-bold text-slate-900 dark:text-white text-sm mb-4">Today&apos;s Booked Slots</h3>
+          {appointments.length === 0 ? (
+            <div className="py-12 text-center text-slate-400">
+              <Clock className="w-10 h-10 mx-auto mb-2 text-slate-300 dark:text-slate-700" />
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No appointments booked today</p>
+              <p className="text-xs text-slate-400 mt-0.5">Your schedule slots are available for patient bookings.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {appointments.map((apt, i) => (
+                <div key={apt.id || i} className="p-3.5 rounded-xl border text-xs bg-teal-50 dark:bg-teal-950/40 border-teal-200 dark:border-teal-800 text-teal-900 dark:text-teal-200">
+                  <div className="flex items-center justify-between font-bold">
+                    <span>{apt.time || apt.slot || "Slot"}</span>
+                    <span className="capitalize text-[10px] font-semibold bg-teal-200 dark:bg-teal-800 text-teal-900 dark:text-white px-2 py-0.5 rounded-full">
+                      {apt.status || "Booked"}
+                    </span>
+                  </div>
+                  <div className="mt-1.5 font-medium truncate">{apt.patient || apt.patientName || "Patient"}</div>
+                  <div className="text-[11px] text-teal-700 dark:text-teal-400 mt-0.5">{apt.type || "Consultation"}</div>
                 </div>
-                <div className="mt-1.5 font-medium truncate">{slot.label}</div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>

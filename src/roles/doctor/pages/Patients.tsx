@@ -1,35 +1,34 @@
 import { useEffect, useState } from "react";
 import { Search, Eye, FileText, Pill, History, ChevronDown, ChevronUp, Phone, Mail, Droplets, RefreshCw } from "lucide-react";
-import { patients as mockPatients } from "../data/mockData";
 import { doctorApi } from "../services/doctor.api";
 
 export default function Patients() {
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [patientList, setPatientList] = useState<any[]>(mockPatients);
+  const [patientList, setPatientList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadPatients() {
       try {
         const data: any = await doctorApi.listPatients();
-        if (data && (Array.isArray(data) && data.length > 0)) {
-          setPatientList(data.map((p: any) => ({
-            id: p.id,
-            name: p.user?.name || p.name || "Patient",
-            age: p.age || 45,
-            gender: p.gender || "Male",
-            avatar: p.user?.avatar || p.photo || "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=48&h=48&fit=crop&auto=format",
-            bloodType: p.bloodGroup || "O+",
-            lastVisit: "2026-08-10",
-            nextAppointment: "2026-09-05",
-            conditions: p.allergies || ["Hypertension"],
-            phone: p.phone || "+1 (555) 111-2222",
-            email: p.user?.email || p.email || "—",
-          })));
-        }
+        const list = Array.isArray(data) ? data : (data?.data || data?.items || []);
+        setPatientList(list.map((p: any) => ({
+          id: p.id,
+          name: p.user?.name || p.name || "Patient",
+          age: p.age || "—",
+          gender: p.gender || "—",
+          avatar: p.user?.avatar || p.photo || "",
+          bloodType: p.bloodGroup || "—",
+          lastVisit: p.lastVisit ? new Date(p.lastVisit).toLocaleDateString() : "Recent",
+          nextAppointment: "—",
+          conditions: p.allergies || p.conditions || [],
+          phone: p.phone || p.emergencyPhone || "—",
+          email: p.user?.email || p.email || "—",
+        })));
       } catch (err) {
-        console.warn("Using offline patient list fallback:", err);
+        console.warn("Error loading patients:", err);
+        setPatientList([]);
       } finally {
         setLoading(false);
       }
@@ -78,41 +77,56 @@ export default function Patients() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
-              {filtered.map((p) => (
-                <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <img src={p.avatar} alt={p.name} className="w-9 h-9 rounded-full object-cover bg-slate-100" />
-                      <div>
-                        <div className="font-bold text-slate-900 dark:text-white">{p.name}</div>
-                        <div className="text-[11px] text-slate-400 font-mono">{p.id}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 text-slate-600 dark:text-slate-300">{p.age} yrs · {p.gender}</td>
-                  <td className="px-5 py-4">
-                    <span className="font-bold text-teal-600 dark:text-teal-400">{p.bloodType}</span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex flex-wrap gap-1">
-                      {p.conditions.map((c: string) => (
-                        <span key={c} className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-semibold">
-                          {c}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 text-slate-500">{p.lastVisit}</td>
-                  <td className="px-5 py-4 text-right">
-                    <button
-                      onClick={() => alert(`Opening comprehensive HIPAA EHR clinical chart for ${p.name}...`)}
-                      className="inline-flex items-center gap-1 text-teal-600 dark:text-teal-400 font-bold hover:underline"
-                    >
-                      <Eye className="w-3.5 h-3.5" /> View Chart
-                    </button>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-5 py-12 text-center text-slate-400 dark:text-slate-500">
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No patients found</p>
+                    <p className="text-xs text-slate-400 mt-1">There are currently no patients matching your search criteria.</p>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((p) => (
+                  <tr key={p.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center text-xs font-bold text-teal-700 dark:text-teal-300 flex-shrink-0">
+                          {p.name.split(" ")[0]?.[0] || "P"}
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900 dark:text-white">{p.name}</div>
+                          <div className="text-[11px] text-slate-400 font-mono">{p.id}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-slate-600 dark:text-slate-300">{p.age} yrs · {p.gender}</td>
+                    <td className="px-5 py-4">
+                      <span className="font-semibold text-teal-600 dark:text-teal-400">{p.bloodType}</span>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {p.conditions && p.conditions.length > 0 ? (
+                          p.conditions.map((c: string) => (
+                            <span key={c} className="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full text-[10px] font-medium">
+                              {c}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-slate-400 text-[11px]">None recorded</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-slate-500">{p.lastVisit}</td>
+                    <td className="px-5 py-4 text-right">
+                      <button
+                        onClick={() => alert(`Opening comprehensive HIPAA EHR clinical chart for ${p.name}...`)}
+                        className="inline-flex items-center gap-1 text-teal-600 dark:text-teal-400 font-bold hover:underline"
+                      >
+                        <Eye className="w-3.5 h-3.5" /> View Chart
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

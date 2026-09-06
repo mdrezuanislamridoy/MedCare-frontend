@@ -1,20 +1,34 @@
-import { useState } from "react";
-import { APPOINTMENTS, QUEUE, DOCTORS, PATIENTS, NOTIFICATIONS, ACTIVITY, type Appointment, type AppointmentStatus, type DoctorStatus } from "../data/mockData";
-import { Avatar, ConfirmDialog, DoctorDot, EmptyState, PaymentBadge, StatusBadge } from "../components/ui";
+import { useState, useEffect } from "react";
+import type { Appointment } from "../data/mockData";
+import { Avatar, EmptyState, PaymentBadge } from "../components/ui";
+import { receptionistApi } from "../services/receptionist.api";
 
 export default function CheckInView({ showToast }: { showToast: (m: string) => void }) {
-  const [step, setStep] = useState(0)
-  const [selected, setSelected] = useState<Appointment | null>(null)
-  const [queueNum, setQueueNum] = useState<number | null>(null)
-  const [room, setRoom] = useState("")
-  const [search, setSearch] = useState("")
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [step, setStep] = useState(0);
+  const [selected, setSelected] = useState<any | null>(null);
+  const [queueNum, setQueueNum] = useState<number | null>(null);
+  const [room, setRoom] = useState("");
+  const [search, setSearch] = useState("");
 
-  const pending = APPOINTMENTS.filter(a => a.status === "Confirmed" &&
-    (a.patient.toLowerCase().includes(search.toLowerCase()) || a.id.toLowerCase().includes(search.toLowerCase())))
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await receptionistApi.getDashboardSummary();
+        setAppointments(data?.appointments ?? []);
+      } catch { setAppointments([]); }
+      finally { setLoading(false); }
+    }
+    load();
+  }, []);
 
-  const steps = ["Find Appointment", "Verify Patient", "Confirm Details", "Assign Queue", "Assign Room", "Complete"]
+  const pending = appointments.filter((a: any) => a.status === "Confirmed" &&
+    ((a.patient || '').toLowerCase().includes(search.toLowerCase()) || (a.id || '').toLowerCase().includes(search.toLowerCase())));
 
-  const reset = () => { setStep(0); setSelected(null); setQueueNum(null); setRoom("") }
+  const steps = ["Find Appointment", "Verify Patient", "Confirm Details", "Assign Queue", "Assign Room", "Complete"];
+
+  const reset = () => { setStep(0); setSelected(null); setQueueNum(null); setRoom("") };
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -43,19 +57,21 @@ export default function CheckInView({ showToast }: { showToast: (m: string) => v
               <span className="text-gray-400">🔍</span>
               <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or appointment ID…" className="bg-transparent text-sm outline-none flex-1 placeholder:text-gray-400" />
             </div>
-            {search && pending.length === 0 && <EmptyState icon="🔍" title="No matching appointments" sub="Check the name or appointment ID" />}
+            {pending.length === 0 && (
+              <EmptyState icon="📅" title={loading ? "Loading appointments..." : "No confirmed appointments"} sub="Only confirmed appointments can be checked in" />
+            )}
             <div className="space-y-2">
-              {pending.map(a => (
+              {pending.map((a: any) => (
                 <button key={a.id} onClick={() => { setSelected(a); setStep(1) }}
                   className="w-full flex items-center gap-4 border border-gray-200 rounded-xl p-4 hover:border-blue-300 hover:bg-blue-50/30 transition-colors text-left">
-                  <Avatar initials={a.avatar} size="md" />
+                  <Avatar initials={a.avatar || (a.patient || 'PT').slice(0, 2).toUpperCase()} size="md" />
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900">{a.patient}</p>
                     <p className="text-sm text-gray-500">{a.doctor} · {a.type} · {a.time}</p>
                   </div>
                   <div>
                     <span className="mono text-xs text-blue-600">{a.id}</span>
-                    <PaymentBadge status={a.payment} />
+                    {a.payment && <PaymentBadge status={a.payment} />}
                   </div>
                   <span className="text-blue-500">›</span>
                 </button>
@@ -68,17 +84,17 @@ export default function CheckInView({ showToast }: { showToast: (m: string) => v
           <div className="space-y-4 max-w-lg">
             <h2 className="font-semibold text-gray-900">Verify Patient Identity</h2>
             <div className="flex items-center gap-4 bg-blue-50 rounded-xl p-4 border border-blue-100">
-              <Avatar initials={selected.avatar} size="lg" />
+              <Avatar initials={selected.avatar || (selected.patient || 'PT').slice(0, 2).toUpperCase()} size="lg" />
               <div>
                 <p className="font-bold text-gray-900 text-lg">{selected.patient}</p>
                 <p className="text-sm text-gray-500">{selected.doctor}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              {[["Appointment ID", selected.id], ["Date", "Aug 13, 2026"], ["Time", selected.time], ["Type", selected.type], ["Payment", selected.payment]].map(([k, v]) => (
+              {[["Appointment ID", selected.id], ["Time", selected.time], ["Type", selected.type], ["Payment", selected.payment]].map(([k, v]) => (
                 <div key={k} className="bg-gray-50 rounded-lg p-3">
                   <p className="text-xs text-gray-400">{k}</p>
-                  <p className="text-sm font-medium text-gray-800 mt-0.5">{v}</p>
+                  <p className="text-sm font-medium text-gray-800 mt-0.5">{v || '—'}</p>
                 </div>
               ))}
             </div>
@@ -104,7 +120,7 @@ export default function CheckInView({ showToast }: { showToast: (m: string) => v
               ].map(([k, v]) => (
                 <div key={k} className="flex justify-between items-center py-2 border-b border-gray-50">
                   <span className="text-sm text-gray-500">{k}</span>
-                  <span className="text-sm font-medium text-gray-900">{v}</span>
+                  <span className="text-sm font-medium text-gray-900">{v || '—'}</span>
                 </div>
               ))}
             </div>
@@ -127,7 +143,7 @@ export default function CheckInView({ showToast }: { showToast: (m: string) => v
             <div className="flex gap-3">
               <button onClick={() => setStep(2)} className="px-4 py-2 border border-gray-200 text-gray-700 rounded-lg text-sm hover:bg-gray-50">Back</button>
               {!queueNum ? (
-                <button onClick={() => setQueueNum(QUEUE.length + 1)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Assign Queue #{QUEUE.length + 1}</button>
+                <button onClick={() => setQueueNum(1)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Assign Queue</button>
               ) : (
                 <button onClick={() => setStep(4)} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">Next →</button>
               )}

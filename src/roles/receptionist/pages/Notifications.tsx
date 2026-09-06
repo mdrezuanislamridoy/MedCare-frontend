@@ -1,17 +1,16 @@
 import { useState } from "react";
-import { APPOINTMENTS, QUEUE, DOCTORS, PATIENTS, NOTIFICATIONS, ACTIVITY, type Appointment, type AppointmentStatus, type DoctorStatus } from "../data/mockData";
-import { Avatar, ConfirmDialog, DoctorDot, EmptyState, PaymentBadge, StatusBadge } from "../components/ui";
+import { EmptyState } from "../components/ui";
 
 export default function NotificationsView() {
-  const [notifs, setNotifs] = useState(NOTIFICATIONS)
-  const markAll = () => setNotifs(prev => prev.map(n => ({ ...n, read: true })))
-  const markOne = (id: number) => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n))
+  const [notifs, setNotifs] = useState<any[]>([]);
 
   const iconMap: Record<string, string> = {
     appointment: "📅", cancel: "❌", reschedule: "🔄", doctor: "🩺", checkin: "✅", schedule: "🗓"
-  }
+  };
 
-  const unread = notifs.filter(n => !n.read).length
+  const unread = notifs.filter(n => !n.read).length;
+  const markAll = () => setNotifs(prev => prev.map(n => ({ ...n, read: true })));
+  const markOne = (id: number) => setNotifs(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -31,7 +30,7 @@ export default function NotificationsView() {
           {notifs.map(n => (
             <div key={n.id} onClick={() => markOne(n.id)}
               className={`flex gap-4 px-5 py-4 cursor-pointer transition-colors ${n.read ? "hover:bg-gray-50/60" : "bg-blue-50/40 hover:bg-blue-50/60"}`}>
-              <span className="text-xl shrink-0">{iconMap[n.type]}</span>
+              <span className="text-xl shrink-0">{iconMap[n.type] || '🔔'}</span>
               <div className="flex-1 min-w-0">
                 <p className={`text-sm ${n.read ? "text-gray-600" : "text-gray-900 font-medium"}`}>{n.message}</p>
                 <p className="mono text-[11px] text-gray-400 mt-0.5">{n.time}</p>

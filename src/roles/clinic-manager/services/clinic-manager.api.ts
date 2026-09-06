@@ -25,4 +25,24 @@ export const clinicManagerApi = {
   async getClinics(): Promise<any[]> {
     return apiClient('/clinics');
   },
+
+  async getDoctors(): Promise<any[]> {
+    return apiClient('/doctors').catch(() => []);
+  },
+
+  async getAppointments(): Promise<any[]> {
+    return apiClient('/appointments').catch(() => []);
+  },
+
+  async getPatients(): Promise<any[]> {
+    return apiClient('/patients').catch(() => []);
+  },
+
+  async getQueue(): Promise<any[]> {
+    return apiClient('/receptionist/queue').catch(() => []);
+  },
+
+  async getPayments(): Promise<any[]> {
+    return apiClient('/billing/transactions').catch(() => []);
+  },
 };

@@ -1,15 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileText, Upload, Search, Shield, Eye, Download, Lock } from "lucide-react";
-import { patients } from "../data/mockData";
-
-const records = [
-  { id: "REC-001", patient: "James Harrington", type: "Lab Report", name: "Lipid Panel — Aug 2026", date: "2026-08-05", uploadedBy: "MedLab Boston", size: "1.2 MB", secure: true },
-  { id: "REC-002", patient: "James Harrington", type: "ECG Report", name: "12-Lead ECG Report", date: "2026-07-20", uploadedBy: "Dr. Mitchell", size: "0.8 MB", secure: true },
-  { id: "REC-003", patient: "Maria Santos", type: "Consultation Note", name: "Follow-Up Consult Note", date: "2026-08-10", uploadedBy: "Dr. Mitchell", size: "0.3 MB", secure: true },
-  { id: "REC-004", patient: "Robert Chen", type: "Imaging", name: "Echocardiogram — Jul 2026", date: "2026-07-28", uploadedBy: "Boston Imaging Center", size: "24 MB", secure: true },
-  { id: "REC-005", patient: "Emily Watson", type: "Lab Report", name: "CBC and Metabolic Panel", date: "2026-07-15", uploadedBy: "Quest Diagnostics", size: "0.9 MB", secure: true },
-  { id: "REC-006", patient: "Linda Foster", type: "Discharge Summary", name: "Hospital Discharge — Jul 2026", date: "2026-07-10", uploadedBy: "Mass General Hospital", size: "2.1 MB", secure: true },
-];
+import { doctorApi } from "../services/doctor.api";
 
 const typeColors: Record<string, string> = {
   "Lab Report": "bg-blue-50 text-blue-700",
@@ -20,11 +11,26 @@ const typeColors: Record<string, string> = {
 };
 
 export default function MedicalRecords({ onToast }: { onToast: (msg: string) => void }) {
+  const [records, setRecords] = useState<any[]>([]);
+  const [patientsList, setPatientsList] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [filterPatient, setFilterPatient] = useState("All");
 
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const ptData: any = await doctorApi.listPatients();
+        const pts = Array.isArray(ptData) ? ptData : (ptData?.data || []);
+        setPatientsList(pts);
+      } catch (err) {
+        console.warn("Could not load patients for medical records:", err);
+      }
+    }
+    loadData();
+  }, []);
+
   const filtered = records.filter((r) => {
-    const matchSearch = r.name.toLowerCase().includes(search.toLowerCase()) || r.patient.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = (r.name || "").toLowerCase().includes(search.toLowerCase()) || (r.patient || "").toLowerCase().includes(search.toLowerCase());
     const matchPatient = filterPatient === "All" || r.patient === filterPatient;
     return matchSearch && matchPatient;
   });
@@ -38,7 +44,7 @@ export default function MedicalRecords({ onToast }: { onToast: (msg: string) => 
             <Shield className="w-3 h-3" /> Secure Access
           </span>
         </div>
-        <button onClick={() => onToast("Document uploaded securely")} className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+        <button onClick={() => onToast("Document uploaded securely to patient chart")} className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
           <Upload className="w-4 h-4" /> Upload Document
         </button>
       </div>
@@ -62,7 +68,10 @@ export default function MedicalRecords({ onToast }: { onToast: (msg: string) => 
         </div>
         <select value={filterPatient} onChange={(e) => setFilterPatient(e.target.value)} className="text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white">
           <option value="All">All Patients</option>
-          {patients.slice(0, 6).map((p) => <option key={p.id}>{p.name}</option>)}
+          {patientsList.map((p) => {
+            const name = p.name || p.user?.name || "Patient";
+            return <option key={p.id} value={name}>{name}</option>;
+          })}
         </select>
       </div>
 
@@ -85,7 +94,8 @@ export default function MedicalRecords({ onToast }: { onToast: (msg: string) => 
                 <tr>
                   <td colSpan={7} className="text-center py-12 text-slate-400">
                     <FileText className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-                    No records found
+                    <p className="text-sm font-semibold text-slate-700">No medical records uploaded</p>
+                    <p className="text-xs text-slate-400 mt-0.5">Uploaded laboratory results and clinical attachments will appear here.</p>
                   </td>
                 </tr>
               ) : (

@@ -21,84 +21,26 @@ type ViewId =
   | "clinics" | "appointments" | "finance" | "reviews"
   | "notifications" | "activity" | "audit";
 
-// ─── Mock Fallback Data ─────────────────────────────────────────────────────
-const appointmentTrends = [
-  { day: "Mon", completed: 45, cancelled: 8, pending: 32 },
-  { day: "Tue", completed: 52, cancelled: 5, pending: 28 },
-  { day: "Wed", completed: 61, cancelled: 12, pending: 35 },
-  { day: "Thu", completed: 48, cancelled: 7, pending: 41 },
-  { day: "Fri", completed: 73, cancelled: 9, pending: 29 },
-  { day: "Sat", completed: 38, cancelled: 4, pending: 15 },
-  { day: "Sun", completed: 21, cancelled: 3, pending: 9 },
+// ─── Chart Trends Defaults ───────────────────────────────────────────────────
+const emptyApptTrends = [
+  { day: "Mon", completed: 0, cancelled: 0, pending: 0 },
+  { day: "Tue", completed: 0, cancelled: 0, pending: 0 },
+  { day: "Wed", completed: 0, cancelled: 0, pending: 0 },
+  { day: "Thu", completed: 0, cancelled: 0, pending: 0 },
+  { day: "Fri", completed: 0, cancelled: 0, pending: 0 },
+  { day: "Sat", completed: 0, cancelled: 0, pending: 0 },
+  { day: "Sun", completed: 0, cancelled: 0, pending: 0 },
 ];
 
-const revenueTrends = [
-  { month: "Mar", revenue: 48200, refunds: 3200 },
-  { month: "Apr", revenue: 52800, refunds: 2900 },
-  { month: "May", revenue: 61400, refunds: 4100 },
-  { month: "Jun", revenue: 58700, refunds: 3800 },
-  { month: "Jul", revenue: 67300, refunds: 2600 },
-  { month: "Aug", revenue: 71200, refunds: 3400 },
+const emptyRevTrends = [
+  { month: "Jan", revenue: 0, refunds: 0 },
+  { month: "Feb", revenue: 0, refunds: 0 },
+  { month: "Mar", revenue: 0, refunds: 0 },
+  { month: "Apr", revenue: 0, refunds: 0 },
+  { month: "May", revenue: 0, refunds: 0 },
+  { month: "Jun", revenue: 0, refunds: 0 },
 ];
 
-const newUsersData = [
-  { week: "W1", patients: 124, doctors: 8 },
-  { week: "W2", patients: 98, doctors: 11 },
-  { week: "W3", patients: 143, doctors: 7 },
-  { week: "W4", patients: 167, doctors: 14 },
-];
-
-const fallbackDoctors = [
-  { id: "doc-1", name: "Dr. Sarah Chen", specialty: "Cardiology", clinic: "HeartCare Center", rating: 4.9, verificationStatus: "approved", accountStatus: "active", joinedDate: "Jan 15, 2023", appointments: 892 },
-  { id: "doc-2", name: "Dr. James Okafor", specialty: "Neurology", clinic: "BrainHealth Clinic", rating: 4.7, verificationStatus: "approved", accountStatus: "active", joinedDate: "Nov 8, 2022", appointments: 634 },
-  { id: "doc-3", name: "Dr. Emily Rodriguez", specialty: "Pediatrics", clinic: "Little Stars Medical", rating: 4.8, verificationStatus: "pending", accountStatus: "active", joinedDate: "Feb 20, 2024", appointments: 156 },
-  { id: "doc-4", name: "Dr. Michael Thompson", specialty: "Orthopedics", clinic: "BoneJoint Specialists", rating: 4.6, verificationStatus: "approved", accountStatus: "suspended", joinedDate: "Jun 30, 2022", appointments: 1203 },
-  { id: "doc-5", name: "Dr. Priya Patel", specialty: "Dermatology", clinic: "SkinCare Plus", rating: 4.5, verificationStatus: "pending", accountStatus: "active", joinedDate: "Mar 10, 2024", appointments: 89 },
-];
-
-const fallbackVerificationQueue = [
-  { id: "ver-1", name: "Dr. Emily Rodriguez", specialty: "Pediatrics", license: "MED-IL-294851", documents: 4, submitted: "Feb 20, 2024", status: "pending" },
-  { id: "ver-2", name: "Dr. Priya Patel", specialty: "Dermatology", license: "MED-CA-847293", documents: 3, submitted: "Mar 10, 2024", status: "pending" },
-  { id: "ver-3", name: "Dr. Amara Diallo", specialty: "Endocrinology", license: "MED-NY-562841", documents: 5, submitted: "Jul 18, 2024", status: "pending" },
-  { id: "ver-4", name: "Dr. Hassan Khalid", specialty: "Gastroenterology", license: "MED-TX-193847", documents: 2, submitted: "Jun 5, 2024", status: "documents_requested" },
-];
-
-const fallbackPatients = [
-  { id: "pat-1", name: "Alice Martinez", email: "alice.m@email.com", phone: "+1 (555) 014-2847", appointments: 12, status: "active", joinedDate: "Mar 15, 2023", lastActivity: "Aug 9, 2024" },
-  { id: "pat-2", name: "Benjamin Okafor", email: "ben.okafor@email.com", phone: "+1 (555) 028-7143", appointments: 3, status: "active", joinedDate: "Jan 20, 2024", lastActivity: "Aug 8, 2024" },
-  { id: "pat-3", name: "Catherine Liu", email: "c.liu@email.com", phone: "+1 (555) 039-1827", appointments: 8, status: "suspended", joinedDate: "Jul 11, 2023", lastActivity: "Jul 22, 2024" },
-  { id: "pat-4", name: "Daniel Foster", email: "dfoster@email.com", phone: "+1 (555) 045-6912", appointments: 21, status: "active", joinedDate: "Nov 30, 2022", lastActivity: "Aug 10, 2024" },
-];
-
-const fallbackClinics = [
-  { id: "cln-1", name: "HeartCare Center", location: "New York, NY", doctors: 12, appointments: 2840, manager: "Dr. Sarah Chen", status: "active" },
-  { id: "cln-2", name: "BrainHealth Clinic", location: "Boston, MA", doctors: 8, appointments: 1923, manager: "John Patterson", status: "active" },
-  { id: "cln-3", name: "Little Stars Medical", location: "Chicago, IL", doctors: 15, appointments: 3102, manager: "Maria Santos", status: "active" },
-];
-
-const fallbackAppointments = [
-  { id: "APT-20849", patient: "Alice Martinez", doctor: "Dr. Sarah Chen", clinic: "HeartCare Center", date: "Aug 10, 2024", time: "09:00 AM", type: "In-Person", paymentStatus: "paid", status: "completed" },
-  { id: "APT-20850", patient: "Benjamin Okafor", doctor: "Dr. David Kim", clinic: "MindWell Institute", date: "Aug 10, 2024", time: "10:30 AM", type: "Video", paymentStatus: "paid", status: "in-progress" },
-  { id: "APT-20851", patient: "Daniel Foster", doctor: "Dr. Linda Osei", clinic: "Women's Health Hub", date: "Aug 10, 2024", time: "11:00 AM", type: "In-Person", paymentStatus: "paid", status: "checked-in" },
-];
-
-const fallbackTransactions = [
-  { id: "TXN-84921", patient: "Alice Martinez", doctor: "Dr. Sarah Chen", amount: 280, provider: "Stripe", status: "completed", date: "Aug 10, 2024" },
-  { id: "TXN-84920", patient: "Daniel Foster", doctor: "Dr. Linda Osei", amount: 195, provider: "PayPal", status: "completed", date: "Aug 10, 2024" },
-  { id: "TXN-84919", patient: "Henry Morgan", doctor: "Dr. Sarah Chen", amount: 280, provider: "Stripe", status: "pending", date: "Aug 10, 2024" },
-];
-
-const fallbackReviews = [
-  { id: "rev-1", patient: "Alice Martinez", doctor: "Dr. Sarah Chen", rating: 5, content: "Excellent consultation, very thorough and professional. Highly recommend.", status: "published", flagged: false, date: "Aug 8, 2024" },
-  { id: "rev-2", patient: "Anonymous", doctor: "Dr. Michael Thompson", rating: 1, content: "Inappropriate behavior and dismissive attitude. Felt very uncomfortable.", status: "flagged", flagged: true, date: "Aug 7, 2024" },
-  { id: "rev-3", patient: "Daniel Foster", doctor: "Dr. Linda Osei", rating: 4, content: "Great experience overall. Doctor was knowledgeable and genuinely caring.", status: "published", flagged: false, date: "Aug 6, 2024" },
-];
-
-const fallbackAuditLogs = [
-  { id: 1, actor: "Admin Sarah K.", action: "Doctor Approved", resource: "Dr. Emily Rodriguez", timestamp: "Aug 10, 2024 09:14:22", ip: "192.168.1.45", result: "success" },
-  { id: 2, actor: "Admin Marcus L.", action: "Account Suspended", resource: "Dr. Michael Thompson", timestamp: "Aug 10, 2024 08:52:11", ip: "192.168.1.67", result: "success" },
-  { id: 3, actor: "Admin Sarah K.", action: "Refund Processed", resource: "Transaction TXN-84917", timestamp: "Aug 9, 2024 16:33:08", ip: "192.168.1.45", result: "success" },
-];
 
 // ─── Shared Components ───────────────────────────────────────────────────────
 const badgeStyles: Record<string, string> = {
@@ -213,20 +155,21 @@ function DashboardView() {
   const upcomingAppts = summary?.upcomingAppointments ?? summary?.kpis?.upcomingAppointments;
   const verifs = summary?.pendingVerifications ?? summary?.kpis?.pendingVerifications;
   const rev = summary?.totalRevenue ?? summary?.kpis?.totalRevenue;
+  const completedTotal = summary?.completedAppointments ?? summary?.kpis?.completedAppointments;
 
   const kpis = [
-    { label: "Total Doctors", value: totalDocs !== undefined ? `${Number(totalDocs).toLocaleString()}` : "284", change: "+12", up: true, icon: Users, bg: "bg-teal-50", ic: "text-teal-600" },
-    { label: "Total Patients", value: totalPts !== undefined ? `${Number(totalPts).toLocaleString()}` : "12,847", change: "+234", up: true, icon: User, bg: "bg-indigo-50", ic: "text-indigo-600" },
-    { label: "Total Clinics", value: totalCln !== undefined ? `${Number(totalCln).toLocaleString()}` : "47", change: "+2", up: true, icon: Building2, bg: "bg-violet-50", ic: "text-violet-600" },
-    { label: "Today's Appointments", value: todayAppts !== undefined ? `${Number(todayAppts).toLocaleString()}` : "183", change: "+18", up: true, icon: Calendar, bg: "bg-emerald-50", ic: "text-emerald-600" },
-    { label: "Upcoming Appointments", value: upcomingAppts !== undefined ? `${Number(upcomingAppts).toLocaleString()}` : "412", change: "-8", up: false, icon: Clock, bg: "bg-sky-50", ic: "text-sky-600" },
-    { label: "Completed Total", value: "8,934", change: "+156", up: true, icon: CheckCircle, bg: "bg-teal-50", ic: "text-teal-600" },
-    { label: "Pending Verifications", value: verifs !== undefined ? `${Number(verifs).toLocaleString()}` : "4", change: "+1", up: false, icon: AlertCircle, bg: "bg-amber-50", ic: "text-amber-600" },
-    { label: "Total Revenue", value: rev !== undefined ? `$${Number(rev).toLocaleString()}` : "$24,680", change: "+$3,210", up: true, icon: DollarSign, bg: "bg-green-50", ic: "text-green-600" },
+    { label: "Total Doctors", value: totalDocs !== undefined ? `${Number(totalDocs).toLocaleString()}` : "0", change: "+0%", up: true, icon: Users, bg: "bg-teal-50", ic: "text-teal-600" },
+    { label: "Total Patients", value: totalPts !== undefined ? `${Number(totalPts).toLocaleString()}` : "0", change: "+0%", up: true, icon: User, bg: "bg-indigo-50", ic: "text-indigo-600" },
+    { label: "Total Clinics", value: totalCln !== undefined ? `${Number(totalCln).toLocaleString()}` : "0", change: "+0%", up: true, icon: Building2, bg: "bg-violet-50", ic: "text-violet-600" },
+    { label: "Today's Appointments", value: todayAppts !== undefined ? `${Number(todayAppts).toLocaleString()}` : "0", change: "+0%", up: true, icon: Calendar, bg: "bg-emerald-50", ic: "text-emerald-600" },
+    { label: "Upcoming Appointments", value: upcomingAppts !== undefined ? `${Number(upcomingAppts).toLocaleString()}` : "0", change: "+0%", up: true, icon: Clock, bg: "bg-sky-50", ic: "text-sky-600" },
+    { label: "Completed Total", value: completedTotal !== undefined ? `${Number(completedTotal).toLocaleString()}` : "0", change: "+0%", up: true, icon: CheckCircle, bg: "bg-teal-50", ic: "text-teal-600" },
+    { label: "Pending Verifications", value: verifs !== undefined ? `${Number(verifs).toLocaleString()}` : "0", change: "+0%", up: true, icon: AlertCircle, bg: "bg-amber-50", ic: "text-amber-600" },
+    { label: "Total Revenue", value: rev !== undefined ? `$${Number(rev).toLocaleString()}` : "$0", change: "+$0", up: true, icon: DollarSign, bg: "bg-green-50", ic: "text-green-600" },
   ];
 
-  const dynamicApptTrends = summary?.appointmentTrends?.length ? summary.appointmentTrends : appointmentTrends;
-  const dynamicRevTrends = summary?.revenueTrends?.length ? summary.revenueTrends : revenueTrends;
+  const dynamicApptTrends = summary?.appointmentTrends?.length ? summary.appointmentTrends : emptyApptTrends;
+  const dynamicRevTrends = summary?.revenueTrends?.length ? summary.revenueTrends : emptyRevTrends;
 
   return (
     <div className="space-y-5">
@@ -313,14 +256,14 @@ function DashboardView() {
 function DoctorsView() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [docList, setDocList] = useState(fallbackDoctors);
+  const [docList, setDocList] = useState<any[]>([]);
   const [modal, setModal] = useState<{ open: boolean; type: string; id: string; name: string }>({ open: false, type: "", id: "", name: "" });
 
   useEffect(() => {
     async function loadDocs() {
       try {
         const live: any = await adminApi.listDoctors();
-        if (live?.data?.length) {
+        if (live?.data) {
           setDocList(live.data.map((d: any) => ({
             id: d.id,
             name: d.user?.name || "Dr. Specialist",
@@ -329,12 +272,15 @@ function DoctorsView() {
             rating: d.rating || 4.8,
             verificationStatus: d.verificationStatus?.toLowerCase() || "approved",
             accountStatus: "active",
-            joinedDate: new Date(d.createdAt).toISOString().split('T')[0],
-            appointments: 120,
+            joinedDate: d.createdAt ? new Date(d.createdAt).toISOString().split('T')[0] : "Recent",
+            appointments: d.appointmentCount || 0,
           })));
+        } else {
+          setDocList([]);
         }
       } catch (err) {
-        console.warn("Using offline doctors fallback:", err);
+        console.warn("Error loading doctors:", err);
+        setDocList([]);
       }
     }
     loadDocs();
@@ -392,38 +338,48 @@ function DoctorsView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {filtered.map((doc) => (
-                <tr key={doc.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-xs font-bold text-teal-700 flex-shrink-0">
-                        {doc.name.split(" ")[1]?.[0] || "D"}
-                      </div>
-                      <div>
-                        <p className="font-medium text-slate-900 text-sm">{doc.name}</p>
-                        <p className="text-[11px] text-slate-400 font-mono">{doc.id}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-slate-600">{doc.specialty}</td>
-                  <td className="px-4 py-3 text-sm text-slate-600">{doc.clinic}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                      <span className="text-sm font-semibold text-slate-700">{doc.rating}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3"><Badge variant={doc.verificationStatus}>{doc.verificationStatus}</Badge></td>
-                  <td className="px-4 py-3"><Badge variant={doc.accountStatus}>{doc.accountStatus}</Badge></td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <button onClick={() => setModal({ open: true, type: doc.accountStatus === "active" ? "Suspend" : "Reactivate", id: doc.id, name: doc.name })} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
-                        <Lock className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                    <Users className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm font-semibold text-slate-700">No doctors registered yet</p>
+                    <p className="text-xs text-slate-400 mt-0.5">There are no doctors matching the criteria.</p>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filtered.map((doc) => (
+                  <tr key={doc.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-xs font-bold text-teal-700 flex-shrink-0">
+                          {doc.name.split(" ")[1]?.[0] || "D"}
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-900 text-sm">{doc.name}</p>
+                          <p className="text-[11px] text-slate-400 font-mono">{doc.id}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate-600">{doc.specialty}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600">{doc.clinic}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span className="text-sm font-semibold text-slate-700">{doc.rating}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3"><Badge variant={doc.verificationStatus}>{doc.verificationStatus}</Badge></td>
+                    <td className="px-4 py-3"><Badge variant={doc.accountStatus}>{doc.accountStatus}</Badge></td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => setModal({ open: true, type: doc.accountStatus === "active" ? "Suspend" : "Reactivate", id: doc.id, name: doc.name })} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors">
+                          <Lock className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -444,25 +400,25 @@ function DoctorsView() {
 
 // ─── Doctor Verification View ─────────────────────────────────────────────────
 function VerificationView() {
-  const [queue, setQueue] = useState(fallbackVerificationQueue);
+  const [queue, setQueue] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadQueue() {
       try {
         const live: any = await adminApi.listVerificationQueue();
-        if (live && Array.isArray(live) && live.length > 0) {
-          setQueue(live.map((v: any) => ({
-            id: v.id,
-            name: v.doctor?.user?.name || "Dr. Applicant",
-            specialty: v.doctor?.specialty || "Specialist",
-            license: v.licenseNumber || "LIC-2026",
-            documents: 3,
-            submitted: new Date(v.submittedAt || Date.now()).toISOString().split('T')[0],
-            status: v.status?.toLowerCase() || "pending",
-          })));
-        }
+        const items = Array.isArray(live) ? live : (live?.data || []);
+        setQueue(items.map((v: any) => ({
+          id: v.id,
+          name: v.doctor?.user?.name || v.name || "Dr. Applicant",
+          specialty: v.doctor?.specialty || v.specialty || "Specialist",
+          license: v.licenseNumber || v.license || "LIC-2026",
+          documents: v.documentsCount || 3,
+          submitted: v.submittedAt ? new Date(v.submittedAt).toISOString().split('T')[0] : "Recent",
+          status: v.status?.toLowerCase() || "pending",
+        })));
       } catch (err) {
-        console.warn("Using offline verification fallback:", err);
+        console.warn("Error loading verification queue:", err);
+        setQueue([]);
       }
     }
     loadQueue();
@@ -489,35 +445,43 @@ function VerificationView() {
       </div>
 
       <div className="space-y-3">
-        {queue.map((doc) => (
-          <div key={doc.id} className="bg-white rounded-xl border border-slate-200 p-5">
-            <div className="flex items-start justify-between flex-wrap gap-4">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-lg font-bold text-teal-600 flex-shrink-0">
-                  {doc.name.split(" ")[1]?.[0] || "D"}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-slate-900">{doc.name}</h3>
-                  <p className="text-sm text-slate-500 mt-0.5">{doc.specialty}</p>
-                  <p className="text-xs font-mono text-slate-400 mt-1">License: {doc.license} · Submitted: {doc.submitted}</p>
-                </div>
-              </div>
-              <Badge variant={doc.status}>{doc.status}</Badge>
-            </div>
-
-            <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
-              <button onClick={() => handleDecision(doc.id, doc.name, "APPROVED")} className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 transition-colors">
-                Approve
-              </button>
-              <button onClick={() => handleDecision(doc.id, doc.name, "REJECTED")} className="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 text-xs font-semibold rounded-lg hover:bg-red-100 transition-colors">
-                Reject
-              </button>
-              <button onClick={() => handleDecision(doc.id, doc.name, "DOCS_REQUESTED")} className="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-semibold rounded-lg hover:bg-amber-100 transition-colors">
-                Request Docs
-              </button>
-            </div>
+        {queue.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
+            <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-80" />
+            <p className="text-sm font-semibold text-slate-900">Verification Queue is Empty</p>
+            <p className="text-xs text-slate-400 mt-1">No pending doctor license verification requests at this time.</p>
           </div>
-        ))}
+        ) : (
+          queue.map((doc) => (
+            <div key={doc.id} className="bg-white rounded-xl border border-slate-200 p-5">
+              <div className="flex items-start justify-between flex-wrap gap-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-lg font-bold text-teal-600 flex-shrink-0">
+                    {doc.name.split(" ")[1]?.[0] || "D"}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">{doc.name}</h3>
+                    <p className="text-sm text-slate-500 mt-0.5">{doc.specialty}</p>
+                    <p className="text-xs font-mono text-slate-400 mt-1">License: {doc.license} · Submitted: {doc.submitted}</p>
+                  </div>
+                </div>
+                <Badge variant={doc.status}>{doc.status}</Badge>
+              </div>
+
+              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+                <button onClick={() => handleDecision(doc.id, doc.name, "APPROVED")} className="px-3 py-1.5 bg-emerald-600 text-white text-xs font-semibold rounded-lg hover:bg-emerald-700 transition-colors">
+                  Approve
+                </button>
+                <button onClick={() => handleDecision(doc.id, doc.name, "REJECTED")} className="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 text-xs font-semibold rounded-lg hover:bg-red-100 transition-colors">
+                  Reject
+                </button>
+                <button onClick={() => handleDecision(doc.id, doc.name, "DOCS_REQUESTED")} className="px-3 py-1.5 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-semibold rounded-lg hover:bg-amber-100 transition-colors">
+                  Request Docs
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
@@ -525,26 +489,29 @@ function VerificationView() {
 
 // ─── Patients View ───────────────────────────────────────────────────────────
 function PatientsView() {
-  const [patientList, setPatientList] = useState(fallbackPatients);
+  const [patientList, setPatientList] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadPatients() {
       try {
         const live: any = await adminApi.listPatients();
-        if (live?.data?.length) {
+        if (live?.data) {
           setPatientList(live.data.map((p: any) => ({
             id: p.id,
             name: p.user?.name || "Patient",
             email: p.user?.email || "—",
-            phone: p.emergencyPhone || "+1 (555) 019-2834",
-            appointments: p._count?.appointments || 4,
+            phone: p.emergencyPhone || p.user?.phoneNumber || "—",
+            appointments: p._count?.appointments || 0,
             status: "active",
-            joinedDate: new Date(p.createdAt).toISOString().split('T')[0],
-            lastActivity: "Today",
+            joinedDate: p.createdAt ? new Date(p.createdAt).toISOString().split('T')[0] : "Recent",
+            lastActivity: "Recent",
           })));
+        } else {
+          setPatientList([]);
         }
       } catch (err) {
-        console.warn("Using offline patients fallback:", err);
+        console.warn("Error loading patients:", err);
+        setPatientList([]);
       }
     }
     loadPatients();
@@ -568,15 +535,25 @@ function PatientsView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {patientList.map((p) => (
-                <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-4 py-3 font-medium text-slate-900">{p.name}</td>
-                  <td className="px-4 py-3 text-xs text-slate-500">{p.email} · {p.phone}</td>
-                  <td className="px-4 py-3 font-mono text-sm">{p.appointments}</td>
-                  <td className="px-4 py-3"><Badge variant={p.status}>{p.status}</Badge></td>
-                  <td className="px-4 py-3 text-xs text-slate-500">{p.joinedDate}</td>
+              {patientList.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-12 text-center text-slate-400">
+                    <User className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm font-semibold text-slate-700">No patients registered yet</p>
+                    <p className="text-xs text-slate-400 mt-0.5">There are currently no patient records found in the database.</p>
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                patientList.map((p) => (
+                  <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-4 py-3 font-medium text-slate-900">{p.name}</td>
+                    <td className="px-4 py-3 text-xs text-slate-500">{p.email} · {p.phone}</td>
+                    <td className="px-4 py-3 font-mono text-sm">{p.appointments}</td>
+                    <td className="px-4 py-3"><Badge variant={p.status}>{p.status}</Badge></td>
+                    <td className="px-4 py-3 text-xs text-slate-500">{p.joinedDate}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -587,25 +564,28 @@ function PatientsView() {
 
 // ─── Clinics View ────────────────────────────────────────────────────────────
 function ClinicsView() {
-  const [clinicList, setClinicList] = useState(fallbackClinics);
+  const [clinicList, setClinicList] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadClinics() {
       try {
         const live: any = await adminApi.listClinics();
-        if (live?.data?.length) {
+        if (live?.data) {
           setClinicList(live.data.map((c: any) => ({
             id: c.id,
             name: c.name,
-            location: c.address || "Metropolis",
-            doctors: c._count?.doctors || 8,
-            appointments: 1400,
+            location: c.address || "Main Branch",
+            doctors: c._count?.doctors || 0,
+            appointments: c._count?.appointments || 0,
             manager: c.manager?.name || "Clinic Manager",
             status: "active",
           })));
+        } else {
+          setClinicList([]);
         }
       } catch (err) {
-        console.warn("Using offline clinics fallback:", err);
+        console.warn("Error loading clinics:", err);
+        setClinicList([]);
       }
     }
     loadClinics();
@@ -619,21 +599,29 @@ function ClinicsView() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        {clinicList.map((c) => (
-          <div key={c.id} className="bg-white rounded-xl border border-slate-200 p-5">
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-semibold text-slate-900">{c.name}</h3>
-                <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" />{c.location}</p>
-              </div>
-              <Badge variant={c.status}>{c.status}</Badge>
-            </div>
-            <div className="mt-3 pt-3 border-t text-xs text-slate-500 flex gap-4">
-              <span><strong>{c.doctors}</strong> Doctors</span>
-              <span><strong>{c.appointments}</strong> Appointments</span>
-            </div>
+        {clinicList.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-200 p-10 text-center col-span-full">
+            <Building2 className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+            <p className="text-sm font-semibold text-slate-700">No Clinics Registered</p>
+            <p className="text-xs text-slate-400 mt-1">There are currently no registered clinic branches in the platform.</p>
           </div>
-        ))}
+        ) : (
+          clinicList.map((c) => (
+            <div key={c.id} className="bg-white rounded-xl border border-slate-200 p-5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-semibold text-slate-900">{c.name}</h3>
+                  <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" />{c.location}</p>
+                </div>
+                <Badge variant={c.status}>{c.status}</Badge>
+              </div>
+              <div className="mt-3 pt-3 border-t text-xs text-slate-500 flex gap-4">
+                <span><strong>{c.doctors}</strong> Doctors</span>
+                <span><strong>{c.appointments}</strong> Appointments</span>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
@@ -641,27 +629,30 @@ function ClinicsView() {
 
 // ─── Appointments View ───────────────────────────────────────────────────────
 function AppointmentsView() {
-  const [aptList, setAptList] = useState(fallbackAppointments);
+  const [aptList, setAptList] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadAppts() {
       try {
         const live: any = await adminApi.listAppointments();
-        if (live?.data?.length) {
+        if (live?.data) {
           setAptList(live.data.map((a: any) => ({
             id: a.appointmentNumber || a.id,
             patient: a.patient?.user?.name || "Patient",
             doctor: a.doctor?.user?.name || "Doctor",
             clinic: a.clinic?.name || "MedCare Center",
-            date: new Date(a.date).toISOString().split('T')[0],
-            time: a.time || "10:00 AM",
+            date: a.date ? new Date(a.date).toISOString().split('T')[0] : "—",
+            time: a.time || "—",
             type: a.type === "VIDEO" ? "Video" : "In-Person",
-            paymentStatus: "paid",
+            paymentStatus: a.paymentStatus?.toLowerCase() || "paid",
             status: a.status?.toLowerCase() || "confirmed",
           })));
+        } else {
+          setAptList([]);
         }
       } catch (err) {
-        console.warn("Using offline appointments fallback:", err);
+        console.warn("Error loading appointments:", err);
+        setAptList([]);
       }
     }
     loadAppts();
@@ -685,16 +676,26 @@ function AppointmentsView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {aptList.map((a) => (
-                <tr key={a.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-4 py-3 font-mono text-xs text-slate-400">{a.id}</td>
-                  <td className="px-4 py-3 font-medium text-slate-900">{a.patient}</td>
-                  <td className="px-4 py-3 text-slate-600">{a.doctor}</td>
-                  <td className="px-4 py-3 text-xs text-slate-500">{a.date} · {a.time}</td>
-                  <td className="px-4 py-3 text-xs">{a.type}</td>
-                  <td className="px-4 py-3"><Badge variant={a.status}>{a.status}</Badge></td>
+              {aptList.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-12 text-center text-slate-400">
+                    <Calendar className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm font-semibold text-slate-700">No Appointments Scheduled</p>
+                    <p className="text-xs text-slate-400 mt-0.5">No appointment records currently exist in the database.</p>
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                aptList.map((a) => (
+                  <tr key={a.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-400">{a.id}</td>
+                    <td className="px-4 py-3 font-medium text-slate-900">{a.patient}</td>
+                    <td className="px-4 py-3 text-slate-600">{a.doctor}</td>
+                    <td className="px-4 py-3 text-xs text-slate-500">{a.date} · {a.time}</td>
+                    <td className="px-4 py-3 text-xs">{a.type}</td>
+                    <td className="px-4 py-3"><Badge variant={a.status}>{a.status}</Badge></td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -705,25 +706,28 @@ function AppointmentsView() {
 
 // ─── Finance View ─────────────────────────────────────────────────────────────
 function FinanceView() {
-  const [txns, setTxns] = useState(fallbackTransactions);
+  const [txns, setTxns] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadTxns() {
       try {
         const live: any = await adminApi.listTransactions();
-        if (live?.data?.length) {
+        if (live?.data) {
           setTxns(live.data.map((t: any) => ({
             id: t.transactionNumber || t.id,
             patient: t.patient?.user?.name || "Patient",
             doctor: t.doctor?.user?.name || "Doctor",
-            amount: t.amount || 150,
+            amount: t.amount || 0,
             provider: t.provider || "Stripe",
             status: t.status?.toLowerCase() || "completed",
-            date: new Date(t.createdAt).toISOString().split('T')[0],
+            date: t.createdAt ? new Date(t.createdAt).toISOString().split('T')[0] : "—",
           })));
+        } else {
+          setTxns([]);
         }
       } catch (err) {
-        console.warn("Using offline finance fallback:", err);
+        console.warn("Error loading transactions:", err);
+        setTxns([]);
       }
     }
     loadTxns();
@@ -747,17 +751,27 @@ function FinanceView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {txns.map((t) => (
-                <tr key={t.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-4 py-3 font-mono text-xs text-slate-400">{t.id}</td>
-                  <td className="px-4 py-3 font-medium text-slate-900">{t.patient}</td>
-                  <td className="px-4 py-3 text-slate-600">{t.doctor}</td>
-                  <td className="px-4 py-3 font-bold text-slate-900">${t.amount}</td>
-                  <td className="px-4 py-3 text-xs">{t.provider}</td>
-                  <td className="px-4 py-3"><Badge variant={t.status}>{t.status}</Badge></td>
-                  <td className="px-4 py-3 text-xs text-slate-500">{t.date}</td>
+              {txns.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="px-4 py-12 text-center text-slate-400">
+                    <CreditCard className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm font-semibold text-slate-700">No Transactions Found</p>
+                    <p className="text-xs text-slate-400 mt-0.5">No financial transactions recorded yet.</p>
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                txns.map((t) => (
+                  <tr key={t.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs text-slate-400">{t.id}</td>
+                    <td className="px-4 py-3 font-medium text-slate-900">{t.patient}</td>
+                    <td className="px-4 py-3 text-slate-600">{t.doctor}</td>
+                    <td className="px-4 py-3 font-bold text-slate-900">${t.amount}</td>
+                    <td className="px-4 py-3 text-xs">{t.provider}</td>
+                    <td className="px-4 py-3"><Badge variant={t.status}>{t.status}</Badge></td>
+                    <td className="px-4 py-3 text-xs text-slate-500">{t.date}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -768,7 +782,31 @@ function FinanceView() {
 
 // ─── Reviews & Complaints View ───────────────────────────────────────────────
 function ReviewsView() {
-  const [reviewList, setReviewList] = useState(fallbackReviews);
+  const [reviewList, setReviewList] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadReviews() {
+      try {
+        const live: any = await adminApi.listReviews();
+        if (live?.data) {
+          setReviewList(live.data.map((r: any) => ({
+            id: r.id,
+            patient: r.patient?.user?.name || "Patient",
+            doctor: r.doctor?.user?.name || "Doctor",
+            rating: r.rating || 5,
+            content: r.comment || r.content || "No review content provided",
+            flagged: Boolean(r.flagged || r.isHidden),
+          })));
+        } else {
+          setReviewList([]);
+        }
+      } catch (err) {
+        console.warn("Error loading reviews:", err);
+        setReviewList([]);
+      }
+    }
+    loadReviews();
+  }, []);
 
   const handleModerate = async (id: string, isHidden: boolean) => {
     try {
@@ -789,19 +827,27 @@ function ReviewsView() {
       </div>
 
       <div className="space-y-3">
-        {reviewList.map((r) => (
-          <div key={r.id} className={`bg-white rounded-xl border p-4 ${r.flagged ? "border-red-200" : "border-slate-200"}`}>
-            <div className="flex items-start justify-between">
-              <div>
-                <p className="font-semibold text-sm">{r.patient} → {r.doctor} <span className="text-amber-500 font-bold">★ {r.rating}</span></p>
-                <p className="text-xs text-slate-600 mt-1">{r.content}</p>
-              </div>
-              <button onClick={() => handleModerate(r.id, !r.flagged)} className="text-xs px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded">
-                {r.flagged ? "Unhide" : "Hide"}
-              </button>
-            </div>
+        {reviewList.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-200 p-10 text-center">
+            <Star className="w-8 h-8 text-amber-400 mx-auto mb-2 opacity-50" />
+            <p className="text-sm font-semibold text-slate-700">No Patient Reviews</p>
+            <p className="text-xs text-slate-400 mt-1">There are currently no patient reviews submitted for moderation.</p>
           </div>
-        ))}
+        ) : (
+          reviewList.map((r) => (
+            <div key={r.id} className={`bg-white rounded-xl border p-4 ${r.flagged ? "border-red-200" : "border-slate-200"}`}>
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="font-semibold text-sm">{r.patient} → {r.doctor} <span className="text-amber-500 font-bold">★ {r.rating}</span></p>
+                  <p className="text-xs text-slate-600 mt-1">{r.content}</p>
+                </div>
+                <button onClick={() => handleModerate(r.id, !r.flagged)} className="text-xs px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded">
+                  {r.flagged ? "Unhide" : "Hide"}
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
@@ -848,6 +894,25 @@ function NotificationsView() {
 
 // ─── Activity View ───────────────────────────────────────────────────────────
 function ActivityView() {
+  const [activities, setActivities] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function loadActivities() {
+      try {
+        const live: any = await adminApi.listAuditLogs({ limit: 10 });
+        if (live?.data) {
+          setActivities(live.data);
+        } else {
+          setActivities([]);
+        }
+      } catch (err) {
+        console.warn("Could not load activity stream:", err);
+        setActivities([]);
+      }
+    }
+    loadActivities();
+  }, []);
+
   return (
     <div className="space-y-4">
       <div>
@@ -855,9 +920,15 @@ function ActivityView() {
         <p className="text-xs text-slate-400 mt-0.5">Live platform operations</p>
       </div>
       <div className="bg-white rounded-xl border border-slate-200 p-5 divide-y divide-slate-100">
-        <p className="py-2 text-xs text-slate-600">Admin verified Dr. Sarah Chen (Cardiology)</p>
-        <p className="py-2 text-xs text-slate-600">Admin dispatched system broadcast notice</p>
-        <p className="py-2 text-xs text-slate-600">Settled daily doctor payout disbursements</p>
+        {activities.length === 0 ? (
+          <p className="py-6 text-center text-xs text-slate-400">No recent administrative activities recorded</p>
+        ) : (
+          activities.map((a: any, i: number) => (
+            <p key={a.id || i} className="py-2 text-xs text-slate-600">
+              <span className="font-semibold text-slate-800">{a.actorName || "Admin"}:</span> {a.action} {a.resource ? `(${a.resource})` : ""}
+            </p>
+          ))
+        )}
       </div>
     </div>
   );
@@ -865,25 +936,28 @@ function ActivityView() {
 
 // ─── Audit View ──────────────────────────────────────────────────────────────
 function AuditView() {
-  const [logs, setLogs] = useState(fallbackAuditLogs);
+  const [logs, setLogs] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadLogs() {
       try {
         const live: any = await adminApi.listAuditLogs();
-        if (live?.data?.length) {
+        if (live?.data) {
           setLogs(live.data.map((l: any, i: number) => ({
             id: i + 1,
             actor: l.actorName || "Admin",
             action: l.action,
             resource: l.resource || "Resource",
-            timestamp: new Date(l.createdAt).toLocaleString(),
+            timestamp: l.createdAt ? new Date(l.createdAt).toLocaleString() : "Recent",
             ip: l.ipAddress || "127.0.0.1",
             result: l.result || "success",
           })));
+        } else {
+          setLogs([]);
         }
       } catch (err) {
-        console.warn("Using offline audit fallback:", err);
+        console.warn("Error loading audit logs:", err);
+        setLogs([]);
       }
     }
     loadLogs();
@@ -907,15 +981,25 @@ function AuditView() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-50">
-              {logs.map((l) => (
-                <tr key={l.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="px-4 py-3 font-mono text-xs">{l.actor}</td>
-                  <td className="px-4 py-3 text-xs font-semibold">{l.action}</td>
-                  <td className="px-4 py-3 text-xs text-slate-600">{l.resource}</td>
-                  <td className="px-4 py-3 text-xs text-slate-500">{l.timestamp}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-slate-400">{l.ip}</td>
+              {logs.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-4 py-12 text-center text-slate-400">
+                    <Shield className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                    <p className="text-sm font-semibold text-slate-700">No Audit Logs Recorded</p>
+                    <p className="text-xs text-slate-400 mt-0.5">No immutable audit records found in the database.</p>
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                logs.map((l) => (
+                  <tr key={l.id} className="hover:bg-slate-50/60 transition-colors">
+                    <td className="px-4 py-3 font-mono text-xs">{l.actor}</td>
+                    <td className="px-4 py-3 text-xs font-semibold">{l.action}</td>
+                    <td className="px-4 py-3 text-xs text-slate-600">{l.resource}</td>
+                    <td className="px-4 py-3 text-xs text-slate-500">{l.timestamp}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-400">{l.ip}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -943,26 +1027,28 @@ function Sidebar({ active, onNav, collapsed, onToggle }: {
   active: ViewId; onNav: (v: ViewId) => void; collapsed: boolean; onToggle: () => void;
 }) {
   return (
-    <aside className={`bg-[#0F172A] flex flex-col h-full flex-shrink-0 transition-all duration-200 overflow-hidden ${collapsed ? "w-16" : "w-60"}`}>
-      <div className="flex items-center h-14 px-4 border-b border-white/[0.06] flex-shrink-0">
+    <aside className={`bg-[#0F172A] flex flex-col h-full flex-shrink-0 transition-all duration-200 overflow-hidden ${collapsed ? "w-16" : "w-64"}`}>
+      <div className={`flex items-center h-14 border-b border-white/[0.08] flex-shrink-0 ${collapsed ? "justify-center px-2" : "px-4"}`}>
         <div className="w-8 h-8 rounded-lg bg-teal-600 flex items-center justify-center flex-shrink-0">
           <Activity className="w-4 h-4 text-white" />
         </div>
         {!collapsed && (
           <div className="ml-2.5 flex-1 min-w-0">
             <p className="text-sm font-bold text-white leading-none">MediAdmin</p>
-            <p className="text-[10px] text-slate-300 mt-0.5">Healthcare Platform</p>
+            <p className="text-[10px] text-slate-200 font-medium mt-0.5">Platform Operations</p>
           </div>
         )}
-        {!collapsed && (
-          <button onClick={onToggle} className="ml-auto p-1 text-slate-400 hover:text-white rounded transition-colors flex-shrink-0">
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-        )}
+        <button
+          onClick={onToggle}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className={`${collapsed ? "mt-1 p-1 text-slate-300 hover:text-white" : "ml-auto p-1 text-slate-300 hover:text-white"} rounded transition-colors flex-shrink-0`}
+        >
+          {collapsed ? <Menu className="w-4 h-4 text-white" /> : <ChevronLeft className="w-4 h-4 text-white" />}
+        </button>
       </div>
 
       <nav className="flex-1 py-3 overflow-y-auto overflow-x-hidden">
-        <div className="space-y-0.5 px-2">
+        <div className="space-y-1 px-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = active === item.id;
@@ -971,10 +1057,14 @@ function Sidebar({ active, onNav, collapsed, onToggle }: {
                 key={item.id}
                 onClick={() => onNav(item.id)}
                 title={collapsed ? item.label : undefined}
-                className={`w-full flex items-center gap-3 rounded-lg text-sm transition-all duration-150 ${collapsed ? "justify-center p-2.5" : "px-3 py-2.5"} ${isActive ? "bg-teal-600 text-white font-medium" : "text-slate-200 hover:text-white hover:bg-white/10"}`}
+                className={`w-full flex items-center gap-3 rounded-lg text-sm transition-all duration-150 ${collapsed ? "justify-center p-2.5" : "px-3 py-2.5"} ${
+                  isActive
+                    ? "bg-teal-600 text-white font-semibold shadow-sm"
+                    : "text-white font-medium hover:text-white hover:bg-white/15"
+                }`}
               >
-                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-white" : "text-slate-300"}`} />
-                {!collapsed && <span className="flex-1 text-left truncate">{item.label}</span>}
+                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-teal-200" : "text-white"}`} />
+                {!collapsed && <span className="flex-1 text-left truncate text-white">{item.label}</span>}
               </button>
             );
           })}
@@ -982,38 +1072,20 @@ function Sidebar({ active, onNav, collapsed, onToggle }: {
       </nav>
 
       {/* Admin Sidebar Logout */}
-      <div className="p-3 border-t border-white/10 flex-shrink-0">
+      <div className="p-3 border-t border-white/[0.08] flex-shrink-0">
         <button
           onClick={() => {
             useAuthStore.getState().logout();
             window.location.href = '/login';
           }}
-          className={`w-full flex items-center gap-3 rounded-lg text-sm text-slate-200 hover:text-red-400 hover:bg-red-500/10 transition-all ${collapsed ? "justify-center p-2.5" : "px-3 py-2.5"}`}
+          className={`w-full flex items-center gap-3 rounded-lg text-sm text-white hover:text-red-300 hover:bg-red-500/20 font-semibold transition-all ${collapsed ? "justify-center p-2.5" : "px-3 py-2.5"}`}
           title="Sign Out"
         >
-          <LogOut className="w-4 h-4 flex-shrink-0 text-slate-300 group-hover:text-red-400" />
-          {!collapsed && <span>Sign Out</span>}
+          <LogOut className="w-4 h-4 flex-shrink-0 text-white group-hover:text-red-300" />
+          {!collapsed && <span className="text-white">Sign Out</span>}
         </button>
       </div>
     </aside>
-  );
-}
-
-// ─── Header ───────────────────────────────────────────────────────────────────
-function Header({ collapsed, onToggleSidebar }: { collapsed: boolean; onToggleSidebar: () => void }) {
-  return (
-    <header className="h-14 bg-white border-b border-slate-200 flex items-center gap-3 px-4 flex-shrink-0">
-      {collapsed && (
-        <button onClick={onToggleSidebar} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors flex-shrink-0">
-          <Menu className="w-5 h-5" />
-        </button>
-      )}
-
-      <div className="hidden sm:flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 w-72">
-        <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
-        <input placeholder="Quick search patients, doctors, IDs..." className="text-sm bg-transparent outline-none w-full placeholder:text-slate-400 text-slate-700" />
-      </div>
-    </header>
   );
 }
 
@@ -1041,7 +1113,6 @@ export default function App() {
       <Toaster position="top-right" richColors closeButton />
       <Sidebar active={view} onNav={setView} collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <Header collapsed={collapsed} onToggleSidebar={() => setCollapsed(false)} />
         <main className="dashboard-content flex-1 overflow-y-auto p-4 sm:p-6">
           {viewMap[view]}
         </main>

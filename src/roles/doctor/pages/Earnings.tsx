@@ -1,16 +1,42 @@
 import { useEffect, useState } from "react";
-import { DollarSign, TrendingUp, Clock, ArrowUp, RefreshCw, Download, CheckCircle2, Building, CreditCard, X } from "lucide-react";
+import { DollarSign, TrendingUp, Clock, ArrowUp, Download, CheckCircle2, Building, X } from "lucide-react";
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
-import StatusBadge from "../components/StatusBadge";
-import { earningsData as mockEarnings } from "../data/mockData";
 import { doctorApi } from "../services/doctor.api";
 
+const defaultMonthlyTrends = [
+  { month: "Jan", amount: 0 },
+  { month: "Feb", amount: 0 },
+  { month: "Mar", amount: 0 },
+  { month: "Apr", amount: 0 },
+  { month: "May", amount: 0 },
+  { month: "Jun", amount: 0 },
+];
+
+const defaultWeeklyBreakdown = [
+  { day: "Mon", earnings: 0 },
+  { day: "Tue", earnings: 0 },
+  { day: "Wed", earnings: 0 },
+  { day: "Thu", earnings: 0 },
+  { day: "Fri", earnings: 0 },
+  { day: "Sat", earnings: 0 },
+  { day: "Sun", earnings: 0 },
+];
+
 export default function Earnings({ onToast }: { onToast?: (msg: string) => void }) {
-  const [earnings, setEarnings] = useState<any>(mockEarnings);
+  const [earnings, setEarnings] = useState<any>({
+    total: 0,
+    availableBalance: 0,
+    pendingPayout: 0,
+    today: 0,
+    weekly: 0,
+    monthly: 0,
+    chartData: defaultMonthlyTrends,
+    weeklyBreakdown: defaultWeeklyBreakdown,
+  });
   const [payoutHistory, setPayoutHistory] = useState<any[]>([]);
   const [showPayoutModal, setShowPayoutModal] = useState(false);
-  const [payoutAmount, setPayoutAmount] = useState("1250");
-  const [bankName, setBankName] = useState("Chase Bank Commercial");
+  const [payoutAmount, setPayoutAmount] = useState("0");
+  const [bankName, setBankName] = useState("Commercial Bank");
   const [payoutMethod, setPayoutMethod] = useState("BANK_TRANSFER");
   const [requesting, setRequesting] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -20,13 +46,16 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
       try {
         const data: any = await doctorApi.getEarnings();
         if (data) {
-          setEarnings((prev: any) => ({
-            ...prev,
-            total: data.totalEarned ?? data.kpi?.totalEarned ?? prev.total,
-            availableBalance: data.availableBalance ?? data.kpi?.availableBalance ?? 1250,
-            pendingPayout: data.pendingPayout ?? data.kpi?.pendingPayout ?? 350,
-            consultationFee: data.consultationFee ?? 150,
-          }));
+          setEarnings({
+            total: data.totalEarned ?? data.kpi?.totalEarned ?? 0,
+            availableBalance: data.availableBalance ?? data.kpi?.availableBalance ?? 0,
+            pendingPayout: data.pendingPayout ?? data.kpi?.pendingPayout ?? 0,
+            today: data.today ?? data.kpi?.today ?? 0,
+            weekly: data.weekly ?? data.kpi?.weekly ?? 0,
+            monthly: data.monthly ?? data.kpi?.monthly ?? 0,
+            chartData: data.chartData?.length ? data.chartData : defaultMonthlyTrends,
+            weeklyBreakdown: data.weeklyBreakdown?.length ? data.weeklyBreakdown : defaultWeeklyBreakdown,
+          });
           if (data.payoutHistory && Array.isArray(data.payoutHistory)) {
             setPayoutHistory(data.payoutHistory);
           }
@@ -35,7 +64,7 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
           }
         }
       } catch (err) {
-        console.warn("Using offline earnings fallback:", err);
+        console.warn("Could not load doctor earnings:", err);
       } finally {
         setLoading(false);
       }
@@ -48,14 +77,14 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
     setRequesting(true);
     try {
       await doctorApi.requestPayout({
-        amount: Number(payoutAmount) || 1250,
+        amount: Number(payoutAmount) || 0,
         bankName,
         payoutMethod,
       });
       setShowPayoutModal(false);
       const newRecord = {
         id: `PAYOUT-${Math.floor(1000 + Math.random() * 9000)}`,
-        amount: Number(payoutAmount) || 1250,
+        amount: Number(payoutAmount) || 0,
         bankName,
         status: "PENDING",
         requestedAt: new Date().toISOString(),
@@ -73,27 +102,17 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
     }
   };
 
-  const availableBal = earnings.availableBalance ?? 1250;
-  const pendingBal = earnings.pendingPayout ?? 350;
-  const lifetimeEarned = earnings.total ?? 98400;
+  const availableBal = earnings.availableBalance ?? 0;
+  const pendingBal = earnings.pendingPayout ?? 0;
+  const lifetimeEarned = earnings.total ?? 0;
 
   const kpiCards = [
     { label: "Available for Payout", value: `$${availableBal.toLocaleString()}`, icon: DollarSign, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/40" },
     { label: "Pending Payout", value: `$${pendingBal.toLocaleString()}`, icon: Clock, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/40" },
-    { label: "Today's Consults", value: `$${earnings.today || 750}`, icon: DollarSign, color: "text-teal-600 dark:text-teal-400", bg: "bg-teal-50 dark:bg-teal-950/40" },
-    { label: "This Week", value: `$${(earnings.weekly || 3800).toLocaleString()}`, icon: TrendingUp, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/40" },
-    { label: "This Month", value: `$${(earnings.monthly || 11200).toLocaleString()}`, icon: TrendingUp, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/40" },
+    { label: "Today's Consults", value: `$${Number(earnings.today || 0).toLocaleString()}`, icon: DollarSign, color: "text-teal-600 dark:text-teal-400", bg: "bg-teal-50 dark:bg-teal-950/40" },
+    { label: "This Week", value: `$${Number(earnings.weekly || 0).toLocaleString()}`, icon: TrendingUp, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/40" },
+    { label: "This Month", value: `$${Number(earnings.monthly || 0).toLocaleString()}`, icon: TrendingUp, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/40" },
     { label: "Total Lifetime", value: `$${lifetimeEarned.toLocaleString()}`, icon: DollarSign, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/40" },
-  ];
-
-  const weeklyData = [
-    { day: "Mon", earnings: 450 },
-    { day: "Tue", earnings: 750 },
-    { day: "Wed", earnings: 300 },
-    { day: "Thu", earnings: 600 },
-    { day: "Fri", earnings: 450 },
-    { day: "Sat", earnings: 150 },
-    { day: "Sun", earnings: 0 },
   ];
 
   return (
@@ -105,7 +124,7 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => alert("Exporting full tax & payout statement CSV...")}
+            onClick={() => alert("Exporting full statement CSV...")}
             className="border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-xl text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors flex items-center gap-1.5"
           >
             <Download className="w-3.5 h-3.5" /> Export Statement
@@ -136,13 +155,13 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
         <div className="xl:col-span-2 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-slate-900 dark:text-white">Monthly Earnings Trend</h2>
-            <span className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/40 px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
-              <ArrowUp className="w-3 h-3" /> 8.2% vs last month
+            <span className="text-xs text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 px-2.5 py-1 rounded-full font-bold flex items-center gap-1">
+              <ArrowUp className="w-3 h-3" /> Live
             </span>
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={earnings.chartData || mockEarnings.chartData} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
+              <AreaChart data={earnings.chartData || defaultMonthlyTrends} margin={{ top: 4, right: 4, left: -10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="earGrad2" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#0d9488" stopOpacity={0.25} />
@@ -170,7 +189,7 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
           <h2 className="font-bold text-slate-900 dark:text-white mb-4">Weekly Breakdown ($)</h2>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={weeklyData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+              <BarChart data={earnings.weeklyBreakdown || defaultWeeklyBreakdown} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                 <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
                 <Tooltip
@@ -190,9 +209,15 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
       </div>
 
       {/* Payout History Ledger */}
-      {payoutHistory.length > 0 && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
-          <h3 className="font-bold text-slate-900 dark:text-white text-sm">Disbursement & Payout Transactions</h3>
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+        <h3 className="font-bold text-slate-900 dark:text-white text-sm">Disbursement & Payout Transactions</h3>
+        {payoutHistory.length === 0 ? (
+          <div className="py-8 text-center text-slate-400">
+            <DollarSign className="w-8 h-8 mx-auto mb-2 text-slate-300 dark:text-slate-700" />
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No payout history</p>
+            <p className="text-xs text-slate-400 mt-0.5">Submitted payout requests will be listed here.</p>
+          </div>
+        ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead>
@@ -209,7 +234,7 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
                   <tr key={p.id || idx} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
                     <td className="py-3 font-mono font-semibold text-teal-600 dark:text-teal-400">{p.id || p.payoutNumber || `PAYOUT-${1000 + idx}`}</td>
                     <td className="py-3 font-bold text-slate-900 dark:text-white">${p.amount?.toLocaleString()}</td>
-                    <td className="py-3 text-slate-600 dark:text-slate-300">{p.bankName || "Chase Bank"}</td>
+                    <td className="py-3 text-slate-600 dark:text-slate-300">{p.bankName || "Commercial Bank"}</td>
                     <td className="py-3">
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
                         {p.status || "COMPLETED"}
@@ -221,8 +246,8 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Payout Modal */}
       {showPayoutModal && (
@@ -247,7 +272,7 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
                   <DollarSign className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                   <input
                     type="number"
-                    max={availableBal}
+                    max={availableBal > 0 ? availableBal : undefined}
                     value={payoutAmount}
                     onChange={(e) => setPayoutAmount(e.target.value)}
                     required
@@ -293,7 +318,7 @@ export default function Earnings({ onToast }: { onToast?: (msg: string) => void 
                   disabled={requesting}
                   className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold shadow-md shadow-teal-600/20 flex items-center gap-1.5"
                 >
-                  {requesting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                  <CheckCircle2 className="w-3.5 h-3.5" />
                   Confirm Disbursement
                 </button>
               </div>

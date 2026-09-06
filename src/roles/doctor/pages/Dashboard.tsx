@@ -14,9 +14,18 @@ import {
 } from "lucide-react";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import StatusBadge from "../components/StatusBadge";
-import { todayAppointments, earningsData } from "../data/mockData";
 import { useAuthStore } from "../../../common/stores/auth.store";
 import { doctorApi, DoctorDashboardData } from "../services/doctor.api";
+
+const emptyEarningsChart = [
+  { day: "Mon", earnings: 0 },
+  { day: "Tue", earnings: 0 },
+  { day: "Wed", earnings: 0 },
+  { day: "Thu", earnings: 0 },
+  { day: "Fri", earnings: 0 },
+  { day: "Sat", earnings: 0 },
+  { day: "Sun", earnings: 0 },
+];
 
 export default function Dashboard() {
   const { user } = useAuthStore();
@@ -41,18 +50,18 @@ export default function Dashboard() {
     loadDashboard();
   }, []);
 
-  const doctorName = liveData?.profile?.name || user?.name || "Dr. Sarah Mitchell";
-  const clinicName = liveData?.profile?.clinicName || "MedCare Main Clinic";
-  const roomNumber = liveData?.profile?.roomNumber || "Room 204";
+  const doctorName = liveData?.profile?.name || user?.name || "Doctor";
+  const clinicName = liveData?.profile?.clinicName || "MedCare Health Center";
+  const roomNumber = liveData?.profile?.roomNumber || "Consultation Room";
 
-  const todayCount = liveData?.stats?.todayAppointments ?? 8;
-  const completedCount = liveData?.stats?.completedToday ?? 5;
-  const pendingToday = liveData?.stats?.pendingToday ?? liveData?.stats?.pendingNotes ?? 3;
-  const totalPatients = liveData?.stats?.totalPatients ?? 42;
-  const todayEarnings = liveData?.stats?.todayEarnings ?? 250;
-  const totalEarnings = liveData?.stats?.totalEarnings ?? liveData?.stats?.monthlyEarnings ?? 11200;
-  const rating = liveData?.profile?.rating ?? liveData?.stats?.rating ?? 4.8;
-  const totalReviews = liveData?.profile?.reviewCount ?? liveData?.stats?.totalReviews ?? 312;
+  const todayCount = liveData?.stats?.todayAppointments ?? 0;
+  const completedCount = liveData?.stats?.completedToday ?? 0;
+  const pendingToday = liveData?.stats?.pendingToday ?? liveData?.stats?.pendingNotes ?? 0;
+  const totalPatients = liveData?.stats?.totalPatients ?? 0;
+  const todayEarnings = liveData?.stats?.todayEarnings ?? 0;
+  const totalEarnings = liveData?.stats?.totalEarnings ?? liveData?.stats?.monthlyEarnings ?? 0;
+  const rating = liveData?.profile?.rating ?? liveData?.stats?.rating ?? 0;
+  const totalReviews = liveData?.profile?.reviewCount ?? liveData?.stats?.totalReviews ?? 0;
 
   const kpiCards = [
     { label: "Today's Consults", value: String(todayCount), sub: `${pendingToday} pending`, icon: Calendar, color: "bg-teal-500", light: "bg-teal-50 dark:bg-teal-950/40", text: "text-teal-600 dark:text-teal-400" },
@@ -64,18 +73,18 @@ export default function Dashboard() {
     { label: "Avg. Rating", value: String(rating), sub: `From ${totalReviews} reviews`, icon: Star, color: "bg-orange-500", light: "bg-orange-50 dark:bg-orange-950/40", text: "text-orange-600 dark:text-orange-400" },
   ];
 
-  const rawQueue = liveData?.todayQueue?.length ? liveData.todayQueue : (liveData?.upcomingAppointments?.length ? liveData.upcomingAppointments : null);
-  const displayAppointments = rawQueue ? rawQueue.map((apt: any, idx: number) => ({
+  const rawQueue = liveData?.todayQueue?.length ? liveData.todayQueue : (liveData?.upcomingAppointments?.length ? liveData.upcomingAppointments : []);
+  const displayAppointments = rawQueue.map((apt: any, idx: number) => ({
     id: apt.id || `apt-${idx}`,
-    time: apt.time || (apt.startTime ? new Date(apt.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '09:00 AM'),
-    patient: apt.patient?.name || (apt.patient?.user ? `${apt.patient.user.firstName} ${apt.patient.user.lastName}` : apt.patientName || 'Scheduled Patient'),
-    avatar: apt.patient?.avatar || apt.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
-    reason: apt.reason || apt.notes || 'General Checkup',
+    time: apt.time || (apt.startTime ? new Date(apt.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'),
+    patient: apt.patient?.name || (apt.patient?.user ? `${apt.patient.user.firstName} ${apt.patient.user.lastName}` : apt.patientName || 'Patient'),
+    avatar: apt.patient?.avatar || apt.avatar || '',
+    reason: apt.reason || apt.notes || 'General Consultation',
     type: apt.type === 'online' || apt.type === 'Online' ? 'Online' : 'In-Person',
     status: apt.status || 'confirmed',
-  })) : todayAppointments;
+  }));
 
-  const dynamicEarningsChart = (liveData as any)?.earningsTrends?.length ? (liveData as any).earningsTrends : earningsData.chartData;
+  const dynamicEarningsChart = (liveData as any)?.earningsTrends?.length ? (liveData as any).earningsTrends : emptyEarningsChart;
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -123,29 +132,39 @@ export default function Dashboard() {
             <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Real-Time Patient Queue</span>
           </div>
           <div className="divide-y divide-slate-50 dark:divide-slate-800/60">
-            {displayAppointments.map((apt) => (
-              <div key={apt.id} className="px-5 py-3.5 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group">
-                <div className="text-center min-w-[60px]">
-                  <div className="text-sm font-semibold text-slate-900 dark:text-white">{apt.time.split(" ")[0]}</div>
-                  <div className="text-xs text-slate-400">{apt.time.split(" ")[1]}</div>
-                </div>
-                <div className="w-px h-10 bg-slate-200 dark:bg-slate-800" />
-                <img src={apt.avatar} alt={apt.patient} className="w-9 h-9 rounded-full object-cover flex-shrink-0 bg-slate-100" />
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-slate-900 dark:text-white text-sm truncate">{apt.patient}</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">{apt.reason}</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={apt.type === "Online" ? "online" : "in-person"} size="sm" />
-                  <StatusBadge status={apt.status} size="sm" />
-                </div>
-                {apt.status === "confirmed" && (
-                  <button className="opacity-0 group-hover:opacity-100 text-xs bg-teal-600 text-white px-3 py-1.5 rounded-lg font-semibold transition-all">
-                    Start
-                  </button>
-                )}
+            {displayAppointments.length === 0 ? (
+              <div className="p-12 text-center">
+                <Calendar className="w-8 h-8 text-slate-300 dark:text-slate-700 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">No appointments scheduled for today</p>
+                <p className="text-xs text-slate-400 mt-1">Your real-time patient queue is currently clear.</p>
               </div>
-            ))}
+            ) : (
+              displayAppointments.map((apt) => (
+                <div key={apt.id} className="px-5 py-3.5 flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors group">
+                  <div className="text-center min-w-[60px]">
+                    <div className="text-sm font-semibold text-slate-900 dark:text-white">{apt.time.split(" ")[0]}</div>
+                    <div className="text-xs text-slate-400">{apt.time.split(" ")[1]}</div>
+                  </div>
+                  <div className="w-px h-10 bg-slate-200 dark:bg-slate-800" />
+                  <div className="w-9 h-9 rounded-full bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center text-xs font-bold text-teal-700 dark:text-teal-300 flex-shrink-0">
+                    {apt.patient.split(" ")[0]?.[0] || "P"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-slate-900 dark:text-white text-sm truncate">{apt.patient}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{apt.reason}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={apt.type === "Online" ? "online" : "in-person"} size="sm" />
+                    <StatusBadge status={apt.status} size="sm" />
+                  </div>
+                  {apt.status === "confirmed" && (
+                    <button className="opacity-0 group-hover:opacity-100 text-xs bg-teal-600 text-white px-3 py-1.5 rounded-lg font-semibold transition-all">
+                      Start
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
 

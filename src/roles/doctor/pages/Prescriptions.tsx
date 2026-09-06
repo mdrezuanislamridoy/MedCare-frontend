@@ -1,35 +1,53 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Eye, Download, Printer, Pill, RefreshCw, Sparkles } from "lucide-react";
-import { prescriptions as initialRx, patients } from "../data/mockData";
+import { Plus, Trash2, Eye, Download, Printer, Pill } from "lucide-react";
 import { doctorApi } from "../services/doctor.api";
+import { useAuthStore } from "../../../common/stores/auth.store";
 
 type Medicine = { name: string; dosage: string; frequency: string; duration: string; instructions: string };
 
 export default function Prescriptions({ onToast }: { onToast: (msg: string) => void }) {
-  const [rxList, setRxList] = useState<any[]>(initialRx);
+  const { user } = useAuthStore();
+  const [rxList, setRxList] = useState<any[]>([]);
+  const [patientOptions, setPatientOptions] = useState<any[]>([]);
   const [creating, setCreating] = useState(false);
   const [preview, setPreview] = useState<any | null>(null);
   const [saving, setSaving] = useState(false);
   const [newRx, setNewRx] = useState<{ patientId: string; patient: string; diagnosis: string; medicines: Medicine[]; notes: string }>({
-    patientId: patients[0]?.id || "PAT-001",
-    patient: patients[0]?.name || "James Harrington",
-    diagnosis: "Primary Hypertension",
-    medicines: [{ name: "Amlodipine Besylate", dosage: "5mg", frequency: "Once daily (Morning)", duration: "30 days", instructions: "Take after breakfast" }],
-    notes: "Review BP log in 2 weeks. Low sodium diet.",
+    patientId: "",
+    patient: "",
+    diagnosis: "",
+    medicines: [{ name: "", dosage: "", frequency: "", duration: "", instructions: "" }],
+    notes: "",
   });
 
+  const docName = user?.name || (user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : "Doctor");
+  const docDisplayName = docName.startsWith("Dr.") ? docName : `Dr. ${docName}`;
+
   useEffect(() => {
-    async function loadPrescriptions() {
+    async function loadData() {
       try {
-        const data: any = await doctorApi.listPrescriptions();
-        if (data && (Array.isArray(data) && data.length > 0)) {
-          setRxList(data);
+        const [rxData, ptData]: [any, any] = await Promise.all([
+          doctorApi.listPrescriptions().catch(() => []),
+          doctorApi.listPatients().catch(() => []),
+        ]);
+
+        const rxItems = Array.isArray(rxData) ? rxData : (rxData?.data || []);
+        setRxList(rxItems);
+
+        const ptItems = Array.isArray(ptData) ? ptData : (ptData?.data || []);
+        setPatientOptions(ptItems);
+        if (ptItems.length > 0) {
+          setNewRx((prev) => ({
+            ...prev,
+            patientId: ptItems[0].id,
+            patient: ptItems[0].name || ptItems[0].user?.name || "Patient",
+          }));
         }
       } catch (err) {
-        console.warn("Using offline prescriptions fallback:", err);
+        console.warn("Could not load prescriptions:", err);
       }
     }
-    loadPrescriptions();
+    loadData();
   }, []);
 
   const addMedicine = () => {
@@ -55,21 +73,24 @@ export default function Prescriptions({ onToast }: { onToast: (msg: string) => v
   };
 
   const handleSaveRx = async () => {
+    if (!newRx.patientId && patientOptions.length === 0) {
+      onToast("No registered patient selected.");
+      return;
+    }
     setSaving(true);
     try {
       await doctorApi.createPrescription({
-        appointmentId: "APT-1001",
-        patientId: newRx.patientId,
-        diagnosis: newRx.diagnosis,
+        patientId: newRx.patientId || (patientOptions[0]?.id || "PAT-1"),
+        diagnosis: newRx.diagnosis || "Consultation",
         advice: newRx.notes,
         instructions: newRx.notes,
-        medicines: newRx.medicines,
+        medicines: newRx.medicines.filter(m => m.name.trim() !== ""),
         notes: newRx.notes,
       });
       const createdItem = {
         id: `RX-${Date.now()}`,
-        patient: newRx.patient,
-        date: "2026-08-10",
+        patient: newRx.patient || "Patient",
+        date: new Date().toISOString().split('T')[0],
         medicines: newRx.medicines,
         notes: newRx.notes,
       };
@@ -77,17 +98,17 @@ export default function Prescriptions({ onToast }: { onToast: (msg: string) => v
       setCreating(false);
       onToast("Digital prescription issued and sent to patient!");
     } catch (err) {
-      console.warn("Saved prescription offline");
+      console.warn("Prescription create error:", err);
       const createdItem = {
         id: `RX-${Date.now()}`,
-        patient: newRx.patient,
-        date: "2026-08-10",
+        patient: newRx.patient || "Patient",
+        date: new Date().toISOString().split('T')[0],
         medicines: newRx.medicines,
         notes: newRx.notes,
       };
       setRxList((prev) => [createdItem, ...prev]);
       setCreating(false);
-      onToast("Prescription created!");
+      onToast("Prescription recorded!");
     } finally {
       setSaving(false);
     }
@@ -112,26 +133,24 @@ export default function Prescriptions({ onToast }: { onToast: (msg: string) => v
           <div className="border-b-2 border-teal-600 pb-5 mb-5">
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="text-xl font-bold text-teal-700 dark:text-teal-400">Dr. Sarah Mitchell</h2>
-                <p className="text-slate-600 dark:text-slate-400 text-xs mt-0.5">MD, FACC · Specialist Cardiologist</p>
-                <p className="text-slate-400 text-[11px] mt-1">Medical Registration: MCI-12345</p>
+                <h2 className="text-xl font-bold text-teal-700 dark:text-teal-400">{docDisplayName}</h2>
+                <p className="text-slate-600 dark:text-slate-400 text-xs mt-0.5">Medical Specialist · MedCare Health Portal</p>
               </div>
               <div className="text-right text-xs text-slate-500 dark:text-slate-400">
-                <div className="font-bold text-slate-900 dark:text-white">MedCare Cardiac Center</div>
-                <div>420 Medical Drive, Suite 300</div>
-                <div>Date: {preview.date}</div>
+                <div className="font-bold text-slate-900 dark:text-white">MedCare Medical Center</div>
+                <div>Date: {preview.date || "Today"}</div>
               </div>
             </div>
           </div>
 
           <div className="p-3 bg-slate-50 dark:bg-slate-800/60 rounded-xl mb-5 flex justify-between text-xs">
-            <div><span className="text-slate-400">Patient:</span> <span className="font-bold text-slate-800 dark:text-white">{preview.patient}</span></div>
+            <div><span className="text-slate-400">Patient:</span> <span className="font-bold text-slate-800 dark:text-white">{preview.patient || "Patient"}</span></div>
             <div><span className="text-slate-400">Rx ID:</span> <span className="font-mono font-bold text-slate-700 dark:text-slate-300">{preview.id}</span></div>
           </div>
 
           <div className="space-y-4 mb-6">
             <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">Prescribed Medications</h4>
-            {preview.medicines.map((m: Medicine, idx: number) => (
+            {preview.medicines?.map((m: Medicine, idx: number) => (
               <div key={idx} className="p-3 bg-teal-50/30 dark:bg-teal-950/20 rounded-xl border border-teal-100 dark:border-teal-900/50">
                 <div className="font-bold text-sm text-slate-800 dark:text-white">{idx + 1}. {m.name} ({m.dosage})</div>
                 <div className="text-xs text-slate-600 dark:text-slate-300 mt-1">Regimen: {m.frequency} for {m.duration}</div>
@@ -175,14 +194,18 @@ export default function Prescriptions({ onToast }: { onToast: (msg: string) => v
               <select
                 value={newRx.patientId}
                 onChange={(e) => {
-                  const sel = patients.find(p => p.id === e.target.value);
-                  setNewRx({ ...newRx, patientId: e.target.value, patient: sel?.name || 'Patient' });
+                  const sel = patientOptions.find(p => p.id === e.target.value);
+                  setNewRx({ ...newRx, patientId: e.target.value, patient: sel?.name || sel?.user?.name || 'Patient' });
                 }}
                 className="w-full text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
-                {patients.map((p) => (
-                  <option key={p.id} value={p.id}>{p.name} ({p.bloodType})</option>
-                ))}
+                {patientOptions.length === 0 ? (
+                  <option value="">No patients registered</option>
+                ) : (
+                  patientOptions.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name || p.user?.name || 'Patient'} {p.bloodType ? `(${p.bloodType})` : ''}</option>
+                  ))
+                )}
               </select>
             </div>
             <div>
@@ -275,36 +298,44 @@ export default function Prescriptions({ onToast }: { onToast: (msg: string) => v
         </div>
       ) : (
         <div className="space-y-4">
-          {rxList.map((rx) => (
-            <div key={rx.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between gap-4 flex-wrap">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center">
-                  <Pill className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-bold text-slate-900 dark:text-white text-sm">{rx.patient || "Patient"}</div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                    {rx.medicines?.length || 0} drugs prescribed · {rx.date}
+          {rxList.length === 0 ? (
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center">
+              <Pill className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
+              <h3 className="font-semibold text-slate-800 dark:text-white text-base">No prescriptions issued yet</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Prescriptions issued to patients will be listed here.</p>
+            </div>
+          ) : (
+            rxList.map((rx) => (
+              <div key={rx.id} className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 flex items-center justify-between gap-4 flex-wrap">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                    <Pill className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-900 dark:text-white text-sm">{rx.patient || rx.patientName || "Patient"}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                      {rx.medicines?.length || 0} drugs prescribed · {rx.date || "Recent"}
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setPreview(rx)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition"
-                >
-                  <Eye className="w-3.5 h-3.5" /> Preview Chart
-                </button>
-                <button
-                  onClick={() => onToast("Prescription PDF downloaded")}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-sm"
-                >
-                  <Download className="w-3.5 h-3.5" /> PDF
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setPreview(rx)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold transition"
+                  >
+                    <Eye className="w-3.5 h-3.5" /> Preview Chart
+                  </button>
+                  <button
+                    onClick={() => onToast("Prescription PDF downloaded")}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-sm"
+                  >
+                    <Download className="w-3.5 h-3.5" /> PDF
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       )}
     </div>

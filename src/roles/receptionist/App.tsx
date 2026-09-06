@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { NOTIFICATIONS, type NavItem } from "./data/mockData";
-import { Header, Sidebar, Toast } from "./components/ui";
+import { useState, useEffect } from "react";
+import type { NavItem } from "./data/mockData";
+import { Sidebar, Toast } from "./components/ui";
 import Dashboard from "./pages/Dashboard";
 import AppointmentsView from "./pages/Appointments";
 import CheckInView from "./pages/CheckIn";
@@ -15,7 +15,6 @@ export default function App() {
   const [active, setActive] = useState<NavItem>("Dashboard");
   const [toast, setToast] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const unreadNotifs = NOTIFICATIONS.filter((n) => !n.read).length;
 
   const showToast = (msg: string) => setToast(msg);
 
@@ -40,7 +39,13 @@ export default function App() {
         <Sidebar active={active} setActive={(next) => { setActive(next); setSidebarOpen(false); }} />
       </div>
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <Header active={active} notifCount={unreadNotifs} onNotif={() => setActive("Notifications")} onOpenSidebar={() => setSidebarOpen(true)} />
+        {/* Mobile menu toggle only */}
+        <div className="flex items-center gap-3 px-4 py-2 lg:hidden bg-white border-b border-gray-100">
+          <button onClick={() => setSidebarOpen(true)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-600" aria-label="Open navigation">
+            ☰
+          </button>
+          <h1 className="text-base font-semibold text-gray-900">{active}</h1>
+        </div>
         <main className="dashboard-content flex-1 overflow-y-auto">
           {renderView()}
         </main>

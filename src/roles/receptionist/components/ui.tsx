@@ -131,6 +131,10 @@ export const NAV_ITEMS: { label: NavItem; icon: string }[] = [
 ]
 
 export function Sidebar({ active, setActive }: { active: NavItem; setActive: (n: NavItem) => void }) {
+  const user = useAuthStore(s => s.user);
+  const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email : "Receptionist";
+  const initials = ((user?.firstName?.[0] || 'R') + (user?.lastName?.[0] || 'C')).toUpperCase();
+
   return (
     <aside className="flex h-full w-56 shrink-0 flex-col border-r border-gray-100 bg-white shadow-sm">
       <div className="px-5 py-5 border-b border-gray-100">
@@ -139,15 +143,14 @@ export function Sidebar({ active, setActive }: { active: NavItem; setActive: (n:
             <span className="text-white text-sm">🏥</span>
           </div>
           <div>
-            <p className="font-bold text-gray-900 text-sm leading-tight">MedFront</p>
-            <p className="text-[10px] text-gray-400 mono">Riverside Clinic</p>
+            <p className="font-bold text-gray-900 text-sm leading-tight">MedCare</p>
+            <p className="text-[10px] text-gray-400 mono">Reception Desk</p>
           </div>
         </div>
       </div>
       <nav className="flex-1 overflow-y-auto py-3 px-2">
         {NAV_ITEMS.map(({ label, icon }) => {
           const isActive = active === label
-          const badge = label === "Notifications" ? 4 : label === "Patient Queue" ? 3 : 0
           return (
             <button
               key={label}
@@ -160,20 +163,15 @@ export function Sidebar({ active, setActive }: { active: NavItem; setActive: (n:
             >
               <span className="text-base">{icon}</span>
               <span className="flex-1 text-left">{label}</span>
-              {badge > 0 && (
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${isActive ? "bg-white/20 text-white" : "bg-blue-100 text-blue-700"}`}>
-                  {badge}
-                </span>
-              )}
             </button>
           )
         })}
       </nav>
       <div className="px-4 py-3 border-t border-gray-100 space-y-2">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">GO</div>
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">{initials}</div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-gray-800 truncate">Grace Osei</p>
+            <p className="text-sm font-semibold text-gray-800 truncate">{fullName}</p>
             <p className="text-[10px] text-gray-400">Receptionist</p>
           </div>
         </div>

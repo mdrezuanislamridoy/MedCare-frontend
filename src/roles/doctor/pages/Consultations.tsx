@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { Stethoscope, Save, CheckCircle, Clock, Video, RefreshCw, Activity, Heart, ShieldAlert } from "lucide-react";
-import { todayAppointments, patients } from "../data/mockData";
+import { Stethoscope, Save, CheckCircle, Video, RefreshCw } from "lucide-react";
 import { doctorApi } from "../services/doctor.api";
 
 export default function Consultations({ onToast }: { onToast: (msg: string) => void }) {
-  const [activePatient, setActivePatient] = useState(todayAppointments[1]);
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [activePatient, setActivePatient] = useState<any | null>(null);
   const [notes, setNotes] = useState("");
   const [diagnosis, setDiagnosis] = useState("");
   const [symptoms, setSymptoms] = useState("");
@@ -14,11 +14,30 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
   const [loadingWorkspace, setLoadingWorkspace] = useState(false);
   const [videoSession, setVideoSession] = useState<{ room?: string; channelName?: string } | null>(null);
 
-  const patient = patients.find((p) => p.name === activePatient.patient) || patients[0];
-  const inProgressApts = todayAppointments.filter((a) => a.status === "in-progress" || a.status === "confirmed");
+  useEffect(() => {
+    async function loadAppointments() {
+      try {
+        const res: any = await doctorApi.listAppointments();
+        const items = Array.isArray(res) ? res : (res?.data || []);
+        const active = items.filter((a: any) => 
+          a.status?.toLowerCase() === "in-progress" || 
+          a.status?.toLowerCase() === "confirmed" || 
+          a.status?.toLowerCase() === "scheduled"
+        );
+        setAppointments(active);
+        if (active.length > 0) {
+          setActivePatient(active[0]);
+        }
+      } catch (err) {
+        console.warn("Could not load consultation queue:", err);
+      }
+    }
+    loadAppointments();
+  }, []);
 
   // Load Consultation Workspace & EHR Chart for selected patient
   useEffect(() => {
+    if (!activePatient?.id) return;
     let isMounted = true;
     async function loadWorkspace() {
       setLoadingWorkspace(true);
@@ -37,7 +56,7 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
           if (workspace.notes.internalNotes) setNotes(workspace.notes.internalNotes);
         }
       } catch (err) {
-        // Fallback to local state if offline or workspace not yet created
+        // Fallback to local state if workspace not yet created
       } finally {
         if (isMounted) setLoadingWorkspace(false);
       }
@@ -46,13 +65,14 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
     return () => {
       isMounted = false;
     };
-  }, [activePatient.id]);
+  }, [activePatient?.id]);
 
   const handleSaveNote = async () => {
+    if (!activePatient) return;
     setSaving(true);
     try {
       await doctorApi.saveConsultationNote(activePatient.id, {
-        patientId: patient.id,
+        patientId: activePatient.patientId || activePatient.patient?.id,
         symptoms: symptoms ? symptoms.split(",").map((s) => s.trim()) : [],
         diagnosis: diagnosis || "Clinical Review",
         treatmentPlan: treatmentPlan || notes,
@@ -68,11 +88,11 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
   };
 
   const handleComplete = async () => {
+    if (!activePatient) return;
     setSaving(true);
     try {
-      // Calls atomic backend completion: sets appointment COMPLETED, clears queue, creates transaction fee
       await doctorApi.completeConsultation(activePatient.id, {
-        patientId: patient.id,
+        patientId: activePatient.patientId || activePatient.patient?.id,
         symptoms: symptoms ? symptoms.split(",").map((s) => s.trim()) : [],
         diagnosis: diagnosis || "Clinical Review Completed",
         treatmentPlan: treatmentPlan || notes,
@@ -89,14 +109,34 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
   };
 
   const handleStartVideo = async () => {
+    if (!activePatient) return;
     try {
       const res: any = await doctorApi.getVideoToken(activePatient.id);
       setVideoSession(res);
       onToast(`Connected to teleconsultation room: ${res?.channelName || "Live Room"}`);
     } catch (err) {
-      onToast(`Launching WebRTC HD Room for ${activePatient.patient}...`);
+      onToast(`Launching WebRTC HD Room for ${activePatient.patient || activePatient.patientName}...`);
     }
   };
+
+  if (appointments.length === 0 || !activePatient) {
+    return (
+      <div className="animate-fade-in space-y-5">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Consultation Workspace</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">Live clinical EHR charting, vital diagnostics, and prescription orders.</p>
+        </div>
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center">
+          <Stethoscope className="w-10 h-10 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
+          <h3 className="font-semibold text-slate-800 dark:text-white text-base">No active consultations</h3>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">When patients check in or are queued for consultation, they will appear in your workspace.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const patientName = activePatient.patient || activePatient.patientName || activePatient.user?.name || "Patient";
+  const initials = (patientName.slice(0, 2) || "PT").toUpperCase();
 
   return (
     <div className="animate-fade-in space-y-5">
@@ -118,54 +158,62 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
             <h3 className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider mb-3">Live Patient Queue</h3>
             <div className="space-y-2">
-              {inProgressApts.map((apt) => (
-                <button
-                  key={apt.id}
-                  onClick={() => {
-                    setActivePatient(apt);
-                    setCompleted(false);
-                    setNotes("");
-                    setDiagnosis("");
-                    setSymptoms("");
-                    setTreatmentPlan("");
-                    setVideoSession(null);
-                  }}
-                  className={`w-full text-left p-3 rounded-xl border transition-all ${
-                    activePatient.id === apt.id
-                      ? "border-teal-500 bg-teal-50 dark:bg-teal-950/40"
-                      : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <img src={apt.avatar} alt={apt.patient} className="w-8 h-8 rounded-full object-cover bg-slate-100 flex-shrink-0" />
-                    <div className="min-w-0">
-                      <div className={`font-semibold text-sm truncate ${activePatient.id === apt.id ? "text-teal-700 dark:text-teal-300" : "text-slate-900 dark:text-white"}`}>{apt.patient}</div>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">{apt.time} · {apt.type}</div>
+              {appointments.map((apt) => {
+                const name = apt.patient || apt.patientName || apt.user?.name || "Patient";
+                const isSelected = activePatient.id === apt.id;
+                return (
+                  <button
+                    key={apt.id}
+                    onClick={() => {
+                      setActivePatient(apt);
+                      setCompleted(false);
+                      setNotes("");
+                      setDiagnosis("");
+                      setSymptoms("");
+                      setTreatmentPlan("");
+                      setVideoSession(null);
+                    }}
+                    className={`w-full text-left p-3 rounded-xl border transition-all ${
+                      isSelected
+                        ? "border-teal-500 bg-teal-50 dark:bg-teal-950/40"
+                        : "border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/40"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xs shrink-0">
+                        {(name.slice(0, 2) || "PT").toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <div className={`font-semibold text-sm truncate ${isSelected ? "text-teal-700 dark:text-teal-300" : "text-slate-900 dark:text-white"}`}>{name}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400">{apt.time || apt.slot || "Today"} · {apt.type || "General"}</div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="mt-2 text-xs text-slate-500 truncate">{apt.reason}</div>
-                </button>
-              ))}
+                    {apt.reason && <div className="mt-2 text-xs text-slate-500 truncate">{apt.reason}</div>}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           {/* Patient Info Panel */}
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
             <div className="flex items-center gap-3 mb-3">
-              <img src={activePatient.avatar} alt={activePatient.patient} className="w-10 h-10 rounded-full object-cover bg-slate-100" />
+              <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xs shrink-0">
+                {initials}
+              </div>
               <div>
-                <h4 className="font-bold text-slate-900 dark:text-white text-sm">{activePatient.patient}</h4>
-                <div className="text-xs text-slate-500">{patient.age} yrs · {patient.bloodType} Blood</div>
+                <h4 className="font-bold text-slate-900 dark:text-white text-sm">{patientName}</h4>
+                <div className="text-xs text-slate-500">{activePatient.type || "In-Person"} Consultation</div>
               </div>
             </div>
             <div className="space-y-2 text-xs pt-2 border-t border-slate-100 dark:border-slate-800">
               <div className="flex justify-between">
                 <span className="text-slate-400">Chief Complaint</span>
-                <span className="font-semibold text-slate-700 dark:text-slate-200">{activePatient.reason}</span>
+                <span className="font-semibold text-slate-700 dark:text-slate-200">{activePatient.reason || "General Consultation"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">Known Conditions</span>
-                <span className="font-semibold text-slate-700 dark:text-slate-200">{patient.conditions.join(", ")}</span>
+                <span className="text-slate-400">Status</span>
+                <span className="font-semibold text-teal-600">{activePatient.status || "Scheduled"}</span>
               </div>
             </div>
           </div>
@@ -180,7 +228,7 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
                 <h3 className="font-bold text-slate-900 dark:text-white">Clinical Observations & Diagnosis</h3>
                 {loadingWorkspace && <RefreshCw className="w-3.5 h-3.5 animate-spin text-teal-600" />}
               </div>
-              {activePatient.type === "Online" && (
+              {(activePatient.type?.toLowerCase() === "online" || activePatient.type?.toLowerCase() === "video") && (
                 <button
                   onClick={handleStartVideo}
                   className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-sm"
@@ -213,12 +261,12 @@ export default function Consultations({ onToast }: { onToast: (msg: string) => v
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">Treatment Protocol & Lifestyle Recommendations</label>
+                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1.5">Treatment Protocol & Recommendations</label>
                 <textarea
                   rows={4}
                   value={treatmentPlan}
                   onChange={(e) => setTreatmentPlan(e.target.value)}
-                  placeholder="Prescribe dietary salt restriction, prescribe Amlodipine 5mg OD, follow-up ECG in 2 weeks..."
+                  placeholder="Treatment plan, clinical advice and prescriptions..."
                   className="w-full text-xs border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-white rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-teal-500"
                 />
               </div>

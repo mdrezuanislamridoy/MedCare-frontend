@@ -140,34 +140,38 @@ export const Icons = {
 
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
 
-export const NAV: { id: NavItem; label: string; icon: ReactNode; badge?: number }[] = [
+export const NAV: { id: NavItem; label: string; icon: ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: Icons.dashboard },
   { id: "clinic-profile", label: "Clinic Profile", icon: Icons.clinic },
   { id: "doctors", label: "Doctors", icon: Icons.doctors },
   { id: "staff", label: "Staff", icon: Icons.staff },
   { id: "schedule", label: "Schedule", icon: Icons.schedule },
-  { id: "appointments", label: "Appointments", icon: Icons.appointments, badge: 3 },
+  { id: "appointments", label: "Appointments", icon: Icons.appointments },
   { id: "patients", label: "Patients", icon: Icons.patients },
-  { id: "patient-queue", label: "Patient Queue", icon: Icons.queue, badge: 3 },
+  { id: "patient-queue", label: "Patient Queue", icon: Icons.queue },
   { id: "rooms", label: "Rooms", icon: Icons.rooms },
   { id: "payments", label: "Payments", icon: Icons.payments },
   { id: "reports", label: "Reports", icon: Icons.reports },
-  { id: "notifications", label: "Notifications", icon: Icons.notifications, badge: 3 },
+  { id: "notifications", label: "Notifications", icon: Icons.notifications },
   { id: "activity", label: "Activity", icon: Icons.activity },
 ]
 
 export function Sidebar({ active, onNav }: { active: NavItem; onNav: (v: NavItem) => void }) {
+  const user = useAuthStore(s => s.user);
+  const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email : "Clinic Manager";
+  const initials = ((user?.firstName?.[0] || 'C') + (user?.lastName?.[0] || 'M')).toUpperCase();
+
   return (
     <aside className="flex h-full w-60 flex-shrink-0 flex-col" style={{ backgroundColor: "#0F172A" }}>
       {/* Logo */}
       <div className="px-5 py-5 border-b border-white/10">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-500 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} className="w-5 h-5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
           <div>
-            <p className="text-white text-sm font-semibold leading-tight">Green Pine</p>
-            <p className="text-slate-300 text-xs">Medical Clinic</p>
+            <p className="text-white text-sm font-bold leading-tight">MedCare</p>
+            <p className="text-slate-300 text-xs">Clinic Operations</p>
           </div>
         </div>
       </div>
@@ -178,16 +182,11 @@ export function Sidebar({ active, onNav }: { active: NavItem; onNav: (v: NavItem
           const isActive = active === item.id
           return (
             <button key={item.id} onClick={() => onNav(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group ${isActive
-                ? "bg-blue-600 text-white"
-                : "text-slate-200 hover:text-white hover:bg-white/10"}`}>
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 group ${isActive
+                ? "bg-blue-600 text-white shadow-sm"
+                : "text-slate-200 hover:text-white hover:bg-white/15"}`}>
               <span className={`transition-colors ${isActive ? "text-white" : "text-slate-300 group-hover:text-white"}`}>{item.icon}</span>
               <span className="flex-1 text-left">{item.label}</span>
-              {item.badge && (
-                <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${isActive ? "bg-white/20 text-white" : "bg-blue-500/30 text-blue-300"}`}>
-                  {item.badge}
-                </span>
-              )}
             </button>
           )
         })}
@@ -196,9 +195,9 @@ export function Sidebar({ active, onNav }: { active: NavItem; onNav: (v: NavItem
       {/* Manager profile & Logout */}
       <div className="px-4 py-4 border-t border-white/10 space-y-2.5">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">CM</div>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">{initials}</div>
           <div className="min-w-0 flex-1">
-            <p className="text-white text-xs font-medium truncate">Claire Morgan</p>
+            <p className="text-white text-xs font-semibold truncate">{fullName}</p>
             <p className="text-slate-300 text-[11px] truncate">Clinic Manager</p>
           </div>
         </div>
@@ -207,7 +206,7 @@ export function Sidebar({ active, onNav }: { active: NavItem; onNav: (v: NavItem
             useAuthStore.getState().logout();
             window.location.href = '/login';
           }}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-white hover:text-red-300 hover:bg-red-500/20 transition-colors"
           title="Sign Out"
         >
           {Icons.logout}

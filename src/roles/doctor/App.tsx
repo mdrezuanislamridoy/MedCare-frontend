@@ -4,7 +4,6 @@ import {
   Pill, FileText, DollarSign, Star, Bell, Settings as SettingsIcon, LogOut,
   Search, Menu, X, ChevronRight, Clock
 } from "lucide-react";
-import { doctorProfile, notifications } from "./data/mockData";
 import { useAuthStore } from "../../common/stores/auth.store";
 import { doctorApi } from "./services/doctor.api";
 import Dashboard from "./pages/Dashboard";
@@ -22,18 +21,18 @@ import Settings from "./pages/Settings";
 
 type Page = "dashboard" | "profile" | "schedule" | "appointments" | "patients" | "consultations" | "prescriptions" | "records" | "earnings" | "reviews" | "notifications" | "settings";
 
-const navItems: { key: Page; label: string; icon: typeof LayoutDashboard; badge?: number }[] = [
+const navItems: { key: Page; label: string; icon: typeof LayoutDashboard }[] = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { key: "profile", label: "My Profile", icon: User },
   { key: "schedule", label: "Schedule & Availability", icon: CalendarClock },
-  { key: "appointments", label: "Appointments", icon: Calendar, badge: 4 },
+  { key: "appointments", label: "Appointments", icon: Calendar },
   { key: "patients", label: "Patients", icon: Users },
   { key: "consultations", label: "Consultations", icon: Stethoscope },
   { key: "prescriptions", label: "Prescriptions", icon: Pill },
   { key: "records", label: "Medical Records", icon: FileText },
   { key: "earnings", label: "Earnings", icon: DollarSign },
   { key: "reviews", label: "Reviews", icon: Star },
-  { key: "notifications", label: "Notifications", icon: Bell, badge: 3 },
+  { key: "notifications", label: "Notifications", icon: Bell },
   { key: "settings", label: "Settings", icon: SettingsIcon },
 ];
 
@@ -43,14 +42,11 @@ interface Toast {
 }
 
 export default function App() {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const [liveDoctor, setLiveDoctor] = useState<{ name: string; specialty: string } | null>(null);
   const [page, setPage] = useState<Page>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-  const unread = notifications.filter((n) => !n.read).length;
 
   const showToast = (message: string) => {
     const id = Date.now();
@@ -59,30 +55,26 @@ export default function App() {
   };
 
   useEffect(() => {
-    const close = () => { setProfileMenuOpen(false); setSearchOpen(false); };
-    document.addEventListener("click", close);
-    return () => document.removeEventListener("click", close);
-  }, []);
-
-  useEffect(() => {
     async function loadDoctorInfo() {
       try {
         const p = await doctorApi.getProfile();
         if (p) {
           setLiveDoctor({
-            name: p.name || user?.name || "Dr. Sarah Mitchell",
-            specialty: p.specialty || "Cardiologist",
+            name: p.name || user?.name || (user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : "Doctor"),
+            specialty: p.specialty || "Specialist",
           });
         }
       } catch (err) {
-        // Use auth store or default fallback
+        // Handled silently
       }
     }
     loadDoctorInfo();
   }, [user]);
 
-  const docName = liveDoctor?.name || user?.name || "Dr. Sarah Mitchell";
-  const docSpecialty = liveDoctor?.specialty || "Cardiologist";
+  const rawDocName = liveDoctor?.name || user?.name || (user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : "Doctor");
+  const docName = rawDocName.startsWith("Dr.") ? rawDocName : `Dr. ${rawDocName}`;
+  const docSpecialty = liveDoctor?.specialty || "General Medicine";
+  const docInitials = (rawDocName.replace(/^Dr\.\s*/, '').slice(0, 2) || "DR").toUpperCase();
 
   const navigate = (p: Page) => {
     setPage(p);
@@ -120,10 +112,12 @@ export default function App() {
         {/* Doctor mini card */}
         <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5">
-            <img src={doctorProfile.avatar} alt={docName} className="w-10 h-10 rounded-xl object-cover bg-slate-700 flex-shrink-0" />
+            <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+              {docInitials}
+            </div>
             <div className="min-w-0">
-              <div className="text-white font-medium text-sm truncate">{docName.startsWith("Dr.") ? docName : `Dr. ${docName}`}</div>
-              <div className="text-teal-400 text-xs">{docSpecialty}</div>
+              <div className="text-white font-medium text-sm truncate">{docName}</div>
+              <div className="text-teal-400 text-xs truncate">{docSpecialty}</div>
             </div>
           </div>
         </div>
@@ -138,15 +132,12 @@ export default function App() {
                 onClick={() => navigate(item.key)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
                   active
-                    ? "bg-teal-600 text-white shadow-sm"
-                    : "text-slate-200 hover:bg-white/10 hover:text-white"
+                    ? "bg-teal-600 text-white font-semibold shadow-sm"
+                    : "text-white font-medium hover:bg-white/15 hover:text-white"
                 }`}
               >
-                <item.icon className={`w-4 h-4 flex-shrink-0 transition-colors ${active ? "text-white" : "text-slate-300 group-hover:text-white"}`} />
-                <span className="flex-1 text-left truncate">{item.label}</span>
-                {item.badge && !active && (
-                  <span className="text-xs bg-teal-500 text-white px-1.5 py-0.5 rounded-full font-bold min-w-[20px] text-center">{item.badge}</span>
-                )}
+                <item.icon className={`w-4 h-4 flex-shrink-0 transition-colors ${active ? "text-teal-200" : "text-white"}`} />
+                <span className="flex-1 text-left truncate text-white">{item.label}</span>
               </button>
             );
           })}
@@ -159,96 +150,29 @@ export default function App() {
               useAuthStore.getState().logout();
               window.location.href = '/login';
             }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-red-500/10 hover:text-red-400 transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-white hover:bg-red-500/20 hover:text-red-300 transition-all"
           >
-            <LogOut className="w-4 h-4 text-slate-300 group-hover:text-red-400" />
-            Sign Out
+            <LogOut className="w-4 h-4 text-white group-hover:text-red-300" />
+            <span className="text-white">Sign Out</span>
           </button>
         </div>
       </aside>
 
+      {/* Mobile Sidebar Trigger */}
+      {!sidebarOpen && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="xl:hidden fixed top-3 left-3 z-30 p-2 bg-[#0F172A] text-white rounded-lg shadow-md"
+          title="Open Menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+      )}
+
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Header */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center gap-2 px-3 sm:gap-4 sm:px-6 flex-shrink-0">
-          <button onClick={() => setSidebarOpen(true)} className="xl:hidden text-slate-500 hover:text-slate-700 transition-colors">
-            <Menu className="w-5 h-5" />
-          </button>
-
-          {/* Breadcrumb */}
-          <div className="hidden sm:flex items-center gap-1.5 text-sm text-slate-500">
-            <span className="text-slate-400">Dashboard</span>
-            {page !== "dashboard" && (
-              <>
-                <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
-                <span className="text-slate-900 font-medium">{currentItem?.label}</span>
-              </>
-            )}
-          </div>
-
-          <div className="flex-1" />
-
-          {/* Today's indicator */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-teal-50 rounded-lg text-xs font-medium text-teal-700">
-            <Clock className="w-3.5 h-3.5" />
-            6 appointments today
-          </div>
-
-          {/* Search */}
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setSearchOpen(!searchOpen)}
-              className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-            >
-              <Search className="w-5 h-5" />
-            </button>
-            {searchOpen && (
-              <div className="absolute right-0 top-10 w-[calc(100vw-1.5rem)] max-w-72 bg-white rounded-xl border border-slate-200 shadow-xl p-3 z-50">
-                <input autoFocus placeholder="Search patients, appointments..." className="w-full text-sm border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
-                <div className="mt-2 text-xs text-slate-400 text-center py-2">Start typing to search...</div>
-              </div>
-            )}
-          </div>
-
-          {/* Notifications */}
-          <button onClick={() => navigate("notifications")} className="relative p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors">
-            <Bell className="w-5 h-5" />
-            {unread > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold leading-none">{unread}</span>
-            )}
-          </button>
-
-          {/* Profile Menu */}
-          <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-              className="flex items-center gap-2 p-1.5 hover:bg-slate-100 rounded-xl transition-colors"
-            >
-              <img src={doctorProfile.avatar} alt="Profile" className="w-8 h-8 rounded-lg object-cover bg-slate-200" />
-              <div className="hidden sm:block text-left">
-                <div className="text-sm font-medium text-slate-900 leading-tight">{docName.startsWith("Dr.") ? docName : `Dr. ${docName}`}</div>
-                <div className="text-xs text-slate-500">{docSpecialty}</div>
-              </div>
-            </button>
-            {profileMenuOpen && (
-              <div className="absolute right-0 top-12 w-48 bg-white rounded-xl border border-slate-200 shadow-xl py-1 z-50">
-                <button onClick={() => navigate("profile")} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                  <User className="w-4 h-4 text-slate-400" /> My Profile
-                </button>
-                <button onClick={() => navigate("settings")} className="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                  <SettingsIcon className="w-4 h-4 text-slate-400" /> Settings
-                </button>
-                <div className="border-t border-slate-100 my-1" />
-                <button onClick={() => logout()} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                  <LogOut className="w-4 h-4" /> Sign Out
-                </button>
-              </div>
-            )}
-          </div>
-        </header>
-
         {/* Page Content */}
-        <main className="dashboard-content flex-1 overflow-y-auto">
+        <main className="dashboard-content flex-1 overflow-y-auto p-4 sm:p-6">
           {page === "dashboard" && <Dashboard />}
           {page === "appointments" && <Appointments onToast={showToast} />}
           {page === "patients" && <Patients />}

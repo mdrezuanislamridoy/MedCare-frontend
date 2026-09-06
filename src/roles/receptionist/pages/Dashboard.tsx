@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { APPOINTMENTS, QUEUE, DOCTORS, PATIENTS, NOTIFICATIONS, ACTIVITY, type Appointment, type AppointmentStatus, type DoctorStatus } from "../data/mockData";
-import { Avatar, ConfirmDialog, DoctorDot, EmptyState, PaymentBadge, StatusBadge } from "../components/ui";
+import type { Appointment, AppointmentStatus, DoctorStatus } from "../data/mockData";
+import { Avatar, DoctorDot, EmptyState, StatusBadge } from "../components/ui";
 import { receptionistApi, ReceptionistDashboardData } from "../services/receptionist.api";
 
 function StatCard({ label, value, sub, accent }: { label: string; value: number | string; sub?: string; accent?: string }) {
@@ -23,7 +23,7 @@ export default function Dashboard() {
         const data = await receptionistApi.getDashboardSummary();
         setLiveData(data);
       } catch (err) {
-        console.warn("Using offline fallback for receptionist dashboard:", err);
+        console.warn("Receptionist dashboard API unavailable:", err);
       } finally {
         setLoading(false);
       }
@@ -32,17 +32,17 @@ export default function Dashboard() {
   }, []);
 
   const stats = [
-    { label: "Today's Appointments", value: liveData?.stats?.todayAppointments ?? 12, sub: "8 AM – 5 PM", accent: "text-blue-600" },
-    { label: "Waiting Patients", value: liveData?.stats?.waitingPatients ?? 3, sub: "In lobby", accent: "text-amber-600" },
-    { label: "Checked In", value: liveData?.stats?.checkedIn ?? 5, sub: "In clinic", accent: "text-indigo-600" },
-    { label: "Completed Visits", value: liveData?.stats?.completedVisits ?? 2, sub: "As of now", accent: "text-emerald-600" },
-    { label: "Cancelled", value: liveData?.stats?.cancelled ?? 1, sub: "Today", accent: "text-red-500" },
-    { label: "Available Doctors", value: liveData?.stats?.availableDoctors ?? 1, sub: "Out of 4", accent: "text-teal-600" },
+    { label: "Today's Appointments", value: liveData?.stats?.todayAppointments ?? 0, sub: "8 AM – 5 PM", accent: "text-blue-600" },
+    { label: "Waiting Patients", value: liveData?.stats?.waitingPatients ?? 0, sub: "In lobby", accent: "text-amber-600" },
+    { label: "Checked In", value: liveData?.stats?.checkedIn ?? 0, sub: "In clinic", accent: "text-indigo-600" },
+    { label: "Completed Visits", value: liveData?.stats?.completedVisits ?? 0, sub: "As of now", accent: "text-emerald-600" },
+    { label: "Cancelled", value: liveData?.stats?.cancelled ?? 0, sub: "Today", accent: "text-red-500" },
+    { label: "Available Doctors", value: liveData?.stats?.availableDoctors ?? 0, sub: "On duty", accent: "text-teal-600" },
   ];
 
-  const timeline = liveData?.appointments?.length ? liveData.appointments : APPOINTMENTS.slice(0, 8);
-  const displayQueue = liveData?.queue?.length ? liveData.queue : QUEUE;
-  const displayDoctors = liveData?.doctors?.length ? liveData.doctors : DOCTORS;
+  const timeline: any[] = liveData?.appointments ?? [];
+  const displayQueue: any[] = liveData?.queue ?? [];
+  const displayDoctors: any[] = liveData?.doctors ?? [];
 
   return (
     <div className="space-y-5 animate-fade-in">
@@ -55,21 +55,25 @@ export default function Dashboard() {
         <div className="xl:col-span-2 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
             <h2 className="font-semibold text-gray-900">Today's Appointment Timeline</h2>
-            <span className="mono text-xs text-gray-400">13 Aug 2026</span>
+            <span className="mono text-xs text-gray-400">{new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
           </div>
-          <div className="divide-y divide-gray-50">
-            {timeline.map((a) => (
-              <div key={a.id} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/60 transition-colors">
-                <span className="mono text-xs text-gray-400 w-16 shrink-0">{a.time}</span>
-                <Avatar initials={a.avatar} size="sm" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">{a.patient}</p>
-                  <p className="text-xs text-gray-400 truncate">{a.doctor} · {a.type}</p>
+          {timeline.length === 0 ? (
+            <EmptyState icon="📅" title="No appointments today" sub="Appointments will appear here when scheduled" />
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {timeline.map((a: any) => (
+                <div key={a.id} className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50/60 transition-colors">
+                  <span className="mono text-xs text-gray-400 w-16 shrink-0">{a.time}</span>
+                  <Avatar initials={a.avatar || a.patient?.slice(0, 2).toUpperCase() || 'PT'} size="sm" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-800 truncate">{a.patient}</p>
+                    <p className="text-xs text-gray-400 truncate">{a.doctor} · {a.type}</p>
+                  </div>
+                  <StatusBadge status={a.status} />
                 </div>
-                <StatusBadge status={a.status} />
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Right column */}
@@ -83,19 +87,23 @@ export default function Dashboard() {
                 Live
               </span>
             </div>
-            <div className="divide-y divide-gray-50">
-              {displayQueue.map(q => (
-                <div key={q.queueNo || q.id} className="flex items-center gap-3 px-5 py-2.5">
-                  <span className="mono text-xs font-bold text-blue-600 w-5">#{q.queueNo || q.tokenNumber || '1'}</span>
-                  <Avatar initials={typeof q.avatar === 'string' && q.avatar.length <= 3 ? q.avatar : (q.patient?.slice(0, 2).toUpperCase() || 'PT')} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{q.patient || q.patientName || 'Patient'}</p>
-                    <p className="text-xs text-gray-400">{q.waitMins ?? 10}m wait</p>
+            {displayQueue.length === 0 ? (
+              <EmptyState icon="🔢" title="Queue is empty" sub="No patients currently waiting" />
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {displayQueue.map((q: any) => (
+                  <div key={q.queueNo || q.id} className="flex items-center gap-3 px-5 py-2.5">
+                    <span className="mono text-xs font-bold text-blue-600 w-5">#{q.queueNo || q.tokenNumber || '1'}</span>
+                    <Avatar initials={typeof q.avatar === 'string' && q.avatar.length <= 3 ? q.avatar : (q.patient?.slice(0, 2).toUpperCase() || 'PT')} size="sm" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">{q.patient || q.patientName || 'Patient'}</p>
+                      <p className="text-xs text-gray-400">{q.waitMins ?? 0}m wait</p>
+                    </div>
+                    <StatusBadge status={q.status || 'Waiting'} />
                   </div>
-                  <StatusBadge status={q.status || 'waiting'} />
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Doctor availability */}
@@ -103,39 +111,33 @@ export default function Dashboard() {
             <div className="px-5 py-4 border-b border-gray-50">
               <h2 className="font-semibold text-gray-900">Doctor Availability</h2>
             </div>
-            <div className="divide-y divide-gray-50">
-              {displayDoctors.map(d => (
-                <div key={d.name || d.id} className="flex items-center gap-3 px-5 py-2.5">
-                  <DoctorDot status={d.status || 'available'} />
-                  <Avatar initials={typeof d.avatar === 'string' && d.avatar.length <= 3 ? d.avatar : (d.name?.replace('Dr. ', '').slice(0, 2).toUpperCase() || 'DR')} size="sm" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{d.name}</p>
-                    <p className="text-xs text-gray-400 truncate">{d.specialty || 'General'}</p>
+            {displayDoctors.length === 0 ? (
+              <EmptyState icon="🩺" title="No doctors available" sub="Doctor availability will show here" />
+            ) : (
+              <div className="divide-y divide-gray-50">
+                {displayDoctors.map((d: any) => (
+                  <div key={d.name || d.id} className="flex items-center gap-3 px-5 py-2.5">
+                    <DoctorDot status={d.status || 'Available'} />
+                    <Avatar initials={typeof d.avatar === 'string' && d.avatar.length <= 3 ? d.avatar : (d.name?.replace('Dr. ', '').slice(0, 2).toUpperCase() || 'DR')} size="sm" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-800 truncate">{d.name}</p>
+                      <p className="text-xs text-gray-400 truncate">{d.specialty || 'General'}</p>
+                    </div>
+                    <span className="text-xs text-gray-400 mono shrink-0">Q:{d.queue ?? d.activeQueue ?? 0}</span>
                   </div>
-                  <span className="text-xs text-gray-400 mono shrink-0">Q:{d.queue ?? d.activeQueue ?? 0}</span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Recent check-ins */}
+      {/* Recent check-ins — empty state when no data */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-50">
           <h2 className="font-semibold text-gray-900">Recent Check-ins</h2>
         </div>
-        <div className="divide-y divide-gray-50">
-          {ACTIVITY.filter(a => a.type === "checkin").slice(0, 4).map(a => (
-            <div key={a.id} className="flex items-center gap-3 px-5 py-3">
-              <span className="text-emerald-500 text-base">✓</span>
-              <div className="flex-1">
-                <p className="text-sm text-gray-800">{a.detail}</p>
-              </div>
-              <span className="mono text-xs text-gray-400">{a.time}</span>
-            </div>
-          ))}
-        </div>
+        <EmptyState icon="✅" title="No recent check-ins" sub="Patient check-ins will appear here" />
       </div>
     </div>
   )
