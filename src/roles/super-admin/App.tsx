@@ -16,6 +16,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from "recharts";
 import { superAdminApi, AnalyticsOverview, DoctorVerificationItem, SystemHealthData } from "./services/super-admin.api";
+import { useAuthStore } from "../../common/stores/auth.store";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 type PageId =
@@ -1567,7 +1568,7 @@ export default function App() {
           {!collapsed && (
             <div>
               <div className="text-[13px] font-bold text-white leading-tight">MedAdmin</div>
-              <div className="text-[10px] text-sidebar-foreground/50 leading-tight">Super Admin</div>
+              <div className="text-[10px] text-slate-300 leading-tight">Super Admin</div>
             </div>
           )}
         </div>
@@ -1577,7 +1578,7 @@ export default function App() {
           {navConfig.map(group => (
             <div key={group.section}>
               {!collapsed && (
-                <div className="px-2 mb-1.5 text-[9px] font-bold text-sidebar-foreground/35 uppercase tracking-widest">{group.section}</div>
+                <div className="px-2 mb-1.5 text-[9px] font-bold text-slate-300 uppercase tracking-widest">{group.section}</div>
               )}
               <div className="space-y-0.5">
                 {group.items.map(item => {
@@ -1588,16 +1589,16 @@ export default function App() {
                       className={`w-full flex items-center transition-all duration-150 rounded-lg relative group
                         ${collapsed ? "justify-center p-2.5" : "gap-2.5 px-3 py-2"}
                         ${active
-                          ? "bg-sidebar-accent text-white"
-                          : "text-sidebar-foreground/60 hover:text-sidebar-foreground/90 hover:bg-sidebar-accent/50"
+                          ? "bg-teal-600/30 text-white font-medium border border-teal-500/30 shadow-sm"
+                          : "text-slate-200 hover:text-white hover:bg-white/10"
                         }`}>
-                      {active && !collapsed && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-full" />}
-                      <Icon size={15} className={`shrink-0 ${active ? "text-primary" : ""}`} />
+                      {active && !collapsed && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-teal-400 rounded-full" />}
+                      <Icon size={15} className={`shrink-0 ${active ? "text-teal-400" : "text-slate-300"}`} />
                       {!collapsed && (
                         <>
                           <span className="flex-1 text-left text-[12.5px] font-medium truncate">{item.label}</span>
                           {(item as { badge?: number }).badge && (
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active ? "bg-primary/30 text-primary" : "bg-red-500/90 text-white"}`}>
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${active ? "bg-teal-400/30 text-teal-200" : "bg-red-500 text-white"}`}>
                               {(item as { badge?: number }).badge}
                             </span>
                           )}
@@ -1610,6 +1611,21 @@ export default function App() {
             </div>
           ))}
         </nav>
+
+        {/* Sidebar Logout */}
+        <div className="p-3 border-t border-slate-800/80 shrink-0">
+          <button
+            onClick={() => {
+              useAuthStore.getState().logout();
+              window.location.href = "/login";
+            }}
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-200 hover:text-red-400 hover:bg-red-500/10 transition-colors text-xs font-medium ${collapsed ? "justify-center px-0" : ""}`}
+            title="Sign out"
+          >
+            <LogOut size={16} className="shrink-0 text-slate-300 group-hover:text-red-400" />
+            {!collapsed && <span>Sign out</span>}
+          </button>
+        </div>
       </aside>
 
       {/* ── Main Content Area ───────────────────────────────────────────────── */}

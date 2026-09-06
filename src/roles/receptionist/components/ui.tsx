@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { AppointmentStatus, DoctorStatus, NavItem, PaymentStatus } from "../data/mockData";
+import { useAuthStore } from "../../../common/stores/auth.store";
 
 // ─── Utility Components ───────────────────────────────────────────────────────
 
@@ -153,8 +154,8 @@ export function Sidebar({ active, setActive }: { active: NavItem; setActive: (n:
               onClick={() => setActive(label)}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg mb-0.5 text-sm transition-colors group ${
                 isActive
-                  ? "bg-blue-600 text-white font-medium"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-blue-600 text-white font-medium shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-normal"
               }`}
             >
               <span className="text-base">{icon}</span>
@@ -168,14 +169,27 @@ export function Sidebar({ active, setActive }: { active: NavItem; setActive: (n:
           )
         })}
       </nav>
-      <div className="px-4 py-4 border-t border-gray-100">
+      <div className="px-4 py-3 border-t border-gray-100 space-y-2">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold">GO</div>
-          <div className="min-w-0">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0">GO</div>
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-gray-800 truncate">Grace Osei</p>
             <p className="text-[10px] text-gray-400">Receptionist</p>
           </div>
         </div>
+        <button
+          onClick={() => {
+            useAuthStore.getState().logout();
+            window.location.href = '/login';
+          }}
+          className="w-full flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors"
+          title="Sign Out"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Sign Out</span>
+        </button>
       </div>
     </aside>
   )

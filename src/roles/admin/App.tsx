@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { toast, Toaster } from "sonner";
 import { adminApi, AdminDoctorItem, AdminVerificationItem, AdminPatientItem, AdminClinicItem } from "./services/admin.api";
+import { useAuthStore } from "../../common/stores/auth.store";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type ViewId =
@@ -950,11 +951,11 @@ function Sidebar({ active, onNav, collapsed, onToggle }: {
         {!collapsed && (
           <div className="ml-2.5 flex-1 min-w-0">
             <p className="text-sm font-bold text-white leading-none">MediAdmin</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">Healthcare Platform</p>
+            <p className="text-[10px] text-slate-300 mt-0.5">Healthcare Platform</p>
           </div>
         )}
         {!collapsed && (
-          <button onClick={onToggle} className="ml-auto p-1 text-slate-600 hover:text-slate-300 rounded transition-colors flex-shrink-0">
+          <button onClick={onToggle} className="ml-auto p-1 text-slate-400 hover:text-white rounded transition-colors flex-shrink-0">
             <ChevronLeft className="w-4 h-4" />
           </button>
         )}
@@ -970,15 +971,30 @@ function Sidebar({ active, onNav, collapsed, onToggle }: {
                 key={item.id}
                 onClick={() => onNav(item.id)}
                 title={collapsed ? item.label : undefined}
-                className={`w-full flex items-center gap-3 rounded-lg text-sm transition-all duration-150 ${collapsed ? "justify-center p-2.5" : "px-3 py-2.5"} ${isActive ? "bg-teal-600 text-white" : "text-slate-400 hover:text-white hover:bg-white/[0.06]"}`}
+                className={`w-full flex items-center gap-3 rounded-lg text-sm transition-all duration-150 ${collapsed ? "justify-center p-2.5" : "px-3 py-2.5"} ${isActive ? "bg-teal-600 text-white font-medium" : "text-slate-200 hover:text-white hover:bg-white/10"}`}
               >
-                <Icon className="w-4 h-4 flex-shrink-0" />
+                <Icon className={`w-4 h-4 flex-shrink-0 ${isActive ? "text-white" : "text-slate-300"}`} />
                 {!collapsed && <span className="flex-1 text-left truncate">{item.label}</span>}
               </button>
             );
           })}
         </div>
       </nav>
+
+      {/* Admin Sidebar Logout */}
+      <div className="p-3 border-t border-white/10 flex-shrink-0">
+        <button
+          onClick={() => {
+            useAuthStore.getState().logout();
+            window.location.href = '/login';
+          }}
+          className={`w-full flex items-center gap-3 rounded-lg text-sm text-slate-200 hover:text-red-400 hover:bg-red-500/10 transition-all ${collapsed ? "justify-center p-2.5" : "px-3 py-2.5"}`}
+          title="Sign Out"
+        >
+          <LogOut className="w-4 h-4 flex-shrink-0 text-slate-300 group-hover:text-red-400" />
+          {!collapsed && <span>Sign Out</span>}
+        </button>
+      </div>
     </aside>
   );
 }

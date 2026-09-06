@@ -138,11 +138,11 @@ export default function App() {
                 onClick={() => navigate(item.key)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group ${
                   active
-                    ? "bg-teal-600 text-white"
-                    : "text-slate-400 hover:bg-white/8 hover:text-white"
+                    ? "bg-teal-600 text-white shadow-sm"
+                    : "text-slate-200 hover:bg-white/10 hover:text-white"
                 }`}
               >
-                <item.icon className={`w-4 h-4 flex-shrink-0 transition-colors ${active ? "text-white" : "text-slate-500 group-hover:text-slate-300"}`} />
+                <item.icon className={`w-4 h-4 flex-shrink-0 transition-colors ${active ? "text-white" : "text-slate-300 group-hover:text-white"}`} />
                 <span className="flex-1 text-left truncate">{item.label}</span>
                 {item.badge && !active && (
                   <span className="text-xs bg-teal-500 text-white px-1.5 py-0.5 rounded-full font-bold min-w-[20px] text-center">{item.badge}</span>
@@ -154,8 +154,14 @@ export default function App() {
 
         {/* Logout */}
         <div className="p-3 border-t border-white/10">
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-white/8 hover:text-white transition-all">
-            <LogOut className="w-4 h-4" />
+          <button
+            onClick={() => {
+              useAuthStore.getState().logout();
+              window.location.href = '/login';
+            }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:bg-red-500/10 hover:text-red-400 transition-all"
+          >
+            <LogOut className="w-4 h-4 text-slate-300 group-hover:text-red-400" />
             Sign Out
           </button>
         </div>

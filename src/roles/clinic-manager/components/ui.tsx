@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { NavItem } from "../data/mockData";
+import { useAuthStore } from "../../../common/stores/auth.store";
 
 // ─── Utility Components ───────────────────────────────────────────────────────
 
@@ -166,7 +167,7 @@ export function Sidebar({ active, onNav }: { active: NavItem; onNav: (v: NavItem
           </div>
           <div>
             <p className="text-white text-sm font-semibold leading-tight">Green Pine</p>
-            <p className="text-slate-400 text-xs">Medical Clinic</p>
+            <p className="text-slate-300 text-xs">Medical Clinic</p>
           </div>
         </div>
       </div>
@@ -179,8 +180,8 @@ export function Sidebar({ active, onNav }: { active: NavItem; onNav: (v: NavItem
             <button key={item.id} onClick={() => onNav(item.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group ${isActive
                 ? "bg-blue-600 text-white"
-                : "text-slate-400 hover:text-white hover:bg-white/8"}`}>
-              <span className={`transition-colors ${isActive ? "text-white" : "text-slate-500 group-hover:text-slate-300"}`}>{item.icon}</span>
+                : "text-slate-200 hover:text-white hover:bg-white/10"}`}>
+              <span className={`transition-colors ${isActive ? "text-white" : "text-slate-300 group-hover:text-white"}`}>{item.icon}</span>
               <span className="flex-1 text-left">{item.label}</span>
               {item.badge && (
                 <span className={`text-xs px-1.5 py-0.5 rounded-full font-semibold ${isActive ? "bg-white/20 text-white" : "bg-blue-500/30 text-blue-300"}`}>
@@ -192,16 +193,26 @@ export function Sidebar({ active, onNav }: { active: NavItem; onNav: (v: NavItem
         })}
       </nav>
 
-      {/* Manager profile */}
-      <div className="px-4 py-4 border-t border-white/10">
+      {/* Manager profile & Logout */}
+      <div className="px-4 py-4 border-t border-white/10 space-y-2.5">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">CM</div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="text-white text-xs font-medium truncate">Claire Morgan</p>
-            <p className="text-slate-400 text-xs truncate">Clinic Manager</p>
+            <p className="text-slate-300 text-[11px] truncate">Clinic Manager</p>
           </div>
-          <button className="text-slate-500 hover:text-slate-300 transition-colors flex-shrink-0" title="Logout">{Icons.logout}</button>
         </div>
+        <button
+          onClick={() => {
+            useAuthStore.getState().logout();
+            window.location.href = '/login';
+          }}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+          title="Sign Out"
+        >
+          {Icons.logout}
+          <span>Sign Out</span>
+        </button>
       </div>
     </aside>
   )

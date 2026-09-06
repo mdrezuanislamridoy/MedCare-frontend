@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { Avatar } from './ui';
 import { patient, notifications } from '../data/mockData';
+import { useAuthStore } from '../../../common/stores/auth.store';
 
 export type Page =
   | 'dashboard' | 'find-doctors' | 'my-appointments'
@@ -78,16 +79,26 @@ export default function Layout({ current, onChange, children }: {
       </nav>
 
       {/* Patient info at bottom */}
-      <div className="px-3 py-4 border-t border-slate-100">
+      <div className="px-3 py-3 border-t border-slate-100 space-y-1">
         <button
           onClick={() => onChange('profile')}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors"
         >
           <Avatar src={patient.photo} name={patient.name} size="sm" />
           <div className="flex-1 min-w-0 text-left">
-            <p className="text-sm font-medium text-slate-800 truncate">{patient.name}</p>
+            <p className="text-sm font-medium text-slate-700 truncate">{patient.name}</p>
             <p className="text-xs text-slate-400 truncate">{patient.email}</p>
           </div>
+        </button>
+        <button
+          onClick={() => {
+            useAuthStore.getState().logout();
+            window.location.href = '/login';
+          }}
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-slate-600 hover:text-red-600 hover:bg-red-50 transition-colors"
+        >
+          <LogOut className="w-4 h-4 text-slate-400" />
+          <span>Sign Out</span>
         </button>
       </div>
     </div>

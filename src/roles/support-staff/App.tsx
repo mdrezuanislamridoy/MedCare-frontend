@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import { LogOut } from 'lucide-react';
 import { ToastContainer, useToast } from './components/ui';
+import { useAuthStore } from '../../common/stores/auth.store';
 import DashboardPage from './pages/DashboardPage';
 import TicketsPage from './pages/TicketsPage';
 import PatientsPage from './pages/PatientsPage';
@@ -36,7 +38,7 @@ const pageTitles: Record<Page, string> = {
 
 export default function App() {
   const [page, setPage] = useState<Page>('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [globalSearch, setGlobalSearch] = useState('');
   const { toasts, show: showToast, dismiss } = useToast();
 
@@ -118,18 +120,43 @@ export default function App() {
         </nav>
 
         {/* Staff profile */}
-        <div className={`border-t border-slate-100 p-3 ${sidebarOpen ? '' : 'flex justify-center'}`}>
+        <div className={`border-t border-slate-100 p-3 ${sidebarOpen ? 'space-y-2' : 'flex flex-col items-center gap-2'}`}>
           {sidebarOpen ? (
-            <div className="flex items-center gap-3 px-2 py-1.5">
-              <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">AC</div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold text-slate-800 truncate">Alex Chen</p>
-                <p className="text-[10px] text-slate-400">Support Staff</p>
+            <>
+              <div className="flex items-center gap-3 px-2 py-1.5">
+                <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0">AC</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-slate-800 truncate">Alex Chen</p>
+                  <p className="text-[10px] text-slate-400">Support Staff</p>
+                </div>
+                <div className="w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0" title="Online" />
               </div>
-              <div className="w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0" title="Online" />
-            </div>
+              <button
+                onClick={() => {
+                  useAuthStore.getState().logout();
+                  window.location.href = '/login';
+                }}
+                className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Sign Out</span>
+              </button>
+            </>
           ) : (
-            <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-semibold">AC</div>
+            <>
+              <div className="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center text-sm font-semibold">AC</div>
+              <button
+                onClick={() => {
+                  useAuthStore.getState().logout();
+                  window.location.href = '/login';
+                }}
+                className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            </>
           )}
         </div>
       </aside>
