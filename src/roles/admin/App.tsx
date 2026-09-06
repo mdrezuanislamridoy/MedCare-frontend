@@ -523,7 +523,7 @@ function PatientsView() {
           setPatientList(live.data.map((p: any) => ({
             id: p.id,
             name: p.user?.name || "Patient",
-            email: p.user?.email || "patient@medcare.com",
+            email: p.user?.email || "—",
             phone: p.emergencyPhone || "+1 (555) 019-2834",
             appointments: p._count?.appointments || 4,
             status: "active",

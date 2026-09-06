@@ -25,7 +25,7 @@ export default function Patients() {
             nextAppointment: "2026-09-05",
             conditions: p.allergies || ["Hypertension"],
             phone: p.phone || "+1 (555) 111-2222",
-            email: p.user?.email || p.email || "patient@medcare.com",
+            email: p.user?.email || p.email || "—",
           })));
         }
       } catch (err) {

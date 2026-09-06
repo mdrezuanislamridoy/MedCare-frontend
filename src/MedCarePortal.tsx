@@ -86,47 +86,6 @@ export const roles: {
   },
 ];
 
-export const DEFAULT_ROLE_CREDENTIALS: Record<
-  Role,
-  { email: string; password: string; name: string }
-> = {
-  patient: {
-    email: "patient@medcare.com",
-    password: "Password123!",
-    name: "John Doe",
-  },
-  doctor: {
-    email: "doctor@medcare.com",
-    password: "Password123!",
-    name: "Dr. Sarah Jenkins",
-  },
-  receptionist: {
-    email: "receptionist@medcare.com",
-    password: "Password123!",
-    name: "Emma Watson",
-  },
-  "support-staff": {
-    email: "support@medcare.com",
-    password: "Password123!",
-    name: "Alex Taylor",
-  },
-  "clinic-manager": {
-    email: "manager@medcare.com",
-    password: "Password123!",
-    name: "Michael Scott",
-  },
-  admin: {
-    email: "admin@medcare.com",
-    password: "Password123!",
-    name: "System Administrator",
-  },
-  "super-admin": {
-    email: "superadmin@medcare.com",
-    password: "Password123!",
-    name: "Super Administrator",
-  },
-};
-
 export function roleLabel(role: Role) {
   return roles.find((item) => item.id === role)?.label ?? role;
 }
@@ -248,19 +207,10 @@ function LoginPageContent() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [infoMessage, setInfoMessage] = useState<string | null>(null);
 
   const handleRoleSelect = (roleId: Role) => {
     setSelectedRole(roleId);
     setErrorMessage(null);
-    const creds = DEFAULT_ROLE_CREDENTIALS[roleId];
-    if (creds) {
-      setEmail(creds.email);
-      setPassword(creds.password);
-      setInfoMessage(
-        `Default credentials loaded for ${roleLabel(roleId)}. You may sign in directly or enter custom credentials.`,
-      );
-    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -270,7 +220,6 @@ function LoginPageContent() {
       return;
     }
     setErrorMessage(null);
-    setInfoMessage(null);
     setLoading(true);
 
     try {
@@ -403,10 +352,12 @@ function LoginPageContent() {
             </div>
           )}
 
-          {infoMessage && selectedRole && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-teal-200 bg-teal-50 p-3 text-xs text-teal-800">
+          {selectedRole && (
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-teal-200 bg-teal-50/80 p-3 text-xs text-teal-800">
               <Sparkles className="h-4 w-4 shrink-0 text-teal-600 mt-0.5" />
-              <span>{infoMessage}</span>
+              <span>
+                Selected role: <strong className="font-semibold text-teal-950">{roleLabel(selectedRole)}</strong>. Enter your authorized credentials below.
+              </span>
             </div>
           )}
 
@@ -425,7 +376,7 @@ function LoginPageContent() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder={
                       selectedRole
-                        ? DEFAULT_ROLE_CREDENTIALS[selectedRole].email
+                        ? "name@example.com"
                         : "Select role on the left..."
                     }
                     className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed"
@@ -452,7 +403,11 @@ function LoginPageContent() {
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder={
+                      selectedRole
+                        ? "Enter your password"
+                        : "Select role on the left..."
+                    }
                     className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-xs sm:text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20 disabled:cursor-not-allowed"
                   />
                 </div>
