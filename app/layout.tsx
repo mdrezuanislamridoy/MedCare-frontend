@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import ThemeProvider from "../src/ThemeProvider";
-import ThemeToggle from "../src/ThemeToggle";
 import { AuthProvider } from "../src/common/context/AuthContext";
 import "../src/styles.css";
 
@@ -15,12 +14,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body>
+    <html lang="en" className="light" style={{ colorScheme: "light" }} suppressHydrationWarning>
+      <body className="bg-slate-50 text-slate-900 antialiased font-sans">
         <AuthProvider>
           <ThemeProvider>
             {children}
-            <ThemeToggle />
           </ThemeProvider>
         </AuthProvider>
       </body>

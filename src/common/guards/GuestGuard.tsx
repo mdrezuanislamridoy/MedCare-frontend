@@ -21,10 +21,10 @@ export function GuestGuard({ children }: GuestGuardProps) {
 
   if (!mounted || isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-white">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-900">
         <div className="text-center">
-          <RefreshCw className="mx-auto h-8 w-8 animate-spin text-teal-400" />
-          <p className="mt-3 text-xs text-slate-400">Verifying session...</p>
+          <RefreshCw className="mx-auto h-8 w-8 animate-spin text-teal-600" />
+          <p className="mt-3 text-xs text-slate-500">Verifying session...</p>
         </div>
       </div>
     );
@@ -35,20 +35,20 @@ export function GuestGuard({ children }: GuestGuardProps) {
     const roleRoute = getRoleRoute(role);
 
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-12 text-white">
-        <div className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900/90 p-8 text-center shadow-2xl backdrop-blur-xl">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-500/10 text-teal-400 ring-1 ring-teal-500/30">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 py-12 text-slate-900">
+        <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-xl shadow-slate-200/50">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50 text-teal-600 ring-1 ring-teal-200">
             <CheckCircle2 className="h-7 w-7" />
           </div>
-          <h2 className="mt-4 text-xl font-bold text-white">Already Signed In</h2>
-          <p className="mt-2 text-xs leading-relaxed text-slate-300">
-            You are currently signed in as <span className="font-semibold text-teal-400">{user.name || user.email}</span> ({role.toUpperCase()}).
+          <h2 className="mt-4 text-xl font-bold text-slate-900">Already Signed In</h2>
+          <p className="mt-2 text-xs leading-relaxed text-slate-600">
+            You are currently signed in as <span className="font-semibold text-teal-700">{user.name || user.email}</span> ({role.toUpperCase()}).
           </p>
 
           <div className="mt-6 flex flex-col gap-2.5">
             <Link
               href={roleRoute}
-              className="flex items-center justify-center gap-2 rounded-xl bg-teal-500 py-2.5 text-sm font-semibold text-white shadow-lg shadow-teal-500/25 transition hover:bg-teal-600"
+              className="flex items-center justify-center gap-2 rounded-xl bg-teal-600 py-2.5 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700"
             >
               Continue to My Workspace <ArrowRight className="h-4 w-4" />
             </Link>
@@ -56,7 +56,7 @@ export function GuestGuard({ children }: GuestGuardProps) {
             <button
               type="button"
               onClick={() => logout()}
-              className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-2.5 text-xs font-medium text-slate-300 transition hover:bg-red-500/20 hover:text-red-300"
+              className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 py-2.5 text-xs font-medium text-slate-700 transition hover:bg-red-50 hover:text-red-700 hover:border-red-200"
             >
               <LogOut className="h-3.5 w-3.5" /> Sign Out & Switch Account
             </button>

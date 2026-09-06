@@ -83,7 +83,7 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
 
-  // Actions
+  // Actions (Strict API-driven)
   login: (payload: LoginPayload) => Promise<UserProfile>;
   googleAuth: (idToken: string) => Promise<UserProfile>;
   register: (payload: RegisterPayload) => Promise<UserProfile>;
@@ -92,7 +92,6 @@ export interface AuthState {
   verifySession: () => Promise<boolean>;
   logout: () => void;
   refreshProfile: () => Promise<void>;
-  switchDemoRole: (targetRole: Role) => void;
   clearError: () => void;
   initialize: () => Promise<void>;
 }
@@ -122,8 +121,8 @@ export const useAuthStore = create<AuthState>()(
           });
           return data.user;
         } catch (err: any) {
-          const msg = err?.message || 'Login failed. Please verify credentials.';
-          set({ error: msg, isLoading: false, isAuthenticated: false });
+          const msg = err?.message || 'Login failed. Please verify your credentials.';
+          set({ error: msg, isLoading: false, isAuthenticated: false, user: null, token: null });
           throw err;
         }
       },
@@ -144,7 +143,7 @@ export const useAuthStore = create<AuthState>()(
           return data.user;
         } catch (err: any) {
           const msg = err?.message || 'Google authentication failed.';
-          set({ error: msg, isLoading: false });
+          set({ error: msg, isLoading: false, isAuthenticated: false, user: null, token: null });
           throw err;
         }
       },
@@ -226,54 +225,33 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      switchDemoRole: (targetRole: Role) => {
-        const dummyUser: UserProfile = {
-          id: `demo-${targetRole}-id`,
-          email: `${targetRole}@medcare.com`,
-          name: `${targetRole.replace('-', ' ').toUpperCase()} User`,
-          role: toBackendRole(targetRole) as any,
-          isEmailVerified: true,
-        };
-        const demoToken = 'demo-mode-token';
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('medcare.accessToken', demoToken);
-          localStorage.setItem('medcare.user', JSON.stringify(dummyUser));
-        }
-        set({
-          user: dummyUser,
-          token: demoToken,
-          role: targetRole,
-          isAuthenticated: true,
-          error: null,
-        });
-      },
-
       clearError: () => set({ error: null }),
 
       initialize: async () => {
         const token = get().token || authService.getStoredToken();
         const user = get().user || authService.getStoredUser();
 
+        // Wipe any legacy mock/demo tokens
+        if (token === 'demo-mode-token' || !token) {
+          get().logout();
+          return;
+        }
+
         if (token && user) {
           const role = normalizeBackendRole(user.role);
           set({ token, user, role, isAuthenticated: true });
 
-          // If in demo mode, skip server verification
-          if (token === 'demo-mode-token') {
-            return;
-          }
-
-          // Silent background verification against backend
+          // STRICT backend verification: verify that token is still valid on backend
           try {
             const profile = await authService.getCurrentUser();
             const verifiedRole = normalizeBackendRole(profile.role);
             set({ user: profile, role: verifiedRole, isAuthenticated: true });
           } catch (err: any) {
-            // If 401 Unauthorized, token has expired
-            if (err?.statusCode === 401) {
-              get().logout();
-            }
+            // Any authorization or verification failure immediately logs out
+            get().logout();
           }
+        } else {
+          get().logout();
         }
       },
     }),

@@ -40,56 +40,48 @@ export const roles: {
   label: string;
   description: string;
   icon: typeof Users;
-  demoEmail: string;
 }[] = [
   {
     id: "patient",
     label: "Patient",
     description: "Book appointments, manage medical records, prescriptions, and video visits.",
     icon: UserCheck,
-    demoEmail: "patient@medcare.com",
   },
   {
     id: "doctor",
     label: "Doctor",
     description: "Manage clinical chart workspace, consultation notes, prescriptions, and schedule.",
     icon: Stethoscope,
-    demoEmail: "doctor@medcare.com",
   },
   {
     id: "receptionist",
     label: "Receptionist",
     description: "Handle front desk check-in wizard, token queues, walk-in visits, and doctor schedules.",
     icon: UserCheck,
-    demoEmail: "receptionist@medcare.com",
   },
   {
     id: "support-staff",
     label: "Support Staff",
     description: "Resolve support tickets, complaints, appointment disputes, and live chat messages.",
     icon: Users,
-    demoEmail: "support@medcare.com",
   },
   {
     id: "clinic-manager",
     label: "Clinic Manager",
     description: "Manage clinic branches, doctor rosters, rooms, staff accounts, and revenue.",
     icon: Users,
-    demoEmail: "manager@medcare.com",
   },
   {
     id: "admin",
     label: "Admin",
     description: "Operate doctor verification queue, patients, clinics, finance, and reviews.",
     icon: Activity,
-    demoEmail: "admin@medcare.com",
   },
   {
     id: "super-admin",
     label: "Super Admin",
     description: "Control platform RBAC matrix, access approvals, system health, and backups.",
     icon: ShieldCheck,
-    demoEmail: "superadmin@medcare.com",
   },
 ];
 
@@ -141,16 +133,16 @@ export function Shell({
   const handleSignOut = onSignOut || logout;
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/95 backdrop-blur-md">
+    <main className="min-h-screen bg-slate-50 text-slate-900">
+      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md shadow-xs">
         <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
           <Link href="/" className="flex items-center gap-2.5 transition hover:opacity-90">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-500 shadow-md shadow-teal-500/20">
-              <Stethoscope className="h-5 w-5 text-white" />
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600 shadow-sm text-white">
+              <Stethoscope className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-sm font-bold tracking-tight text-white">MedCare</div>
-              <div className="text-[11px] text-teal-300">Unified Healthcare Platform</div>
+              <div className="text-sm font-bold tracking-tight text-slate-900">MedCare</div>
+              <div className="text-[11px] font-medium text-teal-700">Unified Healthcare Platform</div>
             </div>
           </Link>
 
@@ -160,21 +152,21 @@ export function Shell({
             <div className="flex items-center gap-3">
               <Link
                 href={getRoleRoute(role)}
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-teal-500/30 bg-teal-500/10 px-3 py-1.5 text-xs font-semibold text-teal-300 transition hover:bg-teal-500/20"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-800 transition hover:bg-teal-100"
               >
-                <Sparkles className="h-3.5 w-3.5" />
+                <Sparkles className="h-3.5 w-3.5 text-teal-600" />
                 <span>Workspace ({roleLabel(role)})</span>
               </Link>
               <div className="hidden text-right sm:block">
-                <div className="text-xs font-semibold text-white">{user.name || user.email}</div>
-                <div className="text-[10px] font-medium uppercase tracking-wider text-teal-400">
+                <div className="text-xs font-semibold text-slate-900">{user.name || user.email}</div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-teal-700">
                   {roleLabel(role)}
                 </div>
               </div>
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/30"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-red-50 hover:text-red-700 hover:border-red-200"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 Sign out
@@ -184,13 +176,13 @@ export function Shell({
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="rounded-lg px-3 py-1.5 text-xs font-medium text-slate-300 transition hover:text-white"
+                className="rounded-lg px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
               >
                 Login
               </Link>
               <Link
                 href="/signup"
-                className="rounded-lg bg-teal-500 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-teal-600"
+                className="rounded-lg bg-teal-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-teal-700"
               >
                 Sign up
               </Link>
@@ -207,7 +199,7 @@ function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTarget = searchParams?.get("redirect");
-  const { login, googleAuth, switchDemoRole } = useAuth();
+  const { login, googleAuth } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -228,7 +220,7 @@ function LoginPageContent() {
       router.push(target);
     } catch (err: any) {
       setErrorMessage(
-        err?.message || "Invalid credentials. Please verify your email and password.",
+        err?.message || "Invalid credentials. Please check your email and password.",
       );
     } finally {
       setLoading(false);
@@ -242,15 +234,14 @@ function LoginPageContent() {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
     if (!clientId) {
       setInfoMessage(
-        "Google OAuth is not configured in this environment (NEXT_PUBLIC_GOOGLE_CLIENT_ID is missing). Please use standard email/password or demo mode.",
+        "Google SSO requires NEXT_PUBLIC_GOOGLE_CLIENT_ID configured in the environment. Please use verified email and password credentials.",
       );
       return;
     }
 
     setGoogleLoading(true);
     try {
-      // If client ID is present, we would invoke google.accounts.id.prompt or OAuth popup
-      setInfoMessage("Connecting to Google OAuth...");
+      setInfoMessage("Connecting to Google OAuth authentication...");
     } catch (err: any) {
       setErrorMessage(err?.message || "Google authentication failed.");
     } finally {
@@ -258,84 +249,55 @@ function LoginPageContent() {
     }
   };
 
-  const handleDemoLogin = (targetRole: Role) => {
-    switchDemoRole(targetRole);
-    const target = redirectTarget || getRoleRoute(targetRole);
-    router.push(target);
-  };
-
-  const autofill = (demoEmail: string) => {
-    setEmail(demoEmail);
-    setPassword("Password123!");
-    setErrorMessage(null);
-  };
-
   return (
     <Shell>
-      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.1fr_450px] lg:items-center">
+      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_450px] lg:items-center">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-teal-300 ring-1 ring-teal-500/30">
-            <Sparkles className="h-3.5 w-3.5" /> Secure Authentication
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-teal-700 ring-1 ring-teal-200">
+            <ShieldCheck className="h-3.5 w-3.5" /> Verified Access Control
           </span>
-          <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-            Welcome back to the MedCare Portal.
+          <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
+            Welcome to MedCare Healthcare Portal
           </h1>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">
-            Access your unified clinical dashboard, consultations, appointments, medical records, or administrative control room.
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
+            Access your secure clinical workspace, electronic health records, consultations, and operations control room. Authorized credentials required.
           </p>
 
-          {/* Quick Demo Role Switcher */}
-          <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-400">
-                ⚡ Instant One-Click Demo Access
-              </span>
-              <span className="text-[11px] text-slate-400">No password required</span>
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-3.5">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-700">
+              <KeyRound className="h-4 w-4" /> Secure Enterprise Identity
             </div>
-            <p className="mt-1 text-xs text-slate-400">
-              Click any role below to enter the portal workspace instantly:
+            <p className="text-xs text-slate-600 leading-relaxed">
+              MedCare uses secure JSON Web Tokens (JWT) verified against the microservices API Gateway. Unauthenticated requests are strictly blocked from accessing patient records and clinical tools.
             </p>
-
-            <div className="mt-3.5 grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {roles.map((r) => {
-                const Icon = r.icon;
-                return (
-                  <button
-                    key={r.id}
-                    type="button"
-                    onClick={() => handleDemoLogin(r.id)}
-                    className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-2.5 text-left text-xs font-medium text-slate-200 transition hover:border-teal-400/50 hover:bg-teal-500/15 hover:text-white"
-                  >
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-teal-500/20 text-teal-300">
-                      <Icon className="h-3.5 w-3.5" />
-                    </span>
-                    <span className="truncate">{r.label}</span>
-                  </button>
-                );
-              })}
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs text-slate-500">
+              <div>✓ End-to-End RBAC Protection</div>
+              <div>✓ Automatic Token Validation</div>
+              <div>✓ Encrypted Session Tokens</div>
+              <div>✓ Audit Logged Actions</div>
             </div>
           </div>
         </div>
 
         {/* Login Card */}
-        <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+        <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8">
           <div className="mb-6">
-            <h2 className="text-xl font-bold text-white">Sign In</h2>
-            <p className="mt-1 text-xs text-slate-400">
-              Enter your verified MedCare credentials below.
+            <h2 className="text-2xl font-bold text-slate-900">Sign In</h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Enter your verified credentials to access your workspace.
             </p>
           </div>
 
           {errorMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-600 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {infoMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-teal-500/30 bg-teal-500/10 p-3 text-xs text-teal-200">
-              <Sparkles className="h-4 w-4 shrink-0 text-teal-400 mt-0.5" />
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-teal-200 bg-teal-50 p-3.5 text-xs text-teal-800">
+              <Sparkles className="h-4 w-4 shrink-0 text-teal-600 mt-0.5" />
               <span>{infoMessage}</span>
             </div>
           )}
@@ -345,47 +307,28 @@ function LoginPageContent() {
             type="button"
             onClick={handleGoogleAuth}
             disabled={googleLoading || loading}
-            className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-white/10 bg-white/5 py-2.5 text-xs font-medium text-slate-200 transition hover:bg-white/10 disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-slate-200 bg-white py-2.5 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-50 hover:border-slate-300 disabled:opacity-50"
           >
             {googleLoading ? (
-              <RefreshCw className="h-4 w-4 animate-spin text-teal-400" />
+              <RefreshCw className="h-4 w-4 animate-spin text-teal-600" />
             ) : (
               <GoogleIcon />
             )}
-            <span>Continue with Google SSO</span>
+            <span>Sign in with Google SSO</span>
           </button>
 
           <div className="relative my-5 text-center">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
+              <div className="w-full border-t border-slate-200" />
             </div>
-            <span className="relative bg-slate-900 px-3 text-[11px] font-medium text-slate-400 uppercase">
+            <span className="relative bg-white px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
               Or sign in with email
             </span>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-medium text-slate-200">Email Address</label>
-                <div className="flex gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => autofill("doctor@medcare.com")}
-                    className="text-[10px] text-teal-400 hover:text-teal-300 underline"
-                  >
-                    Demo Doctor
-                  </button>
-                  <span className="text-[10px] text-slate-500">•</span>
-                  <button
-                    type="button"
-                    onClick={() => autofill("patient@medcare.com")}
-                    className="text-[10px] text-teal-400 hover:text-teal-300 underline"
-                  >
-                    Demo Patient
-                  </button>
-                </div>
-              </div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
@@ -393,18 +336,18 @@ function LoginPageContent() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="doctor@medcare.com"
-                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                  placeholder="name@example.com"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-medium text-slate-200">Password</label>
+                <label className="block text-xs font-semibold text-slate-700">Password</label>
                 <Link
                   href="/forgot-password"
-                  className="text-xs font-medium text-teal-400 transition hover:text-teal-300"
+                  className="text-xs font-semibold text-teal-700 transition hover:text-teal-800 hover:underline"
                 >
                   Forgot password?
                 </Link>
@@ -417,7 +360,7 @@ function LoginPageContent() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
@@ -425,11 +368,11 @@ function LoginPageContent() {
             <button
               type="submit"
               disabled={loading}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/25 transition hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <>
-                  <RefreshCw className="h-4 w-4 animate-spin" /> Signing in...
+                  <RefreshCw className="h-4 w-4 animate-spin" /> Verifying Credentials...
                 </>
               ) : (
                 <>
@@ -439,10 +382,10 @@ function LoginPageContent() {
             </button>
           </form>
 
-          <div className="mt-6 border-t border-white/10 pt-4 text-center">
-            <p className="text-xs text-slate-400">
-              Don't have an account yet?{" "}
-              <Link href="/signup" className="font-semibold text-teal-400 hover:text-teal-300">
+          <div className="mt-6 border-t border-slate-100 pt-4 text-center">
+            <p className="text-xs text-slate-500">
+              Need an account?{" "}
+              <Link href="/signup" className="font-semibold text-teal-700 hover:underline">
                 Create Account
               </Link>
             </p>
@@ -455,7 +398,7 @@ function LoginPageContent() {
 
 export function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center"><RefreshCw className="h-7 w-7 animate-spin text-teal-400" /></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><RefreshCw className="h-7 w-7 animate-spin text-teal-600" /></div>}>
       <LoginPageContent />
     </Suspense>
   );
@@ -463,8 +406,7 @@ export function LoginPage() {
 
 function SignupPageContent() {
   const router = useRouter();
-  const { register, switchDemoRole } = useAuth();
-  const [role, setRole] = useState<Role>("patient");
+  const { register } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -472,17 +414,12 @@ function SignupPageContent() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const selectedRole = roles.find((r) => r.id === role)!;
-  const SelectedIcon = selectedRole.icon;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
     setLoading(true);
 
     try {
-      // Backend RegisterDto only takes email, password, and name.
-      // Newly registered accounts start as PATIENT.
       const user = await register({
         name: name.trim() || undefined,
         email: email.trim(),
@@ -503,86 +440,60 @@ function SignupPageContent() {
     }
   };
 
-  const handleDemoInstant = (demoRole: Role) => {
-    switchDemoRole(demoRole);
-    router.push(getRoleRoute(demoRole));
-  };
-
   return (
     <Shell>
-      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-[1.1fr_460px] lg:items-center">
+      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_460px] lg:items-center">
         <div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-teal-300 ring-1 ring-teal-500/30">
-            <UserCheck className="h-3.5 w-3.5" /> Account Registration
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-teal-700 ring-1 ring-teal-200">
+            <UserCheck className="h-3.5 w-3.5" /> Verified User Registration
           </span>
-          <h1 className="mt-4 text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+          <h1 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
             Create your MedCare healthcare account.
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">
-            All new user accounts start with Patient access. Clinical and administrative role elevations (Doctor, Clinic Manager, Admin) are granted by platform administrators.
+          <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-600">
+            Register for authorized access to the healthcare platform. All initial accounts start with Patient access privileges.
           </p>
 
-          <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-teal-400">
-                Explore Portals in Demo Mode
-              </span>
-              <span className="text-[11px] text-slate-400">Instant Access</span>
-            </div>
-            <div className="grid gap-2.5 sm:grid-cols-2">
-              {roles.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleDemoInstant(item.id)}
-                    className="flex items-start gap-2.5 rounded-xl border border-white/10 bg-white/5 p-3 text-left transition hover:border-teal-500/40 hover:bg-teal-500/10"
-                  >
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-teal-500/20 text-teal-300">
-                      <Icon className="h-3.5 w-3.5" />
-                    </span>
-                    <div>
-                      <div className="font-semibold text-xs text-white">{item.label}</div>
-                      <p className="text-[11px] text-slate-400 line-clamp-1">{item.description}</p>
-                    </div>
-                  </button>
-                );
-              })}
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800">
+              Role Allocation & Security Guidelines
+            </h3>
+            <div className="space-y-2.5 text-xs text-slate-600 leading-relaxed">
+              <p>
+                • <strong>Patients</strong>: Immediate self-service registration to book appointments, manage medical records, and access telehealth.
+              </p>
+              <p>
+                • <strong>Clinical & Administrative Roles</strong>: Doctor, Clinic Manager, Receptionist, and Administrator accounts require identity verification and role elevation by platform administrators.
+              </p>
             </div>
           </div>
         </div>
 
         {/* Signup Form Card */}
-        <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-          <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500 shadow-md shadow-teal-500/20">
-              <SelectedIcon className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h2 className="font-bold text-white">Register Account</h2>
-              <p className="text-xs text-slate-400">Join the MedCare unified healthcare network.</p>
-            </div>
+        <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8">
+          <div className="mb-5">
+            <h2 className="text-2xl font-bold text-slate-900">Register Account</h2>
+            <p className="text-xs text-slate-500">Join the MedCare unified healthcare network.</p>
           </div>
 
           {errorMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-600 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {success && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-200">
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3.5 text-xs text-emerald-800">
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 mt-0.5" />
               <span>Account created successfully! Redirecting to workspace...</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-200">Full Name</label>
-              <div className="relative mt-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Full Name</label>
+              <div className="relative">
                 <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
@@ -590,14 +501,14 @@ function SignupPageContent() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Sarah Mitchell"
-                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-200">Email Address</label>
-              <div className="relative mt-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address</label>
+              <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="email"
@@ -605,14 +516,14 @@ function SignupPageContent() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="sarah@example.com"
-                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-200">Password</label>
-              <div className="relative mt-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Password</label>
+              <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="password"
@@ -621,7 +532,7 @@ function SignupPageContent() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Minimum 8 characters"
-                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
@@ -629,7 +540,7 @@ function SignupPageContent() {
             <button
               type="submit"
               disabled={loading || success}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/25 transition hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <>
@@ -643,10 +554,10 @@ function SignupPageContent() {
             </button>
           </form>
 
-          <div className="mt-6 border-t border-white/10 pt-4 text-center">
-            <p className="text-xs text-slate-400">
+          <div className="mt-6 border-t border-slate-100 pt-4 text-center">
+            <p className="text-xs text-slate-500">
               Already have an account?{" "}
-              <Link href="/login" className="font-semibold text-teal-400 hover:text-teal-300">
+              <Link href="/login" className="font-semibold text-teal-700 hover:underline">
                 Sign In
               </Link>
             </p>
@@ -659,7 +570,7 @@ function SignupPageContent() {
 
 export function SignupPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center"><RefreshCw className="h-7 w-7 animate-spin text-teal-400" /></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><RefreshCw className="h-7 w-7 animate-spin text-teal-600" /></div>}>
       <SignupPageContent />
     </Suspense>
   );
@@ -685,11 +596,11 @@ function ForgotPasswordPageContent() {
     try {
       const res = await forgotPassword(email.trim());
       setSuccessMessage(
-        res?.message || "Password reset code sent! Please check your email inbox.",
+        res?.message || "Password reset code issued. Please check your email inbox for your 6-digit code.",
       );
     } catch (err: any) {
       setErrorMessage(
-        err?.message || "Failed to issue password reset code. Please try again.",
+        err?.message || "Failed to issue password reset code. Please check the email address.",
       );
     } finally {
       setLoading(false);
@@ -699,41 +610,41 @@ function ForgotPasswordPageContent() {
   return (
     <Shell>
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center px-4 py-12">
-        <div className="w-full rounded-2xl border border-white/10 bg-white/[0.05] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+        <div className="w-full rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8">
           <Link
             href="/login"
-            className="mb-5 inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 transition hover:text-teal-300"
+            className="mb-5 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition hover:text-teal-700"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Back to Sign In
           </Link>
 
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-white">Reset Password</h1>
-            <p className="mt-1 text-xs text-slate-400">
-              Enter your registered email address to receive a 6-digit verification code.
+            <h1 className="text-2xl font-bold text-slate-900">Reset Password</h1>
+            <p className="mt-1 text-xs text-slate-500">
+              Enter your verified email address to receive a 6-digit verification code.
             </p>
           </div>
 
           {errorMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-600 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {successMessage ? (
             <div className="space-y-4">
-              <div className="flex items-start gap-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-200">
-                <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400 mt-0.5" />
+              <div className="flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-800">
+                <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600 mt-0.5" />
                 <div>
-                  <div className="font-semibold text-white">Reset Code Sent!</div>
+                  <div className="font-semibold text-slate-900">Verification Code Sent</div>
                   <div className="mt-1 leading-relaxed">{successMessage}</div>
                 </div>
               </div>
 
               <Link
                 href={`/reset-password?email=${encodeURIComponent(email.trim())}`}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/25 transition hover:bg-teal-600"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700"
               >
                 Enter 6-Digit Code <ArrowRight className="h-4 w-4" />
               </Link>
@@ -741,16 +652,16 @@ function ForgotPasswordPageContent() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-slate-200">Email Address</label>
-                <div className="relative mt-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address</label>
+                <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@medcare.com"
-                    className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                    placeholder="name@example.com"
+                    className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                   />
                 </div>
               </div>
@@ -758,7 +669,7 @@ function ForgotPasswordPageContent() {
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/25 transition hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-60"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? (
                   <>
@@ -773,12 +684,12 @@ function ForgotPasswordPageContent() {
             </form>
           )}
 
-          <div className="mt-6 border-t border-white/10 pt-4 text-center">
-            <p className="text-xs text-slate-400">
+          <div className="mt-6 border-t border-slate-100 pt-4 text-center">
+            <p className="text-xs text-slate-500">
               Already have a reset code?{" "}
               <Link
                 href={`/reset-password${email ? `?email=${encodeURIComponent(email)}` : ""}`}
-                className="font-semibold text-teal-400 hover:text-teal-300"
+                className="font-semibold text-teal-700 hover:underline"
               >
                 Reset Password Here
               </Link>
@@ -792,7 +703,7 @@ function ForgotPasswordPageContent() {
 
 export function ForgotPasswordPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center"><RefreshCw className="h-7 w-7 animate-spin text-teal-400" /></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><RefreshCw className="h-7 w-7 animate-spin text-teal-600" /></div>}>
       <ForgotPasswordPageContent />
     </Suspense>
   );
@@ -841,7 +752,7 @@ function ResetPasswordPageContent() {
       }, 1500);
     } catch (err: any) {
       setErrorMessage(
-        err?.message || "Password reset failed. Please check the verification code and try again.",
+        err?.message || "Password reset failed. Please verify the code and try again.",
       );
     } finally {
       setLoading(false);
@@ -851,57 +762,57 @@ function ResetPasswordPageContent() {
   return (
     <Shell>
       <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center px-4 py-12">
-        <div className="w-full rounded-2xl border border-white/10 bg-white/[0.05] p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+        <div className="w-full rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xl shadow-slate-200/50 sm:p-8">
           <Link
             href="/login"
-            className="mb-5 inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 transition hover:text-teal-300"
+            className="mb-5 inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition hover:text-teal-700"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Back to Sign In
           </Link>
 
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-white">Create New Password</h1>
-            <p className="mt-1 text-xs text-slate-400">
-              Enter your 6-digit verification code and set your new password.
+            <h1 className="text-2xl font-bold text-slate-900">Set New Password</h1>
+            <p className="mt-1 text-xs text-slate-500">
+              Enter your 6-digit verification code and choose a new secure password.
             </p>
           </div>
 
           {errorMessage && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-200">
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3.5 text-xs text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-600 mt-0.5" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {success && (
-            <div className="mb-4 flex items-start gap-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-emerald-200">
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400 mt-0.5" />
+            <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs text-emerald-800">
+              <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600 mt-0.5" />
               <div>
-                <div className="font-semibold text-white">Password Updated!</div>
-                <div className="mt-1">Your password has been reset. Redirecting to Sign In...</div>
+                <div className="font-semibold text-slate-900">Password Updated</div>
+                <div className="mt-1">Your password has been changed. Redirecting to Sign In...</div>
               </div>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-200">Email Address</label>
-              <div className="relative mt-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Email Address</label>
+              <div className="relative">
                 <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@medcare.com"
-                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                  placeholder="name@example.com"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-200">6-Digit Verification Code</label>
-              <div className="relative mt-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">6-Digit Verification Code</label>
+              <div className="relative">
                 <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="text"
@@ -910,14 +821,14 @@ function ResetPasswordPageContent() {
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="123456"
-                  className="w-full tracking-widest font-mono rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                  className="w-full tracking-widest font-mono rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-200">New Password</label>
-              <div className="relative mt-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">New Password</label>
+              <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="password"
@@ -926,14 +837,14 @@ function ResetPasswordPageContent() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min 8 characters"
-                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-200">Confirm New Password</label>
-              <div className="relative mt-1.5">
+              <label className="block text-xs font-semibold text-slate-700 mb-1.5">Confirm New Password</label>
+              <div className="relative">
                 <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   type="password"
@@ -941,8 +852,8 @@ function ResetPasswordPageContent() {
                   minLength={8}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Re-enter password"
-                  className="w-full rounded-xl border border-white/10 bg-slate-900/90 py-2.5 pl-9 pr-3 text-sm text-white placeholder-slate-500 outline-none transition focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+                  placeholder="Re-enter new password"
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50/50 py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:bg-white focus:border-teal-600 focus:ring-2 focus:ring-teal-500/20"
                 />
               </div>
             </div>
@@ -950,11 +861,11 @@ function ResetPasswordPageContent() {
             <button
               type="submit"
               disabled={loading || success}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-500 py-3 text-sm font-semibold text-white shadow-lg shadow-teal-500/25 transition hover:bg-teal-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-teal-600 py-3 text-sm font-semibold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? (
                 <>
-                  <RefreshCw className="h-4 w-4 animate-spin" /> Resetting Password...
+                  <RefreshCw className="h-4 w-4 animate-spin" /> Updating Password...
                 </>
               ) : (
                 <>
@@ -964,10 +875,10 @@ function ResetPasswordPageContent() {
             </button>
           </form>
 
-          <div className="mt-6 border-t border-white/10 pt-4 text-center">
-            <p className="text-xs text-slate-400">
+          <div className="mt-6 border-t border-slate-100 pt-4 text-center">
+            <p className="text-xs text-slate-500">
               Need a new code?{" "}
-              <Link href="/forgot-password" className="font-semibold text-teal-400 hover:text-teal-300">
+              <Link href="/forgot-password" className="font-semibold text-teal-700 hover:underline">
                 Request Code Again
               </Link>
             </p>
@@ -980,7 +891,7 @@ function ResetPasswordPageContent() {
 
 export function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-950 flex items-center justify-center"><RefreshCw className="h-7 w-7 animate-spin text-teal-400" /></div>}>
+    <Suspense fallback={<div className="min-h-screen bg-slate-50 flex items-center justify-center"><RefreshCw className="h-7 w-7 animate-spin text-teal-600" /></div>}>
       <ResetPasswordPageContent />
     </Suspense>
   );
@@ -995,8 +906,8 @@ export default function DashboardPage() {
       <Shell>
         <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
           <div className="text-center">
-            <RefreshCw className="mx-auto h-8 w-8 animate-spin text-teal-400" />
-            <p className="mt-3 text-sm text-slate-400">Loading your MedCare workspace...</p>
+            <RefreshCw className="mx-auto h-8 w-8 animate-spin text-teal-600" />
+            <p className="mt-3 text-sm text-slate-600">Verifying session...</p>
           </div>
         </div>
       </Shell>
@@ -1007,24 +918,24 @@ export default function DashboardPage() {
     return (
       <Shell>
         <section className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-xl items-center px-4 py-8 text-center">
-          <div className="w-full rounded-2xl border border-white/10 bg-white/[0.05] p-8 shadow-2xl">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-teal-500/20 text-teal-400">
+          <div className="w-full rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/50">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-teal-50 text-teal-600 ring-1 ring-teal-200">
               <KeyRound className="h-6 w-6" />
             </div>
-            <h1 className="mt-4 text-2xl font-bold text-white">Authentication Required</h1>
-            <p className="mt-2 text-sm leading-relaxed text-slate-300">
-              Please sign in to access your designated healthcare role workspace.
+            <h1 className="mt-4 text-2xl font-bold text-slate-900">Authentication Required</h1>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+              Please sign in with verified credentials to access your designated healthcare workspace.
             </p>
             <div className="mt-6 flex justify-center gap-3">
               <Link
                 href="/login?redirect=/dashboard"
-                className="rounded-xl bg-teal-500 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-teal-500/20 hover:bg-teal-600"
+                className="rounded-xl bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-teal-600/20 hover:bg-teal-700"
               >
                 Sign In
               </Link>
               <Link
                 href="/signup"
-                className="rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/10"
+                className="rounded-xl border border-slate-200 bg-slate-50 px-5 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-100"
               >
                 Register
               </Link>
