@@ -38,7 +38,7 @@ export function FaqSection() {
 
   return (
     <section id="faq" className="bg-white py-20 lg:py-24 scroll-mt-12">
-      <div className="mx-auto max-w-3xl px-5 lg:px-8">
+      <div className="mx-auto max-w-5xl px-6 lg:px-12">
         <SectionHeading
           eyebrow="FAQ"
           title="Questions patients ask us most"

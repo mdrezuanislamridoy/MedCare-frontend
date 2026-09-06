@@ -35,7 +35,7 @@ const socials = [
 export function Footer() {
   return (
     <footer id="contact" className="border-t border-teal-100 bg-white">
-      <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
+      <div className="mx-auto max-w-[1536px] px-6 py-16 lg:px-12">
         <div className="grid gap-12 lg:grid-cols-12">
           <div className="lg:col-span-4">
             <a href="#top" className="flex items-center gap-2.5" aria-label="MedCare home">

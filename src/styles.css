@@ -24,6 +24,28 @@
     @apply box-border;
   }
 
+  html {
+    font-size: 16.5px;
+  }
+
+  @media (min-width: 1024px) {
+    html {
+      font-size: 17.5px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    html {
+      font-size: 18.5px;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    html {
+      font-size: 19.5px;
+    }
+  }
+
   html,
   body,
   #root {

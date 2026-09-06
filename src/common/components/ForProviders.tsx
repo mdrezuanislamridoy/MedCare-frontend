@@ -20,7 +20,7 @@ const benefits = [
 export function ForProviders() {
   return (
     <section id="for-doctors" className="bg-teal-800 py-20 text-white lg:py-24">
-      <div className="mx-auto max-w-7xl px-5 lg:grid lg:grid-cols-12 lg:gap-14 lg:px-8">
+      <div className="mx-auto max-w-[1536px] px-6 lg:grid lg:grid-cols-12 lg:gap-16 lg:px-12">
         <div className="lg:col-span-5">
           <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-teal-100">
             For Doctors &amp; Clinics

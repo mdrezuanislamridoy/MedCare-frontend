@@ -15,7 +15,7 @@ export function Testimonials() {
 
   return (
     <section id="testimonials" className="bg-canvas py-20 lg:py-24 scroll-mt-12">
-      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="mx-auto max-w-[1536px] px-6 lg:px-12">
         <SectionHeading
           eyebrow="Patient Stories"
           title="Trusted by patients and families every day"
@@ -23,11 +23,11 @@ export function Testimonials() {
         />
 
         {/* Rating Filter Tabs */}
-        <div className="mt-8 flex justify-center items-center gap-2">
+        <div className="mt-10 flex justify-center items-center gap-2.5">
           <button
             type="button"
             onClick={() => setFilterRating(null)}
-            className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-all ${
+            className={`rounded-full px-5 py-2 text-sm font-bold transition-all ${
               filterRating === null
                 ? 'bg-teal-600 text-white shadow-sm'
                 : 'border border-teal-100 bg-white text-ink-soft hover:bg-teal-50'

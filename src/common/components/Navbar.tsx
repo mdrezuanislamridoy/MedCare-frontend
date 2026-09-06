@@ -48,42 +48,42 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-teal-100/70 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 py-4 lg:px-8">
-        <Link href="/" className="flex items-center gap-2.5" aria-label="MedCare home">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600 text-white shadow-sm">
-            <ActivityIcon className="h-5 w-5" aria-hidden="true" />
+    <header className="sticky top-0 z-40 w-full border-b border-teal-100/80 bg-white/95 backdrop-blur-md shadow-xs">
+      <div className="mx-auto flex max-w-[1536px] items-center justify-between gap-8 px-6 py-4.5 lg:px-12">
+        <Link href="/" className="flex items-center gap-3" aria-label="MedCare home">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-600 text-white shadow-sm">
+            <ActivityIcon className="h-6 w-6" aria-hidden="true" />
           </span>
-          <span className="font-display text-lg font-bold tracking-tight text-ink">
+          <span className="font-display text-2xl font-extrabold tracking-tight text-ink">
             Med<span className="text-teal-600">Care</span>
           </span>
         </Link>
 
-        <nav aria-label="Main" className="hidden items-center gap-7 xl:flex">
+        <nav aria-label="Main" className="hidden items-center gap-8 xl:flex">
           {links.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className="text-sm font-medium text-ink-soft transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded"
+              className="text-base font-semibold text-ink-soft transition-colors hover:text-teal-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 rounded"
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-4 lg:flex">
           {isAuthenticated && user ? (
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2.5 rounded-full border border-teal-200/80 bg-teal-50/50 py-1.5 pl-2.5 pr-4 text-sm font-semibold text-ink hover:bg-teal-100/60 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500"
+                className="flex items-center gap-3 rounded-full border border-teal-200/80 bg-teal-50/70 py-2 pl-3 pr-4 text-base font-semibold text-ink hover:bg-teal-100/70 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-teal-600 text-xs font-bold text-white uppercase">
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-600 text-sm font-bold text-white uppercase shadow-xs">
                   {user.name ? user.name.slice(0, 2) : 'MC'}
                 </span>
-                <span className="truncate max-w-[120px] text-xs font-bold">{user.name || 'User'}</span>
-                <span className="rounded-full bg-teal-600/10 px-2 py-0.5 text-[10px] font-semibold text-teal-800">
+                <span className="truncate max-w-[140px] text-sm font-bold">{user.name || 'User'}</span>
+                <span className="rounded-full bg-teal-600/10 px-2.5 py-0.5 text-xs font-bold text-teal-800">
                   {getRoleDisplayName()}
                 </span>
                 <ChevronDownIcon className="h-4 w-4 text-ink-muted" />
@@ -91,33 +91,33 @@ export function Navbar() {
 
               {userDropdownOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-56 rounded-2xl border border-teal-100 bg-white p-2 shadow-xl ring-1 ring-black/5"
+                  className="absolute right-0 mt-2 w-64 rounded-2xl border border-teal-100 bg-white p-2.5 shadow-2xl ring-1 ring-black/5"
                   onMouseLeave={() => setUserDropdownOpen(false)}
                 >
-                  <div className="border-b border-teal-50 px-3 py-2">
-                    <p className="text-xs font-bold text-ink">{user.name}</p>
-                    <p className="text-[11px] text-ink-muted truncate">{user.email}</p>
+                  <div className="border-b border-teal-50 px-3 py-2.5">
+                    <p className="text-sm font-bold text-ink">{user.name}</p>
+                    <p className="text-xs text-ink-muted truncate">{user.email}</p>
                   </div>
-                  <div className="py-1">
+                  <div className="py-1.5">
                     <Link
                       href={getDashboardPath()}
                       onClick={() => setUserDropdownOpen(false)}
-                      className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-ink hover:bg-teal-50 hover:text-teal-700 transition-colors"
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-ink hover:bg-teal-50 hover:text-teal-700 transition-colors"
                     >
-                      <LayoutDashboardIcon className="h-4 w-4 text-teal-600" />
+                      <LayoutDashboardIcon className="h-4.5 w-4.5 text-teal-600" />
                       {getRoleDisplayName()} Dashboard
                     </Link>
                   </div>
-                  <div className="border-t border-teal-50 pt-1">
+                  <div className="border-t border-teal-50 pt-1.5">
                     <button
                       type="button"
                       onClick={() => {
                         setUserDropdownOpen(false);
                         logout();
                       }}
-                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50 transition-colors"
                     >
-                      <LogOutIcon className="h-4 w-4 text-rose-500" />
+                      <LogOutIcon className="h-4.5 w-4.5 text-rose-500" />
                       Sign Out
                     </button>
                   </div>
@@ -128,13 +128,13 @@ export function Navbar() {
             <>
               <Link
                 href="/login"
-                className="rounded-full px-4 py-2.5 text-sm font-semibold text-ink transition-colors hover:bg-teal-50 hover:text-teal-700"
+                className="rounded-full px-5 py-2.5 text-base font-semibold text-ink transition-colors hover:bg-teal-50 hover:text-teal-700"
               >
                 Login
               </Link>
               <Link
                 href="/signup"
-                className="rounded-full bg-teal-600 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition-colors hover:bg-teal-700"
+                className="rounded-full bg-teal-600 px-6 py-2.5 text-base font-bold text-white shadow-md shadow-teal-600/20 transition-colors hover:bg-teal-700"
               >
                 Signup
               </Link>
@@ -144,9 +144,9 @@ export function Navbar() {
           {isAuthenticated && (
             <Link
               href={getDashboardPath()}
-              className="inline-flex items-center gap-1.5 rounded-full bg-teal-600 px-4 py-2 text-xs font-semibold text-white shadow-card hover:bg-teal-700 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full bg-teal-600 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-teal-600/20 hover:bg-teal-700 transition-colors"
             >
-              <LayoutDashboardIcon className="h-3.5 w-3.5" />
+              <LayoutDashboardIcon className="h-4 w-4" />
               Dashboard
             </Link>
           )}

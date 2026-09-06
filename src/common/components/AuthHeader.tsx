@@ -90,22 +90,22 @@ export function AuthHeader({ currentRole }: { currentRole?: Role }) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-md transition-colors shadow-xs">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-[1536px] items-center justify-between px-6 lg:px-12">
         {/* Left: Brand + Verified Role Badge */}
         <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2 transition hover:opacity-90">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600 text-white shadow-sm">
-              <Stethoscope className="h-4 w-4" />
+          <Link href="/" className="flex items-center gap-2.5 transition hover:opacity-90">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-600 text-white shadow-sm">
+              <Stethoscope className="h-5 w-5" />
             </div>
-            <span className="font-bold text-sm text-slate-900 tracking-tight">MedCare</span>
+            <span className="font-bold text-base text-slate-900 tracking-tight">MedCare</span>
           </Link>
 
-          <div className="h-4 w-[1px] bg-slate-200" />
+          <div className="h-5 w-[1px] bg-slate-200" />
 
           <div
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${meta.bg} ${meta.color} border ${meta.border}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs sm:text-sm font-semibold ${meta.bg} ${meta.color} border ${meta.border}`}
           >
-            <RoleIcon className="h-3 w-3" />
+            <RoleIcon className="h-3.5 w-3.5" />
             <span>{meta.label} Portal</span>
           </div>
         </div>

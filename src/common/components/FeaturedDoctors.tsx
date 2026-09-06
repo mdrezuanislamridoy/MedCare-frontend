@@ -102,7 +102,7 @@ export function FeaturedDoctors({
 
   return (
     <section id="doctors" className="bg-canvas py-20 lg:py-24 scroll-mt-12">
-      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="mx-auto max-w-[1536px] px-6 lg:px-12">
         <SectionHeading
           align="left"
           eyebrow="Find a Doctor"
@@ -113,7 +113,7 @@ export function FeaturedDoctors({
         {/* Dynamic Controls Bar */}
         <div className="mt-8 space-y-4">
           {/* Specialty Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+          <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
             {specialtiesList.map((spec) => {
               const isActive = (selectedSpecialty || 'All').toLowerCase() === spec.toLowerCase();
               return (
@@ -121,13 +121,13 @@ export function FeaturedDoctors({
                   key={spec}
                   type="button"
                   onClick={() => handleSpecialtyClick(spec)}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all ${
+                  className={`inline-flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-all ${
                     isActive
                       ? 'bg-teal-600 text-white shadow-sm'
-                      : 'border border-teal-100 bg-white text-ink-soft hover:border-teal-200 hover:bg-teal-50/50'
+                      : 'border border-teal-100 bg-white text-ink-soft hover:border-teal-200 hover:bg-teal-50/50 shadow-2xs'
                   }`}
                 >
-                  {isActive && <CheckIcon className="h-3.5 w-3.5" />}
+                  {isActive && <CheckIcon className="h-4 w-4" />}
                   {spec}
                 </button>
               );

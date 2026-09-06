@@ -25,7 +25,7 @@ export function ClinicsSection({
 
   return (
     <section id="clinics" className="bg-canvas py-20 lg:py-24 scroll-mt-12">
-      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="mx-auto max-w-[1536px] px-6 lg:px-12">
         <SectionHeading
           eyebrow="Clinics"
           title="Accredited clinics and hospitals near you"

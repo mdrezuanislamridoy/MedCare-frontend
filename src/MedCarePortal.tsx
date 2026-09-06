@@ -135,14 +135,14 @@ export function Shell({
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900">
       <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-md shadow-xs">
-        <div className="mx-auto flex h-16 max-w-7xl items-center gap-3 px-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2.5 transition hover:opacity-90">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-600 shadow-sm text-white">
+        <div className="mx-auto flex h-16 max-w-[1536px] items-center gap-4 px-6 lg:px-12">
+          <Link href="/" className="flex items-center gap-3 transition hover:opacity-90">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-600 shadow-sm text-white">
               <Stethoscope className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-sm font-bold tracking-tight text-slate-900">MedCare</div>
-              <div className="text-[11px] font-medium text-teal-700">Unified Healthcare Platform</div>
+              <div className="text-base font-bold tracking-tight text-slate-900">MedCare</div>
+              <div className="text-xs font-semibold text-teal-700">Unified Healthcare Platform</div>
             </div>
           </Link>
 
@@ -152,37 +152,37 @@ export function Shell({
             <div className="flex items-center gap-3">
               <Link
                 href={getRoleRoute(role)}
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-semibold text-teal-800 transition hover:bg-teal-100"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-teal-200 bg-teal-50 px-3.5 py-2 text-xs font-bold text-teal-800 transition hover:bg-teal-100"
               >
                 <Sparkles className="h-3.5 w-3.5 text-teal-600" />
                 <span>Workspace ({roleLabel(role)})</span>
               </Link>
               <div className="hidden text-right sm:block">
                 <div className="text-xs font-semibold text-slate-900">{user.name || user.email}</div>
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-teal-700">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-teal-700">
                   {roleLabel(role)}
                 </div>
               </div>
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-red-50 hover:text-red-700 hover:border-red-200"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-medium text-slate-700 transition hover:bg-red-50 hover:text-red-700 hover:border-red-200"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 Sign out
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <Link
                 href="/login"
-                className="rounded-lg px-3.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
+                className="rounded-lg px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-slate-900"
               >
                 Login
               </Link>
               <Link
                 href="/signup"
-                className="rounded-lg bg-teal-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-teal-700"
+                className="rounded-lg bg-teal-600 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-teal-700"
               >
                 Sign up
               </Link>
@@ -251,7 +251,7 @@ function LoginPageContent() {
 
   return (
     <Shell>
-      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[1.1fr_450px] lg:items-center">
+      <section className="mx-auto grid min-h-[calc(100vh-4rem)] max-w-[1400px] gap-12 px-6 py-12 lg:grid-cols-[1.1fr_470px] lg:items-center">
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-teal-700 ring-1 ring-teal-200">
             <ShieldCheck className="h-3.5 w-3.5" /> Verified Access Control
