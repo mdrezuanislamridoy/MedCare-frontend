@@ -3,10 +3,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { StarIcon, QuoteIcon, CheckCircle2Icon } from 'lucide-react';
-import { testimonials } from '../data/testimonials';
+import { testimonials as defaultTestimonials, Testimonial } from '../data/testimonials';
 import { SectionHeading } from './SectionHeading';
 
-export function Testimonials() {
+interface TestimonialsProps {
+  testimonials?: Testimonial[];
+}
+
+export function Testimonials({ testimonials = defaultTestimonials }: TestimonialsProps) {
   const [filterRating, setFilterRating] = useState<number | null>(null);
 
   const filtered = filterRating

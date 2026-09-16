@@ -17,11 +17,15 @@ import { Footer } from './components/Footer';
 import { DoctorBookingModal } from './components/DoctorBookingModal';
 import { Doctor } from './data/doctors';
 import { Clinic } from './data/clinics';
+import { Specialty } from './data/specialties';
+import { Testimonial } from './data/testimonials';
 import { landingService, LandingStats, defaultStats } from './services/landing.service';
 
 export function App() {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [clinics, setClinics] = useState<Clinic[]>([]);
+  const [specialties, setSpecialties] = useState<Specialty[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [stats, setStats] = useState<LandingStats>(defaultStats);
   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -34,6 +38,8 @@ export function App() {
       if (mounted) {
         if (data.doctors) setDoctors(data.doctors);
         if (data.clinics) setClinics(data.clinics);
+        if (data.specialties) setSpecialties(data.specialties);
+        if (data.testimonials) setTestimonials(data.testimonials);
         if (data.stats) setStats(data.stats);
       }
     });
@@ -95,7 +101,7 @@ export function App() {
           stats={stats}
         />
         <TrustSection stats={stats} />
-        <SpecialtiesSection onSelectSpecialty={handleSpecialtySelect} />
+        <SpecialtiesSection specialties={specialties} onSelectSpecialty={handleSpecialtySelect} />
         <FeaturedDoctors
           doctors={doctors}
           selectedSpecialty={selectedSpecialty}
@@ -109,7 +115,7 @@ export function App() {
           onViewClinicDoctors={handleViewClinicDoctors}
         />
         <OnlineConsultation onStartOnlineConsult={handleStartOnlineConsult} />
-        <Testimonials />
+        <Testimonials testimonials={testimonials} />
         <ForProviders />
         <FaqSection />
         <FinalCta />
