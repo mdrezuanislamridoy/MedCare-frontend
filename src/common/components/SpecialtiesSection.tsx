@@ -15,7 +15,7 @@ import {
   ChevronDownIcon,
   ChevronUpIcon,
 } from "lucide-react";
-import { specialties } from "../data/specialties";
+import { specialties as defaultSpecialties, Specialty } from "../data/specialties";
 import { SectionHeading } from "./SectionHeading";
 
 const iconMap: Record<string, typeof BoxIcon> = {
@@ -30,10 +30,11 @@ const iconMap: Record<string, typeof BoxIcon> = {
 };
 
 interface SpecialtiesSectionProps {
+  specialties?: Specialty[];
   onSelectSpecialty?: (specialty: string) => void;
 }
 
-export function SpecialtiesSection({ onSelectSpecialty }: SpecialtiesSectionProps) {
+export function SpecialtiesSection({ specialties = defaultSpecialties, onSelectSpecialty }: SpecialtiesSectionProps) {
   const [showAll, setShowAll] = useState(false);
 
   const handleCardClick = (specialtyName: string) => {
